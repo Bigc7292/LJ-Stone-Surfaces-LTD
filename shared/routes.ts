@@ -46,6 +46,46 @@ export const api = {
       },
     },
   },
+  ai: {
+    consultant: {
+      method: 'POST' as const,
+      path: '/api/ai/consultant',
+      input: z.object({
+        text: z.string().optional(),
+        image: z.string().optional(), // base64
+      }),
+      responses: {
+        200: z.object({
+          recommendation: z.string(),
+          brief: z.string(),
+        }),
+      },
+    },
+    visualize: {
+      method: 'POST' as const,
+      path: '/api/ai/visualize',
+      input: z.object({
+        description: z.string(),
+      }),
+      responses: {
+        200: z.object({
+          imageUrl: z.string(),
+        }),
+      },
+    },
+    tts: {
+      method: 'POST' as const,
+      path: '/api/ai/tts',
+      input: z.object({
+        text: z.string(),
+      }),
+      responses: {
+        200: z.object({
+          audioBase64: z.string(),
+        }),
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
