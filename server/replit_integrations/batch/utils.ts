@@ -91,13 +91,11 @@ export async function batchProcess<T, R>(
             completed++;
             onProgress?.(completed, items.length, item);
             return result;
-          } catch (error: unknown) {
+          } catch (error: any) {
             if (isRateLimitError(error)) {
               throw error;
             }
-            throw new pRetry.AbortError(
-              error instanceof Error ? error : new Error(String(error))
-            );
+            throw error;
           }
         },
         { retries, minTimeout, maxTimeout, factor: 2 }
@@ -136,9 +134,7 @@ export async function batchProcessWithSSE<T, R>(
         factor: 2,
         onFailedAttempt: (error) => {
           if (!isRateLimitError(error)) {
-            throw new pRetry.AbortError(
-              error instanceof Error ? error : new Error(String(error))
-            );
+            throw error;
           }
         },
       });
