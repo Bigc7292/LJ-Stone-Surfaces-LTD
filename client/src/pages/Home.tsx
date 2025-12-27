@@ -25,7 +25,7 @@ export default function Home() {
         {/* luxury black marble texture */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://pixabay.com/get/g8943bcb9c90f86abb9567823fa90b13aca4b588f35831d16890734a11d12faddfd5934a9d873e335c6636488eac0f6ee9686fedd4caeb6d37c3e334643afd6aa_1280.jpg" 
+            src="https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&q=80&w=1280" 
             alt="Dark Marble Background" 
             className="w-full h-full object-cover opacity-60"
           />
@@ -96,7 +96,7 @@ export default function Home() {
               <div className="absolute inset-4 border border-primary/20 z-10 translate-x-4 translate-y-4" />
               {/* White marble slab */}
               <img 
-                src="https://pixabay.com/get/gcb241fadaedeb21ca8b096cd2d9470083244a0e6fd9ccce4fed387df62e53404f3a91a24fc0c8a464b0dfc586279bda60eda23c8c0016149083d53c619bed079_1280.jpg" 
+                src="https://images.unsplash.com/photo-1628592102751-ba83b0314276?auto=format&fit=crop&q=80&w=1280" 
                 alt="White Marble Slab" 
                 className="w-full h-full object-cover relative z-0 grayscale-[20%]"
               />

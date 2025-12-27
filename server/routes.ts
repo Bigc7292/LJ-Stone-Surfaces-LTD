@@ -15,6 +15,9 @@ export async function registerRoutes(
   app.post("/api/ai/re-imager", async (req, res) => {
     try {
       const { image, stoneType } = req.body;
+      if (!image) {
+        return res.status(400).json({ message: "Image is required" });
+      }
       const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
       
       const prompt = `VISIONARY TASK: Analyze this room photo. Identify the existing countertops. 
