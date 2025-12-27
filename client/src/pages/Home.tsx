@@ -2,6 +2,8 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ProductCard } from "@/components/ProductCard";
+import { VisionaryReImager } from "@/components/VisionaryReImager";
+import { StoneConcierge } from "@/components/StoneConcierge";
 import { useProducts } from "@/hooks/use-products";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
@@ -44,7 +46,7 @@ export default function Home() {
               Set in Stone
             </h1>
             <p className="max-w-xl mx-auto text-muted-foreground text-lg mb-10 leading-relaxed font-light">
-              Discover our curated collection of exotic marbles, quartzites, and semi-precious stones sourced from the world's finest quarries.
+              Experience the future of design with our <span className="text-primary">Visionary Re-Imager</span>. Upload a photo and see exotic stones in your space instantly.
             </p>
             <div className="flex flex-col md:flex-row gap-4 justify-center">
               <Link href="/portfolio">
@@ -52,14 +54,32 @@ export default function Home() {
                   View Collection
                 </button>
               </Link>
-              <Link href="/contact">
-                <button className="px-8 py-4 border border-white/20 hover:border-primary hover:text-primary transition-colors uppercase tracking-widest text-sm font-bold">
-                  Contact Us
-                </button>
-              </Link>
+              <button 
+                onClick={() => document.getElementById('ai-tools')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 border border-white/20 hover:border-primary hover:text-primary transition-colors uppercase tracking-widest text-sm font-bold"
+              >
+                Try AI Designer
+              </button>
             </div>
           </motion.div>
         </div>
+      </section>
+
+      {/* AI Tools Section */}
+      <section id="ai-tools" className="py-24 bg-background relative overflow-hidden">
+        <div className="container mx-auto px-6 relative z-10">
+          <SectionHeading 
+            subtitle="AI Innovations" 
+            title="Design with Machine Intelligence" 
+          />
+          <div className="space-y-24">
+            <VisionaryReImager />
+            <StoneConcierge />
+          </div>
+        </div>
+        
+        {/* Decorative Background Element */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
       </section>
 
       {/* About Excerpt */}
