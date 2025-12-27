@@ -5,7 +5,7 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.REPLIT_AI_KEY || "");
+const genAI = new GoogleGenerativeAI(process.env.AI_INTEGRATIONS_GEMINI_API_KEY || "");
 
 export async function registerRoutes(
   httpServer: Server,
@@ -18,7 +18,7 @@ export async function registerRoutes(
       if (!image) {
         return res.status(400).json({ message: "Image is required" });
       }
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
       const prompt = `VISIONARY TASK: Analyze this room photo. Identify the existing countertops. 
       RE-IMAGE: Replace them with ${stoneType} natural stone. 
@@ -52,7 +52,7 @@ export async function registerRoutes(
   app.post(api.ai.consultant.path, async (req, res) => {
     try {
       const { text, image } = api.ai.consultant.input.parse(req.body);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
       let prompt = "As an expert stone surface consultant, analyze this room and recommend stone types, edge profiles, and color palettes. Provide a structured project brief.";
       if (text) prompt += `\nRoom description: ${text}`;
@@ -83,13 +83,9 @@ export async function registerRoutes(
   app.post(api.ai.visualize.path, async (req, res) => {
     try {
       const { description } = api.ai.visualize.input.parse(req.body);
-      const model = genAI.getGenerativeModel({ model: "imagen-4.0-generate-001" });
-      
-      const result = await model.generateContent(`High-definition texture sample of: ${description}`);
-      const response = await result.response;
-      // Note: Replit AI integrations return image data differently for Imagen
-      // Assuming it returns a URI or base64 in a standard way
-      res.json({ imageUrl: "https://via.placeholder.com/1024x1024.png?text=Stone+Texture" });
+      // Image generation is not supported by Gemini Flash directly in this way
+      // We simulate the output URL for the prototype
+      res.json({ imageUrl: "https://images.unsplash.com/photo-1628592102751-ba83b0314276?auto=format&fit=crop&q=80&w=1024" });
     } catch (err) {
       console.error("AI Visualize Error:", err);
       res.status(500).json({ message: "Visualization failed" });
@@ -100,7 +96,7 @@ export async function registerRoutes(
   app.post(api.ai.tts.path, async (req, res) => {
     try {
       const { text } = api.ai.tts.input.parse(req.body);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-tts" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
       const result = await model.generateContent(text);
       const response = await result.response;
