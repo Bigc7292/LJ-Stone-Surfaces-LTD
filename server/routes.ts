@@ -11,15 +11,17 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // AI Re-Imager (Inpainting/Generative)
+  // AI Re-Imager (Visionary) - Generative Inpainting simulation
   app.post("/api/ai/re-imager", async (req, res) => {
     try {
       const { image, stoneType } = req.body;
       const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
       
-      const prompt = `As an expert interior designer, re-imagine this kitchen by replacing the existing countertops with ${stoneType}. 
-      Ensure the new surfaces match the lighting, shadows, and perspective of the original photo perfectly. 
-      Maintain the rest of the room exactly as is.`;
+      const prompt = `VISIONARY TASK: Analyze this room photo. Identify the existing countertops. 
+      RE-IMAGE: Replace them with ${stoneType} natural stone. 
+      LIGHTING: Match the specific shadows and ambient light from the original photo. 
+      PERSPECTIVE: Maintain perfect architectural alignment. 
+      OUTPUT: High-definition re-imagined room state.`;
       
       const parts: any[] = [
         { text: prompt },
@@ -44,6 +46,7 @@ export async function registerRoutes(
   });
 
   // AI Stone Concierge (Voice & Text)
+  app.post(api.ai.consultant.path, async (req, res) => {
     try {
       const { text, image } = api.ai.consultant.input.parse(req.body);
       const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
