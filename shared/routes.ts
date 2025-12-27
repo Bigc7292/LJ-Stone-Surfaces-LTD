@@ -85,6 +85,19 @@ export const api = {
         }),
       },
     },
+    reImager: {
+      method: 'POST' as const,
+      path: '/api/ai/re-imager',
+      input: z.object({
+        image: z.string(),
+        stoneType: z.string(),
+      }),
+      responses: {
+        200: z.object({
+          imageUrl: z.string(),
+        }),
+      },
+    },
   },
 };
 

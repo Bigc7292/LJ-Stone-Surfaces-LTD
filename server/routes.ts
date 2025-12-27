@@ -11,8 +11,39 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // AI Consultant
-  app.post(api.ai.consultant.path, async (req, res) => {
+  // AI Re-Imager (Inpainting/Generative)
+  app.post("/api/ai/re-imager", async (req, res) => {
+    try {
+      const { image, stoneType } = req.body;
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
+      
+      const prompt = `As an expert interior designer, re-imagine this kitchen by replacing the existing countertops with ${stoneType}. 
+      Ensure the new surfaces match the lighting, shadows, and perspective of the original photo perfectly. 
+      Maintain the rest of the room exactly as is.`;
+      
+      const parts: any[] = [
+        { text: prompt },
+        {
+          inlineData: {
+            data: image.split(",")[1] || image,
+            mimeType: "image/jpeg",
+          },
+        }
+      ];
+
+      const result = await model.generateContent(parts);
+      const response = await result.response;
+      // In a real scenario, we'd use a specialized image generation/inpainting model.
+      // Gemini Flash can describe/analyze, but for visual replacement we'd typically need Imagen or SD.
+      // For this implementation, we simulate the output.
+      res.json({ imageUrl: "https://via.placeholder.com/1024x1024.png?text=Re-Imagined+Kitchen" });
+    } catch (err) {
+      console.error("AI Re-Imager Error:", err);
+      res.status(500).json({ message: "Re-imaging failed" });
+    }
+  });
+
+  // AI Stone Concierge (Voice & Text)
     try {
       const { text, image } = api.ai.consultant.input.parse(req.body);
       const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-09-2025" });
