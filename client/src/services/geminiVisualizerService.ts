@@ -1,11 +1,9 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { Marker } from '@/types/visualizer';
 
-// Declare puter as a global (loaded via script tag in index.html)
-declare const puter: {
-    ai: {
-        chat: (prompt: string | any[], options?: { model?: string; stream?: boolean }) => Promise<string | AsyncIterable<{ text?: string }>>;
-    };
-};
+// Get API key from Vite environment
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const MODEL_NAME = 'gemini-2.0-flash-exp';
 
 export class ArchitecturalEngineError extends Error {
     constructor(public code: 'QUOTA' | 'REFUSAL' | 'NETWORK' | 'UNKNOWN', message: string) {
@@ -15,43 +13,43 @@ export class ArchitecturalEngineError extends Error {
 }
 
 /**
- * Check if Puter.js is available
+ * Helper function for retrying API calls
  */
-const waitForPuter = (): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        if (typeof puter !== 'undefined') {
-            resolve();
-            return;
-        }
+const fetchWithRetry = async <T>(
+    operation: () => Promise<T>,
+    maxRetries = 3,
+    baseDelay = 1000
+): Promise<T> => {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+            return await operation();
+        } catch (error: any) {
+            const isRateLimit = error.message?.includes('429') || error.message?.includes('quota');
+            const isLastAttempt = attempt === maxRetries - 1;
 
-        // Wait up to 5 seconds for Puter to load
-        let attempts = 0;
-        const check = setInterval(() => {
-            attempts++;
-            if (typeof puter !== 'undefined') {
-                clearInterval(check);
-                resolve();
-            } else if (attempts > 50) {
-                clearInterval(check);
-                reject(new ArchitecturalEngineError('NETWORK', 'Puter.js failed to load'));
+            if (isLastAttempt || !isRateLimit) {
+                throw error;
             }
-        }, 100);
-    });
+
+            const delay = baseDelay * Math.pow(2, attempt);
+            console.log(`Rate limited, retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    throw new Error('Max retries exceeded');
 };
 
 /**
- * Generate a material swatch image using Puter.js (FREE Gemini access)
- * Note: This requires Gemini image generation which may not be available via Puter
- * For now, we'll use static images - this function is kept for potential future use
+ * Generate a material swatch image
+ * Note: Using static swatches instead - this is kept for potential future use
  */
 export const generateMaterialSwatch = async (materialName: string, texture: string): Promise<string> => {
-    // Note: Puter.js may not support image generation output yet
     // We're using static swatches defined in visualizerConstants.ts instead
     throw new ArchitecturalEngineError('REFUSAL', 'Using static swatches instead of AI generation');
 };
 
 /**
- * Visualize stone replacement using Puter.js FREE Gemini API
+ * Visualize stone replacement using Gemini API
  */
 export const visualizeStone = async (
     originalImageBase64: string,
@@ -59,7 +57,12 @@ export const visualizeStone = async (
     material: string,
     color: string
 ): Promise<string> => {
-    await waitForPuter();
+    if (!API_KEY) {
+        throw new ArchitecturalEngineError('NETWORK', 'Gemini API key not configured. Please set VITE_GEMINI_API_KEY in your .env file.');
+    }
+
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
     const base64Data = originalImageBase64.split(',')[1] || originalImageBase64;
     const mimeType = originalImageBase64.includes('image/png') ? 'image/png' : 'image/jpeg';
@@ -86,57 +89,79 @@ export const visualizeStone = async (
   `;
 
     try {
-        // Use Puter.js with Gemini for image understanding + generation
-        // We need to pass the image as a data URL
-        const imageDataUrl = `data:${mimeType};base64,${base64Data}`;
-
-        const response = await puter.ai.chat([
-            { type: 'text', text: prompt },
-            { type: 'image', url: imageDataUrl }
-        ], {
-            model: 'gemini-2.0-flash'  // Using gemini-2.0-flash for image understanding
+        const result = await fetchWithRetry(async () => {
+            return await model.generateContent([
+                { text: prompt },
+                {
+                    inlineData: {
+                        mimeType,
+                        data: base64Data,
+                    },
+                },
+            ]);
         });
 
-        // Check if response contains image data
-        if (typeof response === 'string') {
-            // If response is text and contains base64 image data
-            const base64Match = response.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/);
-            if (base64Match) {
-                return base64Match[0];
-            }
+        const response = result.response;
+        const candidates = response.candidates;
 
-            // Puter may not support image output - throw informative error
-            throw new ArchitecturalEngineError('REFUSAL',
-                'Image generation not available. The AI analyzed your image but cannot generate modified images through Puter.js. ' +
-                'Consider using a direct Gemini API key when your rate limits reset.');
+        if (!candidates || candidates.length === 0) {
+            throw new ArchitecturalEngineError('REFUSAL', 'No response from AI model.');
         }
 
-        throw new ArchitecturalEngineError('UNKNOWN', 'Unexpected response format from AI service.');
+        const parts = candidates[0].content?.parts;
+        if (!parts || parts.length === 0) {
+            throw new ArchitecturalEngineError('REFUSAL', 'Empty response from AI model.');
+        }
+
+        // Look for image data in the response
+        for (const part of parts) {
+            if (part.inlineData?.data) {
+                const imgMime = part.inlineData.mimeType || 'image/png';
+                return `data:${imgMime};base64,${part.inlineData.data}`;
+            }
+        }
+
+        // If no image, check for text (might be a refusal or error)
+        const textPart = parts.find(p => p.text);
+        if (textPart?.text) {
+            throw new ArchitecturalEngineError('REFUSAL', `AI returned text instead of image: ${textPart.text.slice(0, 200)}`);
+        }
+
+        throw new ArchitecturalEngineError('UNKNOWN', 'Unexpected response format from AI model.');
 
     } catch (error: any) {
         if (error instanceof ArchitecturalEngineError) throw error;
 
-        if (error.message?.includes('rate') || error.message?.includes('limit')) {
-            throw new ArchitecturalEngineError('QUOTA', 'Rate limit reached. Please try again later.');
+        if (error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('rate')) {
+            throw new ArchitecturalEngineError('QUOTA', 'API rate limit reached. Please try again later or use a different API key.');
         }
 
-        throw new ArchitecturalEngineError('NETWORK', `AI service error: ${error.message || 'Unknown error'}`);
+        if (error.message?.includes('network') || error.message?.includes('fetch')) {
+            throw new ArchitecturalEngineError('NETWORK', `Network error: ${error.message}`);
+        }
+
+        throw new ArchitecturalEngineError('UNKNOWN', `AI service error: ${error.message || 'Unknown error'}`);
     }
 };
 
 /**
- * Simple text chat with Gemini via Puter.js (for testing)
+ * Test the Gemini API connection
  */
-export const testPuterConnection = async (): Promise<string> => {
-    await waitForPuter();
+export const testGeminiConnection = async (): Promise<string> => {
+    if (!API_KEY) {
+        throw new ArchitecturalEngineError('NETWORK', 'API key not configured');
+    }
+
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
     try {
-        const response = await puter.ai.chat('Say hello in one word', {
-            model: 'gemini-2.0-flash'
-        });
-
-        return typeof response === 'string' ? response : 'Connected successfully';
+        const result = await model.generateContent('Say hello in one word');
+        return result.response.text() || 'Connected';
     } catch (error: any) {
+        if (error.message?.includes('429')) {
+            throw new ArchitecturalEngineError('QUOTA', 'Rate limited - quota will reset soon');
+        }
         throw new ArchitecturalEngineError('NETWORK', `Connection test failed: ${error.message}`);
     }
 };
