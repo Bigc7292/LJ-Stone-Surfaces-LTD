@@ -58,33 +58,12 @@ const ComparisonSlider: React.FC<{
     );
 };
 
-// Material Option Item Component
+// Material Option Item Component - Uses static swatch images
 const MaterialOptionItem: React.FC<{
     material: MaterialOption;
     isSelected: boolean;
     onSelect: (m: MaterialOption) => void;
 }> = ({ material, isSelected, onSelect }) => {
-    const [swatch, setSwatch] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [errorType, setErrorType] = useState<'QUOTA' | 'OTHER' | null>(null);
-
-    const fetchSwatch = async () => {
-        setLoading(true);
-        setErrorType(null);
-        try {
-            const res = await generateMaterialSwatch(material.name, material.texture);
-            setSwatch(res);
-        } catch (err: any) {
-            setErrorType(err.code === 'QUOTA' ? 'QUOTA' : 'OTHER');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchSwatch();
-    }, [material]);
-
     return (
         <button
             onClick={() => onSelect(material)}
@@ -102,25 +81,20 @@ const MaterialOptionItem: React.FC<{
             </div>
 
             <div className="w-32 md:w-40 shrink-0 border-l border-slate-700/50 bg-slate-900/50 relative overflow-hidden flex items-center justify-center">
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                        <div className="w-4 h-4 border-t-amber-500 border-2 rounded-full animate-spin" />
-                    </div>
-                ) : errorType ? (
-                    <div className="text-center p-2 opacity-40 group hover:opacity-100 transition-opacity">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mx-auto mb-1 text-amber-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                {material.swatchUrl ? (
+                    <img src={material.swatchUrl} alt={material.name} className="w-full h-full object-cover" />
+                ) : (
+                    <div className="text-center p-2 opacity-40">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="text-[7px] font-black uppercase tracking-tighter block">{errorType === 'QUOTA' ? 'Rate Limit' : 'Error'}</span>
-                        <button onClick={(e) => { e.stopPropagation(); fetchSwatch(); }} className="text-[7px] underline mt-1 text-amber-500">Retry</button>
                     </div>
-                ) : swatch ? (
-                    <img src={swatch} alt={material.name} className="w-full h-full object-cover" />
-                ) : null}
+                )}
             </div>
         </button>
     );
 };
+
 
 // Workspace Marker Component
 const WorkspaceMarker: React.FC<{
@@ -177,6 +151,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
     const labelInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -196,11 +171,15 @@ export const LuxeStoneVisualizer: React.FC = () => {
     };
 
     const containerToPercent = (clientX: number, clientY: number) => {
-        if (!containerRef.current) return { x: 0, y: 0 };
-        const rect = containerRef.current.getBoundingClientRect();
-        const ix = (clientX - rect.left - pan.x) / zoom;
-        const iy = (clientY - rect.top - pan.y) / zoom;
-        return { x: (ix / rect.width) * 100, y: (iy / rect.height) * 100 };
+        // Use image element for accurate position calculation
+        const imageEl = imageRef.current;
+        if (!imageEl) return { x: -1, y: -1 };
+
+        const rect = imageEl.getBoundingClientRect();
+        // Calculate position as percentage of the image
+        const x = ((clientX - rect.left) / rect.width) * 100;
+        const y = ((clientY - rect.top) / rect.height) * 100;
+        return { x, y };
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -344,10 +323,22 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
                             {(step === 'MARK' || step === 'CONFIGURE') && originalImage && (
                                 <div
-                                    className="relative w-full h-full select-none cursor-crosshair transition-transform duration-75 ease-out"
-                                    style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
+                                    className="relative w-full select-none cursor-crosshair"
                                 >
-                                    <img src={originalImage} alt="Workspace" className="w-full h-auto block pointer-events-none" />
+                                    <img
+                                        ref={imageRef}
+                                        src={originalImage}
+                                        alt="Workspace"
+                                        className="w-full h-auto block cursor-crosshair"
+                                        onClick={(e) => {
+                                            if (step === 'MARK' && !pendingMarker) {
+                                                const pos = containerToPercent(e.clientX, e.clientY);
+                                                if (pos.x >= 0 && pos.x <= 100 && pos.y >= 0 && pos.y <= 100) {
+                                                    setPendingMarker(pos);
+                                                }
+                                            }
+                                        }}
+                                    />
                                     {markers.map((m, i) => <WorkspaceMarker key={i} marker={m} index={i} zoom={zoom} onRemove={(idx) => setMarkers(prev => prev.filter((_, mi) => mi !== idx))} />)}
 
                                     {pendingMarker && (

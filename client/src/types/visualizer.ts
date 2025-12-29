@@ -10,6 +10,7 @@ export interface MaterialOption {
     name: string;
     description: string;
     texture: string;
+    swatchUrl?: string;
 }
 
 export interface ColorOption {
