@@ -98,6 +98,22 @@ export const api = {
         }),
       },
     },
+    chat: {
+      method: 'POST' as const,
+      path: '/api/ai/chat',
+      input: z.object({
+        message: z.string(),
+        history: z.array(z.object({
+          role: z.enum(['user', 'model']),
+          content: z.string(),
+        })).optional(),
+      }),
+      responses: {
+        200: z.object({
+          response: z.string(),
+        }),
+      },
+    },
   },
 };
 

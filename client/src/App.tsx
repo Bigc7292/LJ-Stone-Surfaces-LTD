@@ -9,6 +9,7 @@ import Portfolio from "@/pages/Portfolio";
 import ProductDetail from "@/pages/ProductDetail";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import { ChatBot } from "@/components/ChatBot";
 
 function Router() {
   return (
@@ -29,6 +30,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <ChatBot />
       </TooltipProvider>
     </QueryClientProvider>
   );

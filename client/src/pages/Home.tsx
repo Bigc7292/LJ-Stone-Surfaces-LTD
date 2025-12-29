@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ProductCard } from "@/components/ProductCard";
-import { VisionaryReImager } from "@/components/VisionaryReImager";
+import { LuxeStoneVisualizer } from "@/components/LuxeStoneVisualizer";
 import { StoneConcierge } from "@/components/StoneConcierge";
 import { useProducts } from "@/hooks/use-products";
 import { motion } from "framer-motion";
@@ -11,7 +11,7 @@ import { ArrowRight, Star } from "lucide-react";
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
-  
+
   // Featured products only
   const featuredProducts = products?.filter(p => p.isFeatured).slice(0, 3) || [];
 
@@ -24,9 +24,9 @@ export default function Home() {
         {/* Background Image - Luxurious Marble Texture */}
         {/* luxury black marble texture */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&q=80&w=1280" 
-            alt="Dark Marble Background" 
+          <img
+            src="https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&q=80&w=1280"
+            alt="Dark Marble Background"
             className="w-full h-full object-cover opacity-60"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-transparent to-background" />
@@ -54,7 +54,7 @@ export default function Home() {
                   View Collection
                 </button>
               </Link>
-              <button 
+              <button
                 onClick={() => document.getElementById('ai-tools')?.scrollIntoView({ behavior: 'smooth' })}
                 className="px-8 py-4 border border-white/20 hover:border-primary hover:text-primary transition-colors uppercase tracking-widest text-sm font-bold"
               >
@@ -68,16 +68,16 @@ export default function Home() {
       {/* AI Tools Section */}
       <section id="ai-tools" className="py-24 bg-background relative overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">
-          <SectionHeading 
-            subtitle="AI Innovations" 
-            title="Design with Machine Intelligence" 
+          <SectionHeading
+            subtitle="AI Innovations"
+            title="Design with Machine Intelligence"
           />
           <div className="space-y-24">
-            <VisionaryReImager />
+            <LuxeStoneVisualizer />
             <StoneConcierge />
           </div>
         </div>
-        
+
         {/* Decorative Background Element */}
         <div className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
       </section>
@@ -95,23 +95,23 @@ export default function Home() {
             >
               <div className="absolute inset-4 border border-primary/20 z-10 translate-x-4 translate-y-4" />
               {/* White marble slab */}
-              <img 
-                src="https://images.unsplash.com/photo-1628592102751-ba83b0314276?auto=format&fit=crop&q=80&w=1280" 
-                alt="White Marble Slab" 
+              <img
+                src="https://images.unsplash.com/photo-1628592102751-ba83b0314276?auto=format&fit=crop&q=80&w=1280"
+                alt="White Marble Slab"
                 className="w-full h-full object-cover relative z-0 grayscale-[20%]"
               />
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <SectionHeading 
-                subtitle="The Art of Stone" 
-                title="Crafting Legacy Through Nature's Finest" 
-                align="left" 
+              <SectionHeading
+                subtitle="The Art of Stone"
+                title="Crafting Legacy Through Nature's Finest"
+                align="left"
               />
               <p className="text-muted-foreground leading-loose mb-8 font-light">
                 At LJ Stone Surfaces, we believe that every slab tells a story. From the dramatic veining of Italian marbles to the crystalline depth of Brazilian quartzites, our selection represents the pinnacle of natural beauty. We don't just sell stone; we provide the canvas for your architectural masterpiece.
@@ -130,7 +130,7 @@ export default function Home() {
       <section className="py-24 bg-secondary/30">
         <div className="container mx-auto px-6">
           <SectionHeading subtitle="Curated Selection" title="Featured Materials" />
-          
+
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -144,7 +144,7 @@ export default function Home() {
               ))}
             </div>
           )}
-          
+
           <div className="mt-16 text-center">
             <Link href="/portfolio">
               <button className="px-10 py-4 border border-white/10 hover:border-primary text-foreground hover:text-primary transition-all uppercase tracking-widest text-sm font-semibold">
@@ -164,7 +164,7 @@ export default function Home() {
               { title: "Selection", desc: "Hand-picked slabs ensuring consistent quality and pattern." },
               { title: "Consultation", desc: "Expert guidance to match the perfect stone to your vision." }
             ].map((item, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
