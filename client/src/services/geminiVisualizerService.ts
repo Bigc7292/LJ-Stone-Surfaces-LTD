@@ -89,7 +89,7 @@ export const visualizeStone = async (
   `;
 
     // 1. Log start (captures input before generation)
-    const logId = await startGenerationLog(originalImageBase64, material, prompt);
+    const logId = await startGenerationLog(originalImageBase64, material, prompt, markers);
 
     try {
         const result = await fetchWithRetry(async () => {
@@ -160,7 +160,8 @@ export const visualizeStone = async (
 const startGenerationLog = async (
     originalImage: string,
     material: string,
-    prompt: string
+    prompt: string,
+    markers: Marker[]
 ): Promise<number | null> => {
     try {
         const response = await fetch('/api/ai/log-generation', {
@@ -170,6 +171,12 @@ const startGenerationLog = async (
                 originalImageUrl: originalImage,
                 stoneSelected: material,
                 promptUsed: prompt,
+                markers: markers.map(m => ({
+                    x: m.x,
+                    y: m.y,
+                    label: m.label,
+                    customLabel: m.customLabel
+                }))
             }),
         });
         const data = await response.json();

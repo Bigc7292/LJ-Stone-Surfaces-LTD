@@ -1,4 +1,4 @@
-import { pgTable, text, serial, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -38,6 +38,7 @@ export const visualizerGenerations = pgTable("visualizer_generations", {
   generatedImageUrl: text("generated_image_url"),
   stoneSelected: text("stone_selected").notNull(),
   promptUsed: text("prompt_used"),
+  markers: jsonb("markers"),
   createdAt: text("created_at").default("NOW()"),
 });
 

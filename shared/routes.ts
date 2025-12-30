@@ -106,6 +106,12 @@ export const api = {
         generatedImageUrl: z.string().optional(),
         stoneSelected: z.string(),
         promptUsed: z.string().optional(),
+        markers: z.array(z.object({
+          x: z.number(),
+          y: z.number(),
+          label: z.string(),
+          customLabel: z.string().optional()
+        })).optional()
       }),
       responses: {
         200: z.object({
