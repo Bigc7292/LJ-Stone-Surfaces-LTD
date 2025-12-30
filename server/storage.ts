@@ -42,42 +42,42 @@ export class DatabaseStorage implements IStorage {
           name: "Gray Ice",
           category: "Marble",
           description: "A stunning grey marble with intricate white veining, perfect for modern interiors.",
-          imageUrl: "https://images.unsplash.com/photo-1615800098779-1be8287d6b34?auto=format&fit=crop&q=80&w=800",
+          imageUrl: "/stones/grey-ice-marble.jpg",
           isFeatured: true
         },
         {
           name: "Statuarietto Gioia",
           category: "Marble",
           description: "Classic white marble with bold grey veining, a timeless choice for luxury spaces.",
-          imageUrl: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=800",
+          imageUrl: "/stones/statuarietto-gioia.png",
           isFeatured: true
         },
         {
           name: "Pietra Gray",
           category: "Marble",
           description: "Deep charcoal grey background with striking white streaks.",
-          imageUrl: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=800",
+          imageUrl: "/stones/pietra-gray.png",
           isFeatured: true
         },
         {
           name: "Calacatta Seraphina",
           category: "Quartz",
           description: "Engineered perfection mimicking the finest Italian Calacatta marble.",
-          imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800",
+          imageUrl: "/stones/calacatta-laza-quartz.png",
           isFeatured: true
         },
         {
           name: "Patagonia",
           category: "Quartzite",
           description: "Translucent grey base with beige and gold clusters. Ideal for backlit applications.",
-          imageUrl: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=800",
+          imageUrl: "/stones/patagonia.jpg",
           isFeatured: true
         },
         {
           name: "Belize",
           category: "Quartz",
           description: "Uniform appearance bringing sophistication to kitchens and living spaces.",
-          imageUrl: "https://images.unsplash.com/photo-1550581190-9c1c48d21d6c?auto=format&fit=crop&q=80&w=800",
+          imageUrl: "/stones/colonial-white-granite.png",
           isFeatured: false
         }
       ];

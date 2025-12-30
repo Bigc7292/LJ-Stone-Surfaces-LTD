@@ -1,6 +1,15 @@
 import type { MaterialOption, ColorOption } from '@/types/visualizer';
 
 export const MATERIALS: MaterialOption[] = [
+    // MARBLE
+    {
+        id: 'grey-ice-marble',
+        name: 'Grey Ice Marble',
+        description: 'Stunning grey marble with intricate white veining. Perfect for modern interiors.',
+        texture: 'Marble / Polished',
+        // Local product image
+        swatchUrl: '/stones/grey-ice-marble.jpg'
+    },
     // DEKTON - Sintered Stone
     {
         id: 'dekton-laurent',
@@ -8,7 +17,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Deep brown background with dramatic gold and amber veins. Sophisticated matte finish.',
         texture: 'Sintered Stone / Matte',
         // Brown marble with gold veins
-        swatchUrl: 'https://images.unsplash.com/photo-1618221823987-4ef2a4424a31?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/dekton-laurent.png'
     },
     {
         id: 'dekton-entzo',
@@ -16,7 +25,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Crisp white with realistic, jagged grey and gold marble-style veining.',
         texture: 'Sintered Stone / Matte',
         // White marble with grey veins
-        swatchUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/dekton-entzo.png'
     },
     {
         id: 'dekton-trilium',
@@ -24,7 +33,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Industrial oxidized steel look with deep greys, blacks, and rusted copper tones.',
         texture: 'Sintered Stone / Industrial',
         // Dark industrial concrete/steel texture
-        swatchUrl: 'https://images.unsplash.com/photo-1553969420-fb915228af51?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/dekton-trilium.png'
     },
 
     // EXOTIC GRANITE
@@ -34,7 +43,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Earthy blend of beige, charcoal, and subtle blue-grey flowing patterns.',
         texture: 'Exotic Granite / Natural',
         // Beige/grey granite texture
-        swatchUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/blue-dunes-granite.jpg'
     },
     {
         id: 'titanium-gold',
@@ -42,7 +51,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Intense black base with swirling ribbons of cream, gold, and silver.',
         texture: 'Exotic Granite / Polished',
         // Black granite with gold veins
-        swatchUrl: 'https://images.unsplash.com/photo-1544717684-1243da23b545?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/titanium-gold-granite.jpg'
     },
     {
         id: 'nero-mist',
@@ -50,7 +59,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Moody black with soft, feathery white/grey veins. Best in leathered finish.',
         texture: 'Exotic Granite / Leathered',
         // Black stone with white veins
-        swatchUrl: 'https://images.unsplash.com/photo-1605106702734-205df224ecce?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/nero-mist-granite.jpg'
     },
     {
         id: 'colonial-white',
@@ -58,7 +67,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Bright white with black speckles and occasional burgundy mineral flecks.',
         texture: 'Exotic Granite / Polished',
         // White granite with dark speckles
-        swatchUrl: 'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/colonial-white-granite.png'
     },
 
     // LUXURY QUARTZ & QUARTZITE
@@ -68,7 +77,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Soft creamy beige with subtle, elegant cloud-like veining. The ultimate high-end classic.',
         texture: 'Luxury Quartzite / Polished',
         // Cream/beige marble
-        swatchUrl: 'https://images.unsplash.com/photo-1618221639244-c1a8502c0eb9?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/taj-mahal-quartzite.png'
     },
     {
         id: 'calacatta-laza',
@@ -76,7 +85,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Bright white with bold, thick gold veins for a high-contrast luxury look.',
         texture: 'Premium Quartz / Polished',
         // Calacatta gold marble
-        swatchUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/calacatta-laza-quartz.png'
     },
     {
         id: 'super-white',
@@ -84,7 +93,7 @@ export const MATERIALS: MaterialOption[] = [
         description: 'Icy grey and white with chunky mineral patterns, mimicking expensive marble.',
         texture: 'Luxury Quartzite / Honed',
         // White/grey marble texture
-        swatchUrl: 'https://images.unsplash.com/photo-1615971677499-5467cbab01c0?w=200&h=200&fit=crop&auto=format'
+        swatchUrl: '/stones/super-white-quartzite.png'
     },
 ];
 
