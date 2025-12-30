@@ -188,6 +188,8 @@ export async function registerRoutes(
 
   // Products
   app.get(api.products.list.path, async (req, res) => {
+    // Lazy seed for local dev
+    await storage.seedProducts();
     const category = req.query.category as string | undefined;
     const products = await storage.getProducts(category);
     res.json(products);
