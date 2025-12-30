@@ -9,7 +9,9 @@ import Portfolio from "@/pages/Portfolio";
 import ProductDetail from "@/pages/ProductDetail";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Team from "@/pages/Team";
 import { ChatBot } from "@/components/ChatBot";
+import { WhatsAppWidget } from "@/components/WhatsAppWidget";
 
 function Router() {
   return (
@@ -19,6 +21,7 @@ function Router() {
       <Route path="/portfolio/:id" component={ProductDetail} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route path="/team" component={Team} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -30,6 +33,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <WhatsAppWidget phoneNumber="+44 7727 310537" ownerName="Jack" />
         <ChatBot />
       </TooltipProvider>
     </QueryClientProvider>

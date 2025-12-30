@@ -19,19 +19,19 @@ export function Navigation() {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/portfolio", label: "Material Portfolio" },
-    { href: "/about", label: "About Us" },
+    { href: "/portfolio", label: "Portfolio" },
+    { href: "/team", label: "Our Team" },
+    { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
 
   return (
     <>
       <nav
-        className={`fixed w-full z-50 transition-all duration-300 ${
-          scrolled || isOpen
+        className={`fixed w-full z-50 transition-all duration-300 ${scrolled || isOpen
             ? "bg-background/95 backdrop-blur-md border-b border-white/5 py-4"
             : "bg-transparent py-6"
-        }`}
+          }`}
       >
         <div className="container mx-auto px-6 flex items-center justify-between">
           <Link href="/">
@@ -50,10 +50,9 @@ export function Navigation() {
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
-                <div 
-                  className={`text-sm tracking-widest uppercase cursor-pointer transition-colors duration-200 hover:text-primary ${
-                    location === link.href ? "text-primary font-semibold" : "text-foreground/80"
-                  }`}
+                <div
+                  className={`text-sm tracking-widest uppercase cursor-pointer transition-colors duration-200 hover:text-primary ${location === link.href ? "text-primary font-semibold" : "text-foreground/80"
+                    }`}
                 >
                   {link.label}
                 </div>
@@ -83,11 +82,10 @@ export function Navigation() {
             <div className="flex flex-col gap-6 items-center">
               {navLinks.map((link) => (
                 <Link key={link.href} href={link.href}>
-                  <div 
+                  <div
                     onClick={() => setIsOpen(false)}
-                    className={`text-2xl font-serif cursor-pointer ${
-                      location === link.href ? "text-primary" : "text-foreground"
-                    }`}
+                    className={`text-2xl font-serif cursor-pointer ${location === link.href ? "text-primary" : "text-foreground"
+                      }`}
                   >
                     {link.label}
                   </div>

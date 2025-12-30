@@ -183,24 +183,21 @@ export const LuxeStoneVisualizer: React.FC = () => {
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        if ((step !== 'MARK' && step !== 'CONFIGURE') || pendingMarker) return;
+        // Only handle pan/drag, not marker placement
+        if (step !== 'MARK' && step !== 'CONFIGURE') return;
+        // Don't start drag if clicking on the image directly for marker
+        if ((e.target as HTMLElement).tagName === 'IMG') return;
         setIsDragging(true);
         setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-        setHasMovedDuringClick(false);
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
         if (isDragging) {
             setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
-            setHasMovedDuringClick(true);
         }
     };
 
-    const handleMouseUp = (e: React.MouseEvent) => {
-        if (step === 'MARK' && !hasMovedDuringClick && !pendingMarker) {
-            const pos = containerToPercent(e.clientX, e.clientY);
-            if (pos.x >= 0 && pos.x <= 100 && pos.y >= 0 && pos.y <= 100) setPendingMarker(pos);
-        }
+    const handleMouseUp = () => {
         setIsDragging(false);
     };
 
@@ -331,9 +328,12 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                         alt="Workspace"
                                         className="w-full h-auto block cursor-crosshair"
                                         onClick={(e) => {
+                                            console.log('Image clicked', { step, pendingMarker });
                                             if (step === 'MARK' && !pendingMarker) {
                                                 const pos = containerToPercent(e.clientX, e.clientY);
+                                                console.log('Position calculated:', pos);
                                                 if (pos.x >= 0 && pos.x <= 100 && pos.y >= 0 && pos.y <= 100) {
+                                                    console.log('Setting pending marker');
                                                     setPendingMarker(pos);
                                                 }
                                             }
