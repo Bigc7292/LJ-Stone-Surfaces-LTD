@@ -1,0 +1,28 @@
+[build]
+  # We build locally, so no build command needed
+  # command = "npm run build"
+  # Directory containing the deploy-ready HTML files and static assets
+  publish = "dist/public"
+  # Directory containing serverless functions
+  functions = "netlify/functions"
+
+[functions]
+  # Use esbuild for TypeScript functions
+  node_bundler = "esbuild"
+  # Increase timeout for AI operations (max 26s on free tier)
+  external_node_modules = ["sharp"]
+
+# Redirect all API calls to the serverless function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# SPA fallback - serve index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  NODE_VERSION = "18"

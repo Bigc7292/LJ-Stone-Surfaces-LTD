@@ -88,6 +88,9 @@ export const visualizeStone = async (
     IMPORTANT: Return ONLY the transformed image, no text explanation.
   `;
 
+    // 1. Log start (captures input before generation)
+    const logId = await startGenerationLog(originalImageBase64, material, prompt);
+
     try {
         const result = await fetchWithRetry(async () => {
             return await model.generateContent([
@@ -117,7 +120,14 @@ export const visualizeStone = async (
         for (const part of parts) {
             if (part.inlineData?.data) {
                 const imgMime = part.inlineData.mimeType || 'image/png';
-                return `data:${imgMime};base64,${part.inlineData.data}`;
+                const resultUrl = `data:${imgMime};base64,${part.inlineData.data}`;
+
+                // 2. Log completion (updates with output)
+                if (logId) {
+                    await updateGenerationLog(logId, resultUrl);
+                }
+
+                return resultUrl;
             }
         }
 
@@ -145,9 +155,57 @@ export const visualizeStone = async (
 };
 
 /**
+ * Start logging generation (captures inputs)
+ */
+const startGenerationLog = async (
+    originalImage: string,
+    material: string,
+    prompt: string
+): Promise<number | null> => {
+    try {
+        const response = await fetch('/api/ai/log-generation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                originalImageUrl: originalImage,
+                stoneSelected: material,
+                promptUsed: prompt,
+            }),
+        });
+        const data = await response.json();
+        return data.id || null;
+    } catch (err) {
+        console.warn('Failed to start generation log:', err);
+        return null;
+    }
+};
+
+/**
+ * Complete logging generation (captures output)
+ */
+const updateGenerationLog = async (
+    id: number,
+    generatedImage: string
+) => {
+    try {
+        await fetch('/api/ai/update-generation', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id,
+                generatedImageUrl: generatedImage,
+            }),
+        });
+    } catch (err) {
+        console.warn('Failed to update generation log:', err);
+    }
+};
+
+/**
  * Test the Gemini API connection
  */
 export const testGeminiConnection = async (): Promise<string> => {
+    // ... existing test code ...
     if (!API_KEY) {
         throw new ArchitecturalEngineError('NETWORK', 'API key not configured');
     }

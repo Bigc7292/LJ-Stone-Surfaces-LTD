@@ -105,11 +105,46 @@ export async function registerRoutes(
       }
 
       const response = await AIService.chat(message, history || []);
+
+      // Log the conversation to the database
+      // Generate a simple session ID if not provided (could be improved with robust session handling)
+      const sessionId = req.headers['x-session-id'] as string || `session_${Date.now()}`;
+
+      await storage.createChatLog({
+        sessionId,
+        userMessage: message,
+        aiResponse: response,
+      }).catch(err => console.error("Failed to log chat:", err));
+
       res.json({ response });
     } catch (err: any) {
       console.error("AI Chat Error:", err);
       fileLog(`AI Chat Error: ${err.message}\n${err.stack}`);
       res.status(500).json({ message: "Chat failed", error: err.message });
+    }
+  });
+
+  // AI Visualizer Data Logging (New)
+  app.post(api.ai.logGeneration.path, async (req, res) => {
+    try {
+      const input = api.ai.logGeneration.input.parse(req.body);
+      const newGen = await storage.createVisualizerGeneration(input);
+      res.json({ success: true, id: newGen.id });
+    } catch (err) {
+      console.error("Failed to log visualizer generation:", err);
+      // Don't block the UI if logging fails
+      res.status(500).json({ success: false });
+    }
+  });
+
+  app.patch(api.ai.updateGeneration.path, async (req, res) => {
+    try {
+      const { id, generatedImageUrl } = api.ai.updateGeneration.input.parse(req.body);
+      await storage.updateVisualizerGeneration(id, generatedImageUrl);
+      res.json({ success: true });
+    } catch (err) {
+      console.error("Failed to update visualizer generation:", err);
+      res.status(500).json({ success: false });
     }
   });
 
@@ -131,6 +166,9 @@ export async function registerRoutes(
   // Inquiries
   app.post(api.inquiries.create.path, async (req, res) => {
     try {
+      // Allow extra fields like 'source' to pass through if the schema is open, 
+      // or explicitly parse it if updated.
+      // We updated insertInquirySchema in schema.ts to include 'source'.
       const input = api.inquiries.create.input.parse(req.body);
       const inquiry = await storage.createInquiry(input);
       res.status(201).json(inquiry);

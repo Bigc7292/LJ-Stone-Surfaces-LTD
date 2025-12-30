@@ -301,8 +301,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                     <div className="lg:col-span-2 space-y-6">
                         <div
                             ref={containerRef}
-                            className="bg-slate-900 rounded-3xl border border-slate-800/50 overflow-hidden shadow-2xl min-h-[550px] flex flex-col items-center justify-center relative touch-none"
-                            onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
+                            className="bg-slate-900 rounded-3xl border border-slate-800/50 overflow-hidden shadow-2xl min-h-[550px] flex flex-col items-center justify-center relative"
                         >
                             {step === 'UPLOAD' && (
                                 <div className="p-12 text-center">

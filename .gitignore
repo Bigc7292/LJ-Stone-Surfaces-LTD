@@ -8,3 +8,6 @@ vite.config.ts.*
 .env.*
 .vercel
 .env*.local
+
+# Local Netlify folder
+.netlify

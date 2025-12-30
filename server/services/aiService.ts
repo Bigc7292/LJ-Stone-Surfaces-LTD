@@ -1,17 +1,25 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Modality } from "@google/genai";
-import { ai as replitAI } from "../replit_integrations/image/client";
 import axios from "axios";
 import FormData from "form-data";
-import { log } from "../index";
+// Local log function for serverless compatibility
+function log(message: string, source = "ai-service") {
+    const formattedTime = new Date().toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+    });
+    console.log(`${formattedTime} [${source}] ${message}`);
+}
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import { v2 as cloudinary } from "cloudinary";
 import sharp from "sharp";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// __dirname and __filename are not safe in bundled environments
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 // Configure Cloudinary
 cloudinary.config({
@@ -446,12 +454,26 @@ export class AIService {
      * Chat with AI assistant
      */
     static async chat(message: string, history: any[] = []): Promise<string> {
-        const kbPath = path.join(__dirname, "knowledge_base.md");
-        let knowledgeBase = "";
-        try {
-            knowledgeBase = await fs.readFile(kbPath, "utf-8");
-        } catch (e) {
-            knowledgeBase = "LJ Stone Surfaces - Premium stone countertops and surfaces.";
+        // Robustly look for knowledge base in common locations (dev, prod, bundled)
+        const possiblePaths = [
+            path.join(process.cwd(), "server", "services", "knowledge_base.md"), // Local dev
+            path.join(process.cwd(), "knowledge_base.md"), // Root deployment
+            // Fallback for some bundle structures
+            path.resolve("server/services/knowledge_base.md")
+        ];
+
+        let knowledgeBase = "LJ Stone Surfaces - Premium stone countertops and surfaces.";
+
+        for (const p of possiblePaths) {
+            try {
+                const content = await fs.readFile(p, "utf-8");
+                if (content) {
+                    knowledgeBase = content;
+                    break;
+                }
+            } catch (e) {
+                // Continue searching
+            }
         }
 
         const kbText = knowledgeBase.length > 4000 ? knowledgeBase.substring(0, 4000) : knowledgeBase;

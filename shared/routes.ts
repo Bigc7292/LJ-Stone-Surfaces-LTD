@@ -98,6 +98,35 @@ export const api = {
         }),
       },
     },
+    logGeneration: {
+      method: 'POST' as const,
+      path: '/api/ai/log-generation',
+      input: z.object({
+        originalImageUrl: z.string(),
+        generatedImageUrl: z.string().optional(),
+        stoneSelected: z.string(),
+        promptUsed: z.string().optional(),
+      }),
+      responses: {
+        200: z.object({
+          success: z.boolean(),
+          id: z.number(),
+        }),
+      },
+    },
+    updateGeneration: {
+      method: 'PATCH' as const,
+      path: '/api/ai/update-generation',
+      input: z.object({
+        id: z.number(),
+        generatedImageUrl: z.string(),
+      }),
+      responses: {
+        200: z.object({
+          success: z.boolean(),
+        }),
+      },
+    },
     chat: {
       method: 'POST' as const,
       path: '/api/ai/chat',

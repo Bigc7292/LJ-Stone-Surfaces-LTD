@@ -2,10 +2,19 @@ import { db } from "./db";
 import {
   products,
   inquiries,
+  visualizerGenerations,
+  chatLogs,
+  knowledgeBase,
   type InsertProduct,
   type InsertInquiry,
+  type InsertVisualizerGeneration,
+  type InsertChatLog,
+  type InsertKnowledgeBaseItem,
   type Product,
-  type Inquiry
+  type Inquiry,
+  type VisualizerGeneration,
+  type ChatLog,
+  type KnowledgeBaseItem
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
@@ -13,6 +22,12 @@ export interface IStorage {
   getProducts(category?: string): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createInquiry(inquiry: InsertInquiry): Promise<Inquiry>;
+  // New methods
+  createVisualizerGeneration(gen: InsertVisualizerGeneration): Promise<VisualizerGeneration>;
+  updateVisualizerGeneration(id: number, generatedUrl: string): Promise<void>;
+  createChatLog(log: InsertChatLog): Promise<ChatLog>;
+  getKnowledgeBase(): Promise<KnowledgeBaseItem[]>;
+  createKnowledgeBaseItem(item: InsertKnowledgeBaseItem): Promise<KnowledgeBaseItem>;
   seedProducts(): Promise<void>;
 }
 
@@ -34,13 +49,42 @@ export class DatabaseStorage implements IStorage {
     return newInquiry;
   }
 
+  // New implementations
+  async createVisualizerGeneration(gen: InsertVisualizerGeneration): Promise<VisualizerGeneration> {
+    const [newGen] = await db.insert(visualizerGenerations).values(gen).returning();
+    return newGen;
+  }
+
+  async updateVisualizerGeneration(id: number, generatedUrl: string): Promise<void> {
+    await db.update(visualizerGenerations)
+      .set({ generatedImageUrl: generatedUrl })
+      .where(eq(visualizerGenerations.id, id));
+  }
+
+  async createChatLog(log: InsertChatLog): Promise<ChatLog> {
+    const [newLog] = await db.insert(chatLogs).values(log).returning();
+    return newLog;
+  }
+
+  async getKnowledgeBase(): Promise<KnowledgeBaseItem[]> {
+    return await db.select().from(knowledgeBase);
+  }
+
+  async createKnowledgeBaseItem(item: InsertKnowledgeBaseItem): Promise<KnowledgeBaseItem> {
+    const [newItem] = await db.insert(knowledgeBase).values(item).returning();
+    return newItem;
+  }
+
   async seedProducts(): Promise<void> {
+    // ... existing implementation
     const existing = await db.select().from(products).limit(1);
     if (existing.length === 0) {
       const seedData: InsertProduct[] = [
         {
           name: "Gray Ice",
           category: "Marble",
+          // ... existing seed data continues
+
           description: "A stunning grey marble with intricate white veining, perfect for modern interiors.",
           imageUrl: "/stones/grey-ice-marble.jpg",
           isFeatured: true
