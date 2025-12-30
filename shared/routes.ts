@@ -121,8 +121,8 @@ export const api = {
       },
     },
     updateGeneration: {
-      method: 'PATCH' as const,
-      path: '/api/ai/update-generation',
+      method: "PATCH" as const,
+      path: "/api/ai/update-generation",
       input: z.object({
         id: z.number(),
         generatedImageUrl: z.string(),
@@ -132,6 +132,31 @@ export const api = {
           success: z.boolean(),
         }),
       },
+    },
+    generateImage: {
+      method: "POST" as const,
+      path: "/api/ai/generate-image",
+      input: z.object({
+        originalImageUrl: z.string(),
+        stoneSelected: z.string(),
+        promptUsed: z.string().optional(),
+        markers: z.array(z.object({
+          x: z.number(),
+          y: z.number(),
+          label: z.string(),
+          customLabel: z.string().optional()
+        })).optional()
+      }),
+      responses: {
+        200: z.object({
+          success: z.boolean(),
+          generatedImageUrl: z.string()
+        }),
+        500: z.object({
+          success: z.boolean(),
+          message: z.string()
+        })
+      }
     },
     chat: {
       method: 'POST' as const,

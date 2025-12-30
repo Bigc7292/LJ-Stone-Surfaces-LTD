@@ -135,6 +135,42 @@ app.patch(api.ai.updateGeneration.path, async (req, res) => {
 });
 
 
+// Secure Backend Generation Endpoint
+app.post(api.ai.generateImage.path, async (req, res) => {
+    try {
+        const input = api.ai.generateImage.input.parse(req.body);
+
+        // 1. Log Start
+        const logEntry = await storage.createVisualizerGeneration({
+            originalImageUrl: input.originalImageUrl,
+            stoneSelected: input.stoneSelected,
+            promptUsed: input.promptUsed || "Auto-generated on server",
+            markers: input.markers
+        });
+
+        // 2. Generate Image via Backend Service
+        const generatedImageUrl = await AIService.generateGeminiImage({
+            imageWithMime: input.originalImageUrl,
+            stoneType: input.stoneSelected,
+            markers: input.markers || [],
+            prompt: input.promptUsed
+        });
+
+        // 3. Log Update
+        await storage.updateVisualizerGeneration(logEntry.id, generatedImageUrl);
+
+        res.json({ success: true, generatedImageUrl });
+
+    } catch (err: any) {
+        console.error("Backend Generation Failed:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Generation failed"
+        });
+    }
+});
+
+
 // ============ Product Routes ============
 
 // Get all products

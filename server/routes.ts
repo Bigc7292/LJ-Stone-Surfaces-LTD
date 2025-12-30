@@ -148,6 +148,44 @@ export async function registerRoutes(
     }
   });
 
+  // Secure Backend Generation Endpoint
+  app.post(api.ai.generateImage.path, async (req, res) => {
+    // 90s timeout for generation
+    req.setTimeout(90000);
+
+    try {
+      const input = api.ai.generateImage.input.parse(req.body);
+
+      // 1. Log Start
+      const logEntry = await storage.createVisualizerGeneration({
+        originalImageUrl: input.originalImageUrl,
+        stoneSelected: input.stoneSelected,
+        promptUsed: input.promptUsed || "Auto-generated on server",
+        markers: input.markers
+      });
+
+      // 2. Generate Image via Backend Service
+      const generatedImageUrl = await AIService.generateGeminiImage({
+        imageWithMime: input.originalImageUrl,
+        stoneType: input.stoneSelected,
+        markers: input.markers || [],
+        prompt: input.promptUsed
+      });
+
+      // 3. Log Update
+      await storage.updateVisualizerGeneration(logEntry.id, generatedImageUrl);
+
+      res.json({ success: true, generatedImageUrl });
+
+    } catch (err: any) {
+      console.error("Backend Generation Failed:", err);
+      res.status(500).json({
+        success: false,
+        message: err.message || "Generation failed"
+      });
+    }
+  });
+
   // Products
   app.get(api.products.list.path, async (req, res) => {
     const category = req.query.category as string | undefined;

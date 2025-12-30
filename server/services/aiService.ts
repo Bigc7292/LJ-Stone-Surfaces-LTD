@@ -54,7 +54,9 @@ export class AIService {
         const keys = [
             process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
             process.env.AI_INTEGRATIONS_GEMINI_API_KEY_2,
-            process.env.AI_INTEGRATIONS_GEMINI_API_KEY_3
+            process.env.AI_INTEGRATIONS_GEMINI_API_KEY_3,
+            process.env.VITE_GEMINI_API_KEY,
+            process.env.GEMINI_API_KEY
         ].filter(Boolean);
 
         if (keys.length === 0) return null;
@@ -493,5 +495,94 @@ export class AIService {
 
     static async generateRecommendation(prompt: string, image?: string): Promise<string> {
         return this.chat(prompt);
+    }
+
+    /**
+     * Gemini 2.0 Flash Exp Image Generation (Backend Implementation)
+     */
+    static async generateGeminiImage(params: {
+        imageWithMime: string;
+        stoneType: string;
+        markers: any[];
+        prompt?: string;
+    }): Promise<string> {
+        const apiKey = this.getNextKey();
+        if (!apiKey) {
+            throw new Error("Gemini API key not configured on server.");
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+        const base64Data = params.imageWithMime.split(",")[1] || params.imageWithMime;
+        const mimeType = params.imageWithMime.includes("image/png") ? "image/png" : "image/jpeg";
+
+        // Construct prompt if not provided
+        const finalPrompt = params.prompt || `
+    ACT AS: Elite Architectural Digital Retoucher.
+    TASK: High-fidelity stone resurfacing on the provided image.
+    MATERIAL: ${params.stoneType}.
+    
+    ARCHITECTURAL RULES (MASTER QUALITY):
+    1. CONTINUITY: Clad all continuous vertical wall planes and fixtures (bathtub, sink) with seamless stone slabs.
+    2. LIGHTING: Preserve all ambient LED glows, warm backlighting, and natural window light.
+    3. PRESERVATION: 
+       - DO NOT touch horizontal floor tiles.
+       - DO NOT remove sunlight or glares on the floor.
+       - Preserve all metal taps and hardware.
+    4. PRECISION: Sharp crisp transitions where stone meets the floor.
+    
+    MARKERS (surfaces to transform):
+    ${params.markers.map((m, i) => `- Site ${i + 1} (${(m.x * 100).toFixed(1)}%, ${(m.y * 100).toFixed(1)}%): ${m.label}`).join("\n")}
+
+    FINAL OUTPUT: High-resolution photorealistic image with the stone applied.
+    IMPORTANT: Return ONLY the transformed image, no text explanation.
+        `;
+
+        log(`Calling Gemini 2.0 Flash Exp...`, "ai-service");
+
+        try {
+            const result = await model.generateContent([
+                { text: finalPrompt },
+                {
+                    inlineData: {
+                        mimeType,
+                        data: base64Data,
+                    },
+                },
+            ]);
+
+            const response = result.response;
+            const candidates = response.candidates;
+
+            if (!candidates || candidates.length === 0) {
+                throw new Error("No response from AI model.");
+            }
+
+            const parts = candidates[0].content?.parts;
+            if (!parts || parts.length === 0) {
+                throw new Error("Empty response from AI model.");
+            }
+
+            // Look for image data in the response
+            for (const part of parts) {
+                if (part.inlineData?.data) {
+                    const imgMime = part.inlineData.mimeType || "image/png";
+                    return `data:${imgMime};base64,${part.inlineData.data}`;
+                }
+            }
+
+            // If no image, check for text (might be a refusal or error)
+            const textPart = parts.find(p => p.text);
+            if (textPart?.text) {
+                throw new Error(`AI returned text instead of image: ${textPart.text.slice(0, 200)}`);
+            }
+
+            throw new Error("Unexpected response format from AI model.");
+
+        } catch (error: any) {
+            log(`Gemini generation failed: ${error.message}`, "ai-service");
+            throw error;
+        }
     }
 }
