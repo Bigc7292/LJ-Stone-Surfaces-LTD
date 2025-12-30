@@ -301,7 +301,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                     <div className="lg:col-span-2 space-y-6">
                         <div
                             ref={containerRef}
-                            className="bg-slate-900 rounded-3xl border border-slate-800/50 overflow-hidden shadow-2xl min-h-[550px] flex flex-col items-center justify-center relative"
+                            className="bg-slate-900 rounded-3xl border border-slate-800/50 shadow-2xl min-h-[550px] flex flex-col items-center justify-center relative touch-none"
                         >
                             {step === 'UPLOAD' && (
                                 <div className="p-12 text-center">
@@ -325,14 +325,14 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                         ref={imageRef}
                                         src={originalImage}
                                         alt="Workspace"
-                                        className="w-full h-auto block cursor-crosshair"
-                                        onClick={(e) => {
-                                            console.log('Image clicked', { step, pendingMarker });
+                                        className="w-full h-auto block cursor-crosshair rounded-3xl"
+                                        onPointerUp={(e) => {
+                                            // Use Pointer events for better cross-device hardware support
+                                            console.log('Image pointer up', { step, pendingMarker });
                                             if (step === 'MARK' && !pendingMarker) {
                                                 const pos = containerToPercent(e.clientX, e.clientY);
                                                 console.log('Position calculated:', pos);
                                                 if (pos.x >= 0 && pos.x <= 100 && pos.y >= 0 && pos.y <= 100) {
-                                                    console.log('Setting pending marker');
                                                     setPendingMarker(pos);
                                                 }
                                             }
@@ -342,12 +342,12 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
                                     {pendingMarker && (
                                         <div
-                                            style={getMarkerAlignment(pendingMarker.x, pendingMarker.y)}
-                                            className="absolute z-50 p-5 bg-slate-900/95 backdrop-blur-xl border border-amber-500/50 rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.5)] flex flex-col space-y-4 min-w-[240px]"
+                                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] p-6 bg-slate-900/95 backdrop-blur-xl border border-amber-500/50 rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.8)] flex flex-col space-y-4 w-[90%] max-w-sm animate-in fade-in zoom-in duration-200"
+                                            onClick={(e) => e.stopPropagation()}
                                         >
                                             <div className="flex items-center space-x-2">
-                                                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                                                <label className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Identify Surface Type</label>
+                                                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                                                <label className="text-xs font-black text-amber-500 uppercase tracking-widest">Identify Surface Type</label>
                                             </div>
                                             <input
                                                 ref={labelInputRef}
@@ -355,17 +355,18 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                                 value={markerInput}
                                                 onChange={(e) => setMarkerInput(e.target.value)}
                                                 placeholder="e.g. wall, bathtub, sink"
+                                                autoFocus
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter' && markerInput.trim()) submitPendingMarker();
                                                     if (e.key === 'Escape') setPendingMarker(null);
                                                 }}
-                                                className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-[11px] focus:ring-2 focus:ring-amber-500 outline-none uppercase font-black tracking-wider text-white"
+                                                className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none uppercase font-black tracking-wider text-white"
                                             />
-                                            <div className="flex justify-end items-center space-x-4">
-                                                <button onClick={() => setPendingMarker(null)} className="text-[9px] font-black uppercase text-slate-500 hover:text-white transition-colors">Cancel</button>
+                                            <div className="flex justify-end items-center space-x-3 pt-2">
+                                                <button onClick={() => setPendingMarker(null)} className="px-4 py-2 text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors">Cancel</button>
                                                 <button
                                                     onClick={submitPendingMarker}
-                                                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all"
+                                                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all"
                                                 >
                                                     Confirm Pin
                                                 </button>
