@@ -24,7 +24,7 @@ interface StoneImage {
 }
 
 // --- Constants ---
-const CATEGORIES = ["All", "Marble", "Quartz", "Granite", "Quartzite", "Travertine", "Onyx", "Semi-Precious"];
+const CATEGORIES = ["All", "Marble", "Quartz", "Granite"];
 const breakpointColumnsObj = {
   default: 4,
   1200: 3,
