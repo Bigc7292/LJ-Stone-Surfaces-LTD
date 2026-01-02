@@ -1,3 +1,4 @@
+
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import Contact from "@/pages/Contact";
 import Team from "@/pages/Team";
 import { ChatBot } from "@/components/ChatBot";
 import { WhatsAppWidget } from "@/components/WhatsAppWidget";
+import GenerativeBackground from "./components/GenerativeBackground";
 
 function Router() {
   return (
@@ -31,6 +33,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <GenerativeBackground />
         <Toaster />
         <Router />
         <WhatsAppWidget phoneNumber="+44 7727 310537" ownerName="Jack" />

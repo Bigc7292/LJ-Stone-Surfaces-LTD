@@ -1,3 +1,4 @@
+
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -5,24 +6,28 @@ import { ProductCard } from "@/components/ProductCard";
 import { useProducts } from "@/hooks/use-products";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Masonry from "react-masonry-css";
 
 const CATEGORIES = ["All", "Marble", "Quartz", "Quartzite", "Travertine", "Onyx", "Semi-Precious"];
 
+const breakpointColumnsObj = {
+  default: 3,
+  1100: 2,
+  700: 1
+};
+
 export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState("All");
-  // Pass undefined if "All" to fetch everything, otherwise filter by category
   const { data: products, isLoading } = useProducts(activeCategory === "All" ? undefined : activeCategory);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navigation />
       
-      {/* Header */}
       <div className="pt-32 pb-16 bg-secondary/20">
         <div className="container mx-auto px-6 text-center">
           <SectionHeading subtitle="The Collection" title="Material Portfolio" />
           
-          {/* Filter Tabs */}
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             {CATEGORIES.map((cat) => (
               <button
@@ -41,7 +46,6 @@ export default function Portfolio() {
         </div>
       </div>
 
-      {/* Grid */}
       <div className="container mx-auto px-6 py-16">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -50,22 +54,26 @@ export default function Portfolio() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column"
+          >
             {products?.map((product, idx) => (
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
+                initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
               >
                 <ProductCard product={product} />
               </motion.div>
             ))}
-            {products?.length === 0 && (
-              <div className="col-span-full text-center py-20 text-muted-foreground">
-                No products found in this category.
-              </div>
-            )}
+          </Masonry>
+        )}
+        {products?.length === 0 && !isLoading && (
+          <div className="col-span-full text-center py-20 text-muted-foreground">
+            No products found in this category.
           </div>
         )}
       </div>
