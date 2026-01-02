@@ -1,10 +1,11 @@
+
 import { genkit, z } from 'genkit';
-import { googleAI, gemini25Flash } from '@genkit-ai/google-genai';
+import { googleAI } from '@genkit-ai/google-genai';
+
 const ai = genkit({
   plugins: [
     googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY }),
   ],
-  model: gemini25Flash,
 });
 
 export const stoneSurfaceFlow = ai.defineFlow(
@@ -19,9 +20,10 @@ export const stoneSurfaceFlow = ai.defineFlow(
   },
   async (input) => {
     const response = await ai.generate({
+      model: 'gemini-1.5-pro-latest',
       system: `
         You are the Lead Visualizer for LJ Stone Surfaces LTD. 
-        Your task is to identify markers in the user's image and replace those specific surfaces with the chosen ${input.materialType}.
+        Your task is to identify markers in the user\'s image and replace those specific surfaces with the chosen ${input.materialType}.
         
         REFERENCE OUR WORK QUALITY:
         - Maintain the exact perspective and lighting seen in our portfolio.
@@ -42,6 +44,6 @@ export const stoneSurfaceFlow = ai.defineFlow(
       ],
     });
 
-    return response.text();
+    return response.text;
   }
 );
