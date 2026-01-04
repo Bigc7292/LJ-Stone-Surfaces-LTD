@@ -19,6 +19,21 @@ export async function registerRoutes(
     fs.appendFileSync("server-errors.txt", `[${new Date().toISOString()}] ${msg}\n`);
   };
   // AI Re-Imager (Visionary) - Generative Inpainting with Markers
+  app.get("/api/debug-diagnostics", (req, res) => {
+    try {
+      const debugInfo = {
+        nodeEnv: process.env.NODE_ENV,
+        cwd: process.cwd(),
+        distContent: fs.existsSync("dist") ? fs.readdirSync("dist") : "dist not found",
+        publicContent: fs.existsSync("dist/public") ? fs.readdirSync("dist/public") : "dist/public not found",
+        publicIndex: fs.existsSync("dist/public/index.html") ? "Exists" : "Missing"
+      };
+      res.json(debugInfo);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   app.post("/api/ai/re-imager", async (req, res) => {
     // Set a longer timeout for AI processing (90 seconds)
     req.setTimeout(90000, () => {
