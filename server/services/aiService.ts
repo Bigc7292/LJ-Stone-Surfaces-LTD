@@ -87,7 +87,7 @@ export class AIService {
                 process.env.GEMINI_API_KEY,
                 finalPrompt,
                 imageWithMime,
-                "gemini-1.5-flash-latest"
+                "gemini-1.5-flash"
             );
         } catch (error: any) {
             log(`Standard Gemini key failed: ${error.message}`, "gemini-image");
@@ -198,7 +198,7 @@ export class AIService {
         if (!apiKey) throw new Error("Gemini API key not configured.");
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
         const knowledgeBase = await this.getKnowledgeBase();
         const systemPrompt = `You are the LJ Stone Surfaces AI Assistant, a professional interior designer. Your knowledge base is below.\n\n---\n${knowledgeBase}\n---`;
