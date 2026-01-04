@@ -128,6 +128,56 @@ const WorkspaceMarker: React.FC<{
     </div>
 );
 
+// Marker Input Modal Component - Isolated to prevent parent re-renders
+const MarkerInputModal: React.FC<{
+    onConfirm: (label: string) => void;
+    onCancel: () => void;
+}> = ({ onConfirm, onCancel }) => {
+    const [input, setInput] = useState('');
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (inputRef.current) inputRef.current.focus();
+    }, []);
+
+    const handleSubmit = () => {
+        if (input.trim()) onConfirm(input.trim());
+    };
+
+    return (
+        <div
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] p-6 bg-slate-900/95 backdrop-blur-xl border border-amber-500/50 rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.8)] flex flex-col space-y-4 w-[90%] max-w-sm animate-in fade-in zoom-in duration-200"
+            onClick={(e) => e.stopPropagation()}
+        >
+            <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                <label className="text-xs font-black text-amber-500 uppercase tracking-widest">Identify Surface Type</label>
+            </div>
+            <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="e.g. wall, bathtub, sink"
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSubmit();
+                    if (e.key === 'Escape') onCancel();
+                }}
+                className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none uppercase font-black tracking-wider text-white"
+            />
+            <div className="flex justify-end items-center space-x-3 pt-2">
+                <button onClick={onCancel} className="px-4 py-2 text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors">Cancel</button>
+                <button
+                    onClick={handleSubmit}
+                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all"
+                >
+                    Confirm Pin
+                </button>
+            </div>
+        </div>
+    );
+};
+
 // Main Visualizer Component
 export const LuxeStoneVisualizer: React.FC = () => {
     const [step, setStep] = useState<AppStep>('UPLOAD');
@@ -135,7 +185,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const [resultImage, setResultImage] = useState<string | null>(null);
     const [markers, setMarkers] = useState<Marker[]>([]);
     const [pendingMarker, setPendingMarker] = useState<{ x: number, y: number } | null>(null);
-    const [markerInput, setMarkerInput] = useState('');
+    // Removed markerInput state from here to prevent re-renders
     const [selectedMaterial, setSelectedMaterial] = useState<MaterialOption>(MATERIALS[0]);
     const [selectedColor, setSelectedColor] = useState<ColorOption>(COLORS[0]);
     const [isLoading, setIsLoading] = useState(false);
@@ -152,11 +202,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
-    const labelInputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        if (pendingMarker && labelInputRef.current) labelInputRef.current.focus();
-    }, [pendingMarker]);
+    // Removed labelInputRef as it is now in the child component
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -201,11 +247,10 @@ export const LuxeStoneVisualizer: React.FC = () => {
         setIsDragging(false);
     };
 
-    const submitPendingMarker = () => {
-        if (pendingMarker && markerInput.trim()) {
-            setMarkers([...markers, { ...pendingMarker, label: markerInput.trim(), customLabel: markerInput.trim() }]);
+    const confirmMarker = (label: string) => {
+        if (pendingMarker) {
+            setMarkers([...markers, { ...pendingMarker, label, customLabel: label }]);
             setPendingMarker(null);
-            setMarkerInput('');
         }
     };
 
@@ -235,7 +280,6 @@ export const LuxeStoneVisualizer: React.FC = () => {
         setResultImage(null);
         setMarkers([]);
         setPendingMarker(null);
-        setMarkerInput('');
         setErrorInfo(null);
     };
 
@@ -341,37 +385,10 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                     {markers.map((m, i) => <WorkspaceMarker key={i} marker={m} index={i} zoom={zoom} onRemove={(idx) => setMarkers(prev => prev.filter((_, mi) => mi !== idx))} />)}
 
                                     {pendingMarker && (
-                                        <div
-                                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] p-6 bg-slate-900/95 backdrop-blur-xl border border-amber-500/50 rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.8)] flex flex-col space-y-4 w-[90%] max-w-sm animate-in fade-in zoom-in duration-200"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <div className="flex items-center space-x-2">
-                                                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                                                <label className="text-xs font-black text-amber-500 uppercase tracking-widest">Identify Surface Type</label>
-                                            </div>
-                                            <input
-                                                ref={labelInputRef}
-                                                type="text"
-                                                value={markerInput}
-                                                onChange={(e) => setMarkerInput(e.target.value)}
-                                                placeholder="e.g. wall, bathtub, sink"
-                                                autoFocus
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' && markerInput.trim()) submitPendingMarker();
-                                                    if (e.key === 'Escape') setPendingMarker(null);
-                                                }}
-                                                className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none uppercase font-black tracking-wider text-white"
-                                            />
-                                            <div className="flex justify-end items-center space-x-3 pt-2">
-                                                <button onClick={() => setPendingMarker(null)} className="px-4 py-2 text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors">Cancel</button>
-                                                <button
-                                                    onClick={submitPendingMarker}
-                                                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all"
-                                                >
-                                                    Confirm Pin
-                                                </button>
-                                            </div>
-                                        </div>
+                                        <MarkerInputModal
+                                            onConfirm={confirmMarker}
+                                            onCancel={() => setPendingMarker(null)}
+                                        />
                                     )}
                                 </div>
                             )}
