@@ -122,7 +122,9 @@ const WorkspaceMarker: React.FC<{
         <div className="w-8 h-8 bg-amber-500 border-2 border-white rounded-full flex items-center justify-center shadow-2xl marker-animate relative z-20">
             <span className="text-[10px] font-black text-slate-900">{index + 1}</span>
         </div>
-
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 px-2 py-1 rounded shadow-2xl whitespace-nowrap z-10">
+            <span className="text-[8px] font-black uppercase text-white tracking-widest">{marker.customLabel}</span>
+        </div>
     </div>
 );
 

@@ -45,7 +45,7 @@ export function ProductCard({ product }: ProductCardProps) {
             className="w-full h-full object-cover"
             style={{ y, scale: 1.3, willChange: 'transform' }}
           />
-          
+
           {/* Magnifier Lens */}
           <div
             style={{
@@ -70,19 +70,9 @@ export function ProductCard({ product }: ProductCardProps) {
               transition: 'opacity 0.2s ease',
             }}
           />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-          
-          <div className="absolute bottom-0 left-0 w-full p-6">
-            <p className="text-primary text-xs tracking-[0.2em] uppercase mb-2 font-medium">
-              {product.category}
-            </p>
-            <h3 className="text-xl md:text-2xl font-serif text-white mb-2">
-              {product.name}
-            </h3>
-          </div>
+
         </div>
-        
+
         <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 transition-colors pointer-events-none" />
       </motion.div>
     </Link>
