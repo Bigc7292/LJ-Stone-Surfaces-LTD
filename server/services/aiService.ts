@@ -12,14 +12,15 @@ function log(message: string, source = "ai-service") {
 }
 
 // --- API Clients ---
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // --- Interfaces ---
 export interface Marker {
-    id: number;
+    id?: number;
     x: number;
     y: number;
     label?: string;
+    customLabel?: string;
 }
 
 export class AIService {
@@ -90,11 +91,11 @@ export class AIService {
             );
         } catch (error: any) {
             log(`Standard Gemini key failed: ${error.message}`, "gemini-image");
-            
+
             // --- ATTEMPT 2: Replit AI Integration Fallback ---
             if (error.message.includes("quota") || error.message.includes("limit")) {
                 log("Switching to Replit AI Integration fallback...", "gemini-image-fallback");
-                
+
                 const replitKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
                 const replitUrl = process.env.AI_INTEGRATIONS_GEMINI_BASE_URL;
 
@@ -103,7 +104,7 @@ export class AIService {
                 }
 
                 // The Replit proxy uses a different model name convention
-                const replitModelName = "gemini-1.5-flash-image"; 
+                const replitModelName = "gemini-1.5-flash-image";
 
                 return await this.runGeminiImageGeneration(
                     replitKey,
@@ -144,15 +145,15 @@ export class AIService {
         const candidates = response.candidates;
 
         if (!candidates || candidates.length === 0) throw new Error("No response from AI model.");
-        
+
         const part = candidates[0].content?.parts[0];
         if (part && part.inlineData?.data) {
             return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
         }
 
-        const textPart = parts.find(p => p.text);
+        const textPart = candidates[0].content?.parts.find(p => p.text);
         if (textPart?.text) {
-             throw new Error(`AI returned text instead of image: ${textPart.text.slice(0, 200)}`);
+            throw new Error(`AI returned text instead of image: ${textPart.text.slice(0, 200)}`);
         }
 
         throw new Error("Unexpected response format from AI model.");
@@ -167,23 +168,41 @@ export class AIService {
             return await this.runGeminiChat(message, history);
         } catch (error: any) {
             log(`Gemini Pro chat failed: ${error.message}`, "gemini-chat");
-            
+
             // --- ATTEMPT 2: Groq Fallback ---
             log("Switching to Groq fallback for chat...", "groq-chat-fallback");
             return this.runGroqChat(message, history);
         }
     }
 
+    static async performInpainting(params: { imagePath: string; stoneType: string; prompt: string; markers: Marker[] }): Promise<string> {
+        return this.generateGeminiImage({
+            imageWithMime: params.imagePath,
+            stoneType: params.stoneType,
+            markers: params.markers,
+            prompt: params.prompt
+        });
+    }
+
+    static async generateRecommendation(prompt: string, image?: string): Promise<string> {
+        // Use chat logic for recommendation
+        return this.chat(prompt, []);
+    }
+
+    static async generateImage(prompt: string): Promise<string> {
+        throw new Error("generateImage not implemented yet");
+    }
+
     private static async runGeminiChat(message: string, history: any[]): Promise<string> {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("Gemini API key not configured.");
-        
+
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-        
+
         const knowledgeBase = await this.getKnowledgeBase();
         const systemPrompt = `You are the LJ Stone Surfaces AI Assistant, a professional interior designer. Your knowledge base is below.\n\n---\n${knowledgeBase}\n---`;
-        
+
         const chat = model.startChat({
             history: [
                 { role: "user", parts: [{ text: systemPrompt }] },
@@ -201,7 +220,9 @@ export class AIService {
 
     private static async runGroqChat(message: string, history: any[]): Promise<string> {
         if (!process.env.GROQ_API_KEY) throw new Error("Groq API key not configured.");
-        
+
+        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
         const knowledgeBase = await this.getKnowledgeBase();
         const systemPrompt = `You are the LJ Stone Surfaces AI Assistant, a professional interior designer. Use the knowledge base below to answer questions.\n\n---\n${knowledgeBase}\n---`;
 

@@ -15,7 +15,7 @@ import {
   type VisualizerGeneration,
   type ChatLog,
   type KnowledgeBaseItem
-} from "@shared/schema";
+} from "../shared/schema";
 import { eq } from "drizzle-orm";
 
 export interface IStorage {
