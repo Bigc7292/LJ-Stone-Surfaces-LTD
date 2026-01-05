@@ -14,6 +14,8 @@ COPY . .
 
 # Build the application
 ENV NODE_ENV=production
+RUN npm list --depth=0 || true
+RUN ls -la node_modules/.bin || true
 RUN npm run build
 
 # Expose port (Cloud Run defaults to 8080)
