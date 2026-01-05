@@ -17,42 +17,44 @@ export async function registerRoutes(
 
   // AI Re-Imager (Visionary) - Generative Inpainting with Markers
   app.post("/api/ai/re-imager", async (req, res) => {
-    // Set a longer timeout for AI processing (90 seconds)
-    req.setTimeout(90000, () => {
-      if (!res.headersSent) {
-        res.status(504).json({ message: "Re-imaging request timed out. Please try again." });
-      }
-    });
+    // 1. Extended Timeout for High-Res Rendering (120s)
+    req.setTimeout(120000);
 
     try {
-      // We extract extra params (finish, color) that might come from the updated frontend
-      // If the frontend doesn't send them yet, defaults are handled in AIService
-      const { image, stoneType, markers, finishType, color } = req.body;
+      // 2. Destructure ALL the new controls, including PROMPT (from chat)
+      const { image, stoneType, markers, finishType, color, prompt } = req.body;
 
-      if (!image) {
-        return res.status(400).json({ message: "Image is required" });
-      }
+      // Validation
+      if (!image) return res.status(400).json({ message: "Image data is required" });
+      if (!markers || markers.length === 0) return res.status(400).json({ message: "At least one marker is required" });
 
-      console.log(`Re-Imager: Processing ${markers?.length || 0} markers for ${stoneType}`);
+      console.log(`[API] Processing Re-Image: ${stoneType} | ${finishType} | Chat Input: "${prompt || 'None'}"`);
 
-      // Call the NEW Service Method
+      // 3. Call the Advanced AI Service
       const imageUrl = await AIService.performInpainting({
         imagePath: image,
-        stoneType: stoneType || "Premium Marble",
-        prompt: `Replace identified surfaces with ${stoneType}`,
-        markers: markers || [],
-        finishType: finishType || 'Polished', // Default if not sent
-        color: color || 'Natural'             // Default if not sent
+        stoneType: stoneType || "Marble",
+        // Pass the Chat Message as the prompt override
+        prompt: prompt || `Apply ${stoneType} seamlessly.`,
+        markers: markers,
+        finishType: finishType || 'Polished',
+        color: color || 'Natural'
       });
 
+      // 4. Success Response
       if (!res.headersSent) {
         res.json({ imageUrl });
       }
+
     } catch (err: any) {
-      console.error("AI Re-Imager Error:", err);
+      console.error("[API] Re-Imager Failed:", err.message);
+
       if (!res.headersSent) {
-        // Send the actual error message so we can debug on frontend if needed
-        res.status(500).json({ message: "Re-imaging failed", details: err.message });
+        // Send meaningful errors to the frontend
+        res.status(500).json({
+          message: "The AI Architect encountered an error.",
+          details: err.message
+        });
       }
     }
   });

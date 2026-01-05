@@ -1,16 +1,18 @@
+export type AppStep = 'UPLOAD' | 'MARK' | 'CONFIGURE' | 'RESULT';
+
 export interface Marker {
     x: number;
     y: number;
-    label: string;
+    label?: string;
     customLabel?: string;
 }
 
 export interface MaterialOption {
     id: string;
     name: string;
-    description: string;
     texture: string;
-    swatchUrl?: string;
+    description: string;
+    swatchUrl?: string; // This is new
 }
 
 export interface ColorOption {
@@ -18,5 +20,3 @@ export interface ColorOption {
     name: string;
     hex: string;
 }
-
-export type AppStep = 'UPLOAD' | 'MARK' | 'CONFIGURE' | 'RESULT';
