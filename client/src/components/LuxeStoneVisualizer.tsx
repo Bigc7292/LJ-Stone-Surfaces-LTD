@@ -69,7 +69,7 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; }> = ({ o
 };
 
 // ============================================================================
-// 2. COMPONENT: CHAT INTERFACE (The Missing Piece)
+// 2. COMPONENT: CHAT INTERFACE
 // ============================================================================
 const ChatInterface: React.FC<{
     onSendMessage: (msg: string) => void;
@@ -139,7 +139,58 @@ const ChatInterface: React.FC<{
 };
 
 // ============================================================================
-// 3. COMPONENT: MARKER INPUT MODAL
+// 3. COMPONENT: MATERIAL OPTION CARD (New Compact Design + Hover Zoom)
+// ============================================================================
+const MaterialOptionItem: React.FC<{
+    material: MaterialOption;
+    isSelected: boolean;
+    onSelect: (m: MaterialOption) => void;
+}> = ({ material, isSelected, onSelect }) => (
+    <button
+        onClick={() => onSelect(material)}
+        className={`group w-full p-0 rounded-2xl border text-left transition-all relative flex items-center min-h-[70px] ${isSelected ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : 'bg-slate-800/40 border-slate-700 hover:border-slate-500'}`}
+    >
+        {/* TEXT SECTION */}
+        <div className="flex-1 p-4 flex flex-col justify-center">
+            <div className="flex items-center space-x-2">
+                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected ? 'bg-amber-500 animate-pulse' : 'bg-slate-700'}`} />
+                <span className={`font-black tracking-widest text-[10px] uppercase leading-none ${isSelected ? 'text-amber-500' : 'text-slate-300 group-hover:text-white'}`}>
+                    {material.name}
+                </span>
+            </div>
+            <span className="text-[8px] opacity-40 uppercase tracking-widest font-bold mt-1 ml-3.5">{material.texture}</span>
+        </div>
+
+        {/* THUMBNAIL SECTION (Small but Expandable) */}
+        <div className="relative w-16 h-[70px] border-l border-slate-700/50 shrink-0 overflow-hidden rounded-r-2xl">
+            {material.swatchUrl ? (
+                <>
+                    {/* Small Thumbnail */}
+                    <img
+                        src={material.swatchUrl}
+                        alt=""
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    />
+
+                    {/* EXPANDABLE POPUP (Appears on Hover) */}
+                    <div className="absolute bottom-0 right-full mr-2 mb-[-20px] w-48 h-48 rounded-xl border-2 border-amber-500 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-4 group-hover:translate-x-0 bg-slate-900 z-50 overflow-hidden">
+                        <img src={material.swatchUrl} className="w-full h-full object-cover" />
+                        <div className="absolute bottom-0 inset-x-0 bg-slate-950/80 p-2 text-center">
+                            <span className="text-[9px] text-white font-black uppercase tracking-widest">{material.name}</span>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <div className="w-full h-full flex items-center justify-center opacity-20 bg-slate-900">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" /></svg>
+                </div>
+            )}
+        </div>
+    </button>
+);
+
+// ============================================================================
+// 4. COMPONENT: MARKER INPUT MODAL
 // ============================================================================
 const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel: () => void; }> = ({ onConfirm, onCancel }) => {
     const [input, setInput] = useState('');
@@ -157,7 +208,7 @@ const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel:
 };
 
 // ============================================================================
-// 4. MAIN COMPONENT: LUXE STONE VISUALIZER
+// 5. MAIN COMPONENT: LUXE STONE VISUALIZER
 // ============================================================================
 export const LuxeStoneVisualizer: React.FC = () => {
     const [step, setStep] = useState<AppStep>('UPLOAD');
@@ -174,6 +225,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const [isShowingOriginal, setIsShowingOriginal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -242,6 +294,15 @@ export const LuxeStoneVisualizer: React.FC = () => {
         link.click();
     };
 
+    const handleFullscreen = () => {
+        if (!containerRef.current) return;
+        if (!document.fullscreenElement) {
+            containerRef.current.requestFullscreen().catch(e => console.error(e));
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
     return (
         <div className="bg-slate-950 text-slate-100 rounded-3xl overflow-hidden border border-slate-800/50 shadow-2xl flex flex-col h-[850px]">
             <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md px-6 py-4 flex justify-between items-center shrink-0 z-10">
@@ -250,46 +311,57 @@ export const LuxeStoneVisualizer: React.FC = () => {
             </header>
 
             <main className="flex-1 overflow-hidden p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 relative flex flex-col min-h-0 bg-slate-900 rounded-2xl border border-slate-800/50 shadow-inner overflow-hidden">
-                    {step === 'RESULT' && (
-                        <div className="absolute top-4 right-4 z-40 flex items-center space-x-2">
-                            <div className="bg-slate-900/80 backdrop-blur-md rounded-lg p-1 border border-white/10 flex space-x-1 shadow-2xl">
-                                <button onClick={() => setCompareMode('SLIDE')} className={`p-2 rounded ${compareMode === 'SLIDE' ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-white'}`}><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg></button>
-                                <button onClick={() => setCompareMode('TOGGLE')} className={`p-2 rounded ${compareMode === 'TOGGLE' ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-white'}`}><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></button>
-                            </div>
-                            <button onClick={download} className="bg-slate-900/80 backdrop-blur-md p-2.5 rounded-lg border border-white/10 hover:bg-slate-800 text-white shadow-xl"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></button>
+                <div className="lg:col-span-2 relative flex flex-col min-h-0">
+                    {/* Error Banner */}
+                    {errorInfo && (
+                        <div className="absolute top-4 left-4 right-4 z-50 bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl flex items-center justify-between shadow-2xl backdrop-blur-md animate-in slide-in-from-top">
+                            <span className="text-xs font-bold uppercase tracking-wide flex items-center gap-2"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>{errorInfo.message}</span>
+                            <button onClick={() => setErrorInfo(null)} className="text-[10px] font-black uppercase bg-red-500/20 hover:bg-red-500/40 px-3 py-1 rounded">Dismiss</button>
                         </div>
                     )}
-                    {isLoading && <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center"><div className="w-16 h-16 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mb-6"></div><h3 className="text-xl font-black uppercase tracking-widest text-white">Rendering...</h3></div>}
-                    {step === 'UPLOAD' && (
-                        <div className="flex-1 flex flex-col items-center justify-center p-10 animate-in zoom-in duration-300">
-                            <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 border border-slate-700"><svg className="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
-                            <button onClick={() => fileInputRef.current?.click()} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-8 py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest">Select Image</button>
-                            <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
-                        </div>
-                    )}
-                    {(step === 'MARK' || step === 'CONFIGURE') && originalImage && (
-                        <div className="relative w-full h-full flex items-center justify-center bg-black">
-                            <img ref={imageRef} src={originalImage} alt="Workspace" className="max-w-full max-h-full object-contain cursor-crosshair" onPointerUp={handleImageClick} />
-                            {markers.map((m, i) => (<div key={i} style={{ left: `${m.x}%`, top: `${m.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2 z-30 group"><div className="w-6 h-6 bg-amber-500 border-2 border-white rounded-full flex items-center justify-center shadow-lg"><span className="text-[10px] font-black text-slate-900">{i + 1}</span></div><button onClick={(e) => { e.stopPropagation(); setMarkers(markers.filter((_, idx) => idx !== i)); }} className="absolute -top-6 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">REMOVE</button></div>))}
-                            {pendingMarker && <MarkerInputModal onConfirm={confirmMarker} onCancel={() => setPendingMarker(null)} />}
-                        </div>
-                    )}
-                    {step === 'RESULT' && resultImage && originalImage && (
-                        <div className="w-full h-full flex flex-col relative animate-in fade-in duration-700">
-                            {compareMode === 'SLIDE' ? <ComparisonSlider original={originalImage} modified={resultImage} /> : (
-                                <div className="relative w-full h-full cursor-pointer" onMouseDown={() => setIsShowingOriginal(true)} onMouseUp={() => setIsShowingOriginal(false)} onTouchStart={() => setIsShowingOriginal(true)} onTouchEnd={() => setIsShowingOriginal(false)}>
-                                    <img src={isShowingOriginal ? originalImage : resultImage} alt="Vis" className="w-full h-full object-contain bg-black" />
+
+                    <div ref={containerRef} className="flex-1 bg-slate-900 rounded-2xl border border-slate-800/50 shadow-inner relative overflow-hidden flex items-center justify-center select-none">
+                        {step === 'RESULT' && (
+                            <div className="absolute top-4 right-4 z-40 flex items-center space-x-2 animate-in fade-in">
+                                <div className="bg-slate-900/80 backdrop-blur-md rounded-lg p-1 border border-white/10 flex space-x-1 shadow-2xl">
+                                    <button onClick={() => setCompareMode('SLIDE')} className={`p-2 rounded ${compareMode === 'SLIDE' ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-white'}`}><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg></button>
+                                    <button onClick={() => setCompareMode('TOGGLE')} className={`p-2 rounded ${compareMode === 'TOGGLE' ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-white'}`}><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></button>
                                 </div>
-                            )}
-                        </div>
-                    )}
+                                <button onClick={download} className="bg-slate-900/80 backdrop-blur-md p-2.5 rounded-lg border border-white/10 hover:bg-slate-800 text-white shadow-xl"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></button>
+                                <button onClick={handleFullscreen} className="bg-slate-900/80 backdrop-blur-md p-2.5 rounded-lg border border-white/10 hover:bg-slate-800 text-white shadow-xl"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg></button>
+                            </div>
+                        )}
+                        {isLoading && <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center"><div className="w-16 h-16 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mb-6"></div><h3 className="text-xl font-black uppercase tracking-widest text-white">Rendering...</h3></div>}
+                        {step === 'UPLOAD' && (
+                            <div className="flex-1 flex flex-col items-center justify-center p-10 animate-in zoom-in duration-300">
+                                <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 border border-slate-700"><svg className="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
+                                <button onClick={() => fileInputRef.current?.click()} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-8 py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest">Select Image</button>
+                                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
+                            </div>
+                        )}
+                        {(step === 'MARK' || step === 'CONFIGURE') && originalImage && (
+                            <div className="relative w-full h-full flex items-center justify-center bg-black">
+                                <img ref={imageRef} src={originalImage} alt="Workspace" className="max-w-full max-h-full object-contain cursor-crosshair" onPointerUp={handleImageClick} />
+                                {markers.map((m, i) => (<div key={i} style={{ left: `${m.x}%`, top: `${m.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2 z-30 group"><div className="w-6 h-6 bg-amber-500 border-2 border-white rounded-full flex items-center justify-center shadow-lg"><span className="text-[10px] font-black text-slate-900">{i + 1}</span></div><button onClick={(e) => { e.stopPropagation(); setMarkers(markers.filter((_, idx) => idx !== i)); }} className="absolute -top-6 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">REMOVE</button></div>))}
+                                {pendingMarker && <MarkerInputModal onConfirm={confirmMarker} onCancel={() => setPendingMarker(null)} />}
+                            </div>
+                        )}
+                        {step === 'RESULT' && resultImage && originalImage && (
+                            <div className="w-full h-full flex flex-col relative animate-in fade-in duration-700">
+                                {compareMode === 'SLIDE' ? <ComparisonSlider original={originalImage} modified={resultImage} /> : (
+                                    <div className="relative w-full h-full cursor-pointer" onMouseDown={() => setIsShowingOriginal(true)} onMouseUp={() => setIsShowingOriginal(false)} onTouchStart={() => setIsShowingOriginal(true)} onTouchEnd={() => setIsShowingOriginal(false)}>
+                                        <img src={isShowingOriginal ? originalImage : resultImage} alt="Vis" className="w-full h-full object-contain bg-black" />
+                                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-slate-900/70 backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 pointer-events-none">{isShowingOriginal ? 'Original Photo' : 'Touch & Hold to Compare'}</div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* RIGHT: Sidebar / Chat */}
                 <div className="flex flex-col min-h-0 space-y-4">
                     {step === 'RESULT' ? (
-                        // --- HERE IS THE CHAT BOX YOU WERE MISSING ---
                         <ChatInterface onSendMessage={startVisualization} isLoading={isLoading} />
                     ) : (
                         <div className="bg-slate-900 rounded-2xl border border-slate-800/50 p-6 flex-1 overflow-y-auto custom-scrollbar shadow-xl">
@@ -299,7 +371,11 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                     <div><h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Surfaces ({markers.length})</h4>{markers.length === 0 ? (<div className="p-4 rounded-xl border-2 border-dashed border-slate-800 text-center text-[10px] text-slate-500 uppercase">Tap image to place markers</div>) : (<div className="space-y-2">{markers.map((m, i) => <div key={i} className="flex justify-between items-center bg-slate-800/50 px-3 py-2 rounded-lg border border-slate-700"><span className="text-xs font-bold text-slate-300">#{i + 1} {m.customLabel}</span></div>)}</div>)}</div>
                                     <div className={step === 'CONFIGURE' ? 'opacity-100' : 'opacity-40 pointer-events-none'}>
                                         <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Material</h4>
-                                        <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">{MATERIALS.map(m => (<button key={m.id} onClick={() => setSelectedMaterial(m)} className={`w-full text-left p-3 rounded-xl border transition-all ${selectedMaterial.id === m.id ? 'bg-amber-500/10 border-amber-500 text-amber-500' : 'bg-slate-800 border-slate-700 text-slate-400'}`}><div className="text-[10px] font-black uppercase tracking-wider">{m.name}</div></button>))}</div>
+                                        <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                                            {MATERIALS.map(m => (
+                                                <MaterialOptionItem key={m.id} material={m} isSelected={selectedMaterial.id === m.id} onSelect={setSelectedMaterial} />
+                                            ))}
+                                        </div>
                                         <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mt-6 mb-3">Tone Family</h4>
                                         <div className="grid grid-cols-2 gap-2">{STONE_TONES.map(t => (<button key={t.id} onClick={() => setSelectedTone(t)} className={`flex items-center space-x-2 p-2 rounded-lg border transition-all ${selectedTone.id === t.id ? 'bg-slate-700 border-white/20' : 'bg-slate-800 border-transparent opacity-60'}`}><div className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: t.hex }} /><span className="text-[9px] font-bold uppercase">{t.name.split(' / ')[0]}</span></button>))}</div>
                                         <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mt-6 mb-3">Surface Finish</h4>

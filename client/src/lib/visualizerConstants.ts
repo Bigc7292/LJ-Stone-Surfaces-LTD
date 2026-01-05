@@ -1,45 +1,44 @@
 import { MaterialOption, ColorOption } from "@/types/visualizer";
 
+// UPDATED: Only Quartz, Granite, and Dekton
 export const MATERIALS: MaterialOption[] = [
     {
         id: 'm1',
-        name: 'Calacatta Gold',
-        texture: 'Marble',
-        description: 'White background with dramatic gold and grey veining.',
-        swatchUrl: 'https://placehold.co/100x100?text=Calacatta'
+        name: 'Calacatta Quartz',
+        texture: 'Quartz',
+        description: 'Engineered durability with classic white marble veining.',
+        swatchUrl: 'https://images.unsplash.com/photo-1599596646864-46b0a9437a34?q=80&w=300&auto=format&fit=crop'
     },
     {
         id: 'm2',
-        name: 'Nero Marquina',
-        texture: 'Marble',
-        description: 'High-end black marble with distinctive white veins.',
-        swatchUrl: 'https://placehold.co/100x100/000000/FFFFFF?text=Nero'
+        name: 'Cosmic Black',
+        texture: 'Granite',
+        description: 'Stunning natural granite with gold and white flowing movements.',
+        swatchUrl: 'https://images.unsplash.com/photo-1616047065998-095940cb36b7?q=80&w=300&auto=format&fit=crop'
     },
     {
         id: 'm3',
-        name: 'Carrara White',
-        texture: 'Marble',
-        description: 'Classic soft white marble with subtle grey feathering.',
-        swatchUrl: 'https://placehold.co/100x100?text=Carrara'
+        name: 'Industrial Grey',
+        texture: 'Dekton',
+        description: 'Ultra-compact surface with a modern concrete industrial look.',
+        swatchUrl: 'https://images.unsplash.com/photo-1568858902507-6f7797825d79?q=80&w=300&auto=format&fit=crop'
     },
     {
         id: 'm4',
-        name: 'Blue Bahia',
+        name: 'Blue Pearl',
         texture: 'Granite',
-        description: 'Exotic blue granite with varied mineral patterns.',
-        swatchUrl: 'https://placehold.co/100x100/0000FF/FFFFFF?text=Bahia'
+        description: 'Exotic granite with iridescent blue mineral deposits.',
+        swatchUrl: 'https://images.unsplash.com/photo-1582200235336-d62f627447d4?q=80&w=300&auto=format&fit=crop'
     },
     {
         id: 'm5',
-        name: 'Travertine',
-        texture: 'Limestone',
-        description: 'Warm, earthy beige tones with natural pitting.',
-        swatchUrl: 'https://placehold.co/100x100/D2B48C/FFFFFF?text=Travertine'
+        name: 'Pure White',
+        texture: 'Quartz',
+        description: 'Clean, solid white engineered stone for minimalism.',
+        swatchUrl: 'https://images.unsplash.com/photo-1595085350394-4d1cc4178657?q=80&w=300&auto=format&fit=crop'
     }
 ];
 
-// Note: STONE_TONES are now handled inside the main component for flexibility, 
-// but we keep this export to prevent import errors in other files.
 export const COLORS: ColorOption[] = [
     { id: 'natural', name: 'Natural / Unchanged', hex: '#e2e8f0' },
     { id: 'cool', name: 'Cool / Grey', hex: '#94a3b8' },
