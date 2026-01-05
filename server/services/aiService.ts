@@ -87,7 +87,7 @@ export class AIService {
                 process.env.GEMINI_API_KEY,
                 finalPrompt,
                 imageWithMime,
-                "gemini-pro"
+                "gemini-1.5-flash"
             );
         } catch (error: any) {
             log(`Standard Gemini key failed: ${error.message}`, "gemini-image");
