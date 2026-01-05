@@ -4,10 +4,6 @@ import { storage } from "./storage";
 import { api } from "../shared/routes";
 import { AIService } from "./services/aiService";
 import { z } from "zod";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-
-
 import fs from "fs";
 
 export async function registerRoutes(
@@ -18,8 +14,51 @@ export async function registerRoutes(
   const fileLog = (msg: string) => {
     fs.appendFileSync("server-errors.txt", `[${new Date().toISOString()}] ${msg}\n`);
   };
+
   // AI Re-Imager (Visionary) - Generative Inpainting with Markers
-  app.get("/api/debug-diagnostics", (req, res) => {
+  app.post("/api/ai/re-imager", async (req, res) => {
+    // Set a longer timeout for AI processing (90 seconds)
+    req.setTimeout(90000, () => {
+      if (!res.headersSent) {
+        res.status(504).json({ message: "Re-imaging request timed out. Please try again." });
+      }
+    });
+
+    try {
+      // We extract extra params (finish, color) that might come from the updated frontend
+      // If the frontend doesn't send them yet, defaults are handled in AIService
+      const { image, stoneType, markers, finishType, color } = req.body;
+
+      if (!image) {
+        return res.status(400).json({ message: "Image is required" });
+      }
+
+      console.log(`Re-Imager: Processing ${markers?.length || 0} markers for ${stoneType}`);
+
+      // Call the NEW Service Method
+      const imageUrl = await AIService.performInpainting({
+        imagePath: image,
+        stoneType: stoneType || "Premium Marble",
+        prompt: `Replace identified surfaces with ${stoneType}`,
+        markers: markers || [],
+        finishType: finishType || 'Polished', // Default if not sent
+        color: color || 'Natural'             // Default if not sent
+      });
+
+      if (!res.headersSent) {
+        res.json({ imageUrl });
+      }
+    } catch (err: any) {
+      console.error("AI Re-Imager Error:", err);
+      if (!res.headersSent) {
+        // Send the actual error message so we can debug on frontend if needed
+        res.status(500).json({ message: "Re-imaging failed", details: err.message });
+      }
+    }
+  });
+
+  // AI Re-Imager (Visionary) - DEBUG
+  app.get("/api/debug-diagnostics", (_req, res) => {
     try {
       const debugInfo = {
         nodeEnv: process.env.NODE_ENV,
@@ -34,42 +73,6 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/ai/re-imager", async (req, res) => {
-    // Set a longer timeout for AI processing (90 seconds)
-    req.setTimeout(90000, () => {
-      if (!res.headersSent) {
-        res.status(504).json({ message: "Re-imaging request timed out. Please try again." });
-      }
-    });
-
-    try {
-      const { image, stoneType, markers } = req.body;
-      if (!image) {
-        return res.status(400).json({ message: "Image is required" });
-      }
-
-      // Log marker info for debugging
-      if (markers && markers.length > 0) {
-        console.log(`Re-Imager: Processing ${markers.length} marked surfaces`);
-      }
-
-      const imageUrl = await AIService.performInpainting({
-        imagePath: image,
-        stoneType: stoneType || "Premium Marble",
-        prompt: `Replace existing surfaces with ${stoneType}`,
-        markers: markers || []
-      });
-
-      if (!res.headersSent) {
-        res.json({ imageUrl });
-      }
-    } catch (err) {
-      console.error("AI Re-Imager Error:", err);
-      if (!res.headersSent) {
-        res.status(500).json({ message: "Re-imaging failed" });
-      }
-    }
-  });
 
   // AI Stone Concierge (Voice & Text)
   app.post(api.ai.consultant.path, async (req, res) => {
@@ -180,8 +183,8 @@ export async function registerRoutes(
       });
 
       // 2. Generate Image via Backend Service
-      const generatedImageUrl = await AIService.generateGeminiImage({
-        imageWithMime: input.originalImageUrl,
+      const generatedImageUrl = await AIService.performInpainting({
+        imagePath: input.originalImageUrl,
         stoneType: input.stoneSelected,
         markers: input.markers || [],
         prompt: input.promptUsed

@@ -1,0 +1,21 @@
+Starting Test...
+Testing model: gemini-2.0-flash-exp...
+  Testing with apiVersion: v1beta
+❌ FAILED with gemini-2.0-flash-exp on v1beta: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [429 Too
+  Testing with apiVersion: v1
+❌ FAILED with gemini-2.0-flash-exp on v1: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-exp:generateContent: [404 Not Fou
+Testing model: gemini-1.5-flash-8b...
+  Testing with apiVersion: v1beta
+❌ FAILED with gemini-1.5-flash-8b on v1beta: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent: [404 Not 
+  Testing with apiVersion: v1
+❌ FAILED with gemini-1.5-flash-8b on v1: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-8b:generateContent: [404 Not Foun
+Testing model: gemini-1.5-flash-8b-latest...
+  Testing with apiVersion: v1beta
+❌ FAILED with gemini-1.5-flash-8b-latest on v1beta: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b-latest:generateContent: [4
+  Testing with apiVersion: v1
+❌ FAILED with gemini-1.5-flash-8b-latest on v1: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-8b-latest:generateContent: [404 N
+Testing model: gemini-exp-1206...
+  Testing with apiVersion: v1beta
+❌ FAILED with gemini-exp-1206 on v1beta: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-exp-1206:generateContent: [429 Too Many
+  Testing with apiVersion: v1
+❌ FAILED with gemini-exp-1206 on v1: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-exp-1206:generateContent: [404 Not Found] m

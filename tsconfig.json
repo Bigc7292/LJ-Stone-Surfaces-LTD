@@ -3,8 +3,7 @@
     "client/src/**/*",
     "shared/**/*",
     "server/**/*",
-    "api/**/*",
-    "script/**/*"
+    "api/**/*"
   ],
   "exclude": [
     "node_modules",
