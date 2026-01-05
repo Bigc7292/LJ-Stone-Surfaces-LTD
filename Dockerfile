@@ -13,8 +13,8 @@ RUN npm ci
 COPY . .
 
 # Build the application (skipped, utilizing pre-built artifacts)
-# ENV NODE_ENV=production
-# RUN npm run build
+ENV NODE_ENV=production
+RUN npm run build
 
 
 # Expose port (Cloud Run defaults to 8080)
