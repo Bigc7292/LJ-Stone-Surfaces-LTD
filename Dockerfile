@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:20
 
 # Install openssl for Prisma/Drizzle if needed
 RUN apt-get update -y && apt-get install -y openssl
