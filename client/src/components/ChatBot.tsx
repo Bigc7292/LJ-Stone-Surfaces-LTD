@@ -1,224 +1,218 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
+import { MessageCircle, X, Send, Minus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
 
-// --- Types ---
-interface Message {
-    role: 'user' | 'ai';
+// --- KNOWLEDGE BASE ---
+const KNOWLEDGE_BASE = {
+    greetings: ["hello", "hi", "hey", "morning", "evening"],
+    location: ["where", "location", "based", "address", "area", "wales", "aberdare"],
+    products: ["material", "stone", "quartz", "granite", "dekton", "marble", "porcelain"],
+    quote: ["price", "cost", "quote", "estimate", "expensive", "cheap"],
+    process: ["process", "time", "long", "lead", "install", "template"],
+    contact: ["phone", "email", "contact", "call", "number"],
+};
+
+// --- ANSWERS ---
+const ANSWERS = {
+    default: "I can help with quotes, material info (Quartz, Granite, Dekton), or booking a template. What do you need assistance with?",
+    greeting: "Hello! Welcome to LJ Stone Surfaces. How can I help you transform your home today?",
+    location: "We are based in Aberdare, South Wales. We serve the entire South Wales region and surrounding areas.",
+    products: "We specialize in Quartz (Silestone, Caesarstone), Granite, and Dekton. We avoid standard Marble for kitchens due to durability issues.",
+    quote: "To give you an accurate price, we need rough measurements or a kitchen plan. You can request a free quote by clicking the WhatsApp button.",
+    process: "Our process: 1. Consultation & Estimate. 2. Laser Templating (onsite). 3. Fabrication. 4. Installation (usually 7-14 days after templating).",
+    contact: "You can reach Jack directly via the WhatsApp button on this screen, or call us at +44 7727 310537.",
+};
+
+type Message = {
+    id: string;
     text: string;
-}
+    sender: "user" | "bot";
+    timestamp: Date;
+};
 
 export function ChatBot() {
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'CHAT' | 'LEAD'>('CHAT');
-
-    // Chat State
+    const [isMinimized, setIsMinimized] = useState(false);
+    const [inputValue, setInputValue] = useState("");
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'ai', text: 'Hello! I am the LJ Stone Assistant. Ask me about materials, processes, or fill out the form for a quote.' }
+        {
+            id: "welcome",
+            text: "Hi! I'm the LJ Stone Assistant. Ask me about our materials, lead times, or where we are based!",
+            sender: "bot",
+            timestamp: new Date(),
+        },
     ]);
-    const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Lead Form State
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', interest: '' });
-    const [formStatus, setFormStatus] = useState<'IDLE' | 'SENDING' | 'SUCCESS' | 'ERROR'>('IDLE');
-
-    // Auto-scroll chat
+    // Auto-scroll
     useEffect(() => {
-        if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages, isOpen]);
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages, isTyping, isOpen]);
 
-    // --- ACTIONS ---
+    const handleSendMessage = async () => {
+        if (!inputValue.trim()) return;
 
-    const sendMessage = async () => {
-        if (!input.trim()) return;
-
-        const userMsg = input;
-        setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
-        setInput('');
+        // 1. User Message
+        const userMsg: Message = {
+            id: Date.now().toString(),
+            text: inputValue,
+            sender: "user",
+            timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, userMsg]);
+        setInputValue("");
         setIsTyping(true);
 
-        try {
-            // Connects to the route we setup in routes.ts
-            const res = await fetch('/api/ai/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMsg, history: [] })
-            });
+        // 2. Bot Response Logic
+        setTimeout(() => {
+            const lowerInput = userMsg.text.toLowerCase();
+            let botResponse = ANSWERS.default;
 
-            const data = await res.json();
+            if (KNOWLEDGE_BASE.greetings.some((k) => lowerInput.includes(k))) botResponse = ANSWERS.greeting;
+            else if (KNOWLEDGE_BASE.location.some((k) => lowerInput.includes(k))) botResponse = ANSWERS.location;
+            else if (KNOWLEDGE_BASE.products.some((k) => lowerInput.includes(k))) botResponse = ANSWERS.products;
+            else if (KNOWLEDGE_BASE.quote.some((k) => lowerInput.includes(k))) botResponse = ANSWERS.quote;
+            else if (KNOWLEDGE_BASE.process.some((k) => lowerInput.includes(k))) botResponse = ANSWERS.process;
+            else if (KNOWLEDGE_BASE.contact.some((k) => lowerInput.includes(k))) botResponse = ANSWERS.contact;
 
-            setMessages(prev => [...prev, { role: 'ai', text: data.response || "I am having trouble connecting to the server." }]);
-        } catch (err) {
-            setMessages(prev => [...prev, { role: 'ai', text: "Connection error. Please try again later." }]);
-        } finally {
+            const botMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                text: botResponse,
+                sender: "bot",
+                timestamp: new Date(),
+            };
+
+            setMessages((prev) => [...prev, botMsg]);
             setIsTyping(false);
-        }
+        }, 1000);
     };
 
-    const submitLead = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setFormStatus('SENDING');
-
-        try {
-            const res = await fetch('/api/inquiries', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    source: 'Global ChatBot'
-                })
-            });
-
-            if (res.ok) {
-                setFormStatus('SUCCESS');
-                setFormData({ name: '', email: '', phone: '', interest: '' });
-                // Auto-switch back to chat after 2 seconds
-                setTimeout(() => {
-                    setActiveTab('CHAT');
-                    setMessages(prev => [...prev, { role: 'ai', text: "Thank you! We received your inquiry and will contact you shortly." }]);
-                    setFormStatus('IDLE');
-                }, 2000);
-            } else {
-                setFormStatus('ERROR');
-            }
-        } catch (err) {
-            setFormStatus('ERROR');
-        }
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") handleSendMessage();
     };
 
-    // --- RENDER ---
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] font-sans flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-4 font-sans">
 
-            {/* 1. Chat Window (Collapsible) */}
-            <div className={`transition-all duration-300 origin-bottom-right transform ${isOpen ? 'scale-100 opacity-100 mb-4' : 'scale-0 opacity-0 h-0 overflow-hidden'}`}>
-                <div className="bg-slate-900 border border-slate-700 w-[350px] h-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            {/* CHAT WINDOW */}
+            {isOpen && !isMinimized && (
+                <Card className="w-[350px] h-[500px] flex flex-col shadow-2xl border bg-card text-card-foreground overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300">
 
-                    {/* Header & Tabs */}
-                    <div className="bg-slate-950 border-b border-slate-800 p-1">
-                        <div className="flex p-3 items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                                <span className="text-white font-bold text-sm tracking-wide">LJ Stone Assistant</span>
+                    {/* Header - Uses Primary Brand Color */}
+                    <div className="bg-primary p-4 flex justify-between items-center text-primary-foreground shadow-sm">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-full bg-background/20 flex items-center justify-center font-bold">
+                                AI
                             </div>
-                            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                            <div>
+                                <h3 className="font-bold text-sm">LJ Stone Support</h3>
+                                <p className="text-[10px] opacity-90">Online</p>
+                            </div>
                         </div>
-
-                        {/* Tabs */}
-                        <div className="flex space-x-1 px-2 pb-2">
-                            <button
-                                onClick={() => setActiveTab('CHAT')}
-                                className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-colors ${activeTab === 'CHAT' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                        <div className="flex items-center space-x-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-background/20 text-primary-foreground"
+                                onClick={() => setIsMinimized(true)}
                             >
-                                Chat
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('LEAD')}
-                                className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-colors ${activeTab === 'LEAD' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                                <Minus className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-background/20 text-primary-foreground"
+                                onClick={() => setIsOpen(false)}
                             >
-                                Request Quote
-                            </button>
+                                <X className="h-4 w-4" />
+                            </Button>
                         </div>
                     </div>
 
-                    {/* Body Content */}
-                    <div className="flex-1 bg-slate-900 relative overflow-hidden flex flex-col">
-
-                        {/* --- TAB 1: AI CHAT --- */}
-                        {activeTab === 'CHAT' && (
-                            <>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                                    {messages.map((m, i) => (
-                                        <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${m.role === 'user' ? 'bg-amber-500 text-slate-950 rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none border border-slate-700'}`}>
-                                                {m.text}
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {isTyping && (
-                                        <div className="flex justify-start">
-                                            <div className="bg-slate-800 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-700"><div className="flex space-x-1"><div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" /><div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-75" /><div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-150" /></div></div>
-                                        </div>
-                                    )}
-                                    <div ref={messagesEndRef} />
-                                </div>
-                                <div className="p-3 bg-slate-950 border-t border-slate-800">
-                                    <div className="flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 focus-within:border-amber-500 transition-colors">
-                                        <input
-                                            className="flex-1 bg-transparent border-none text-xs text-white px-2 py-3 focus:outline-none placeholder:text-slate-600"
-                                            placeholder="Type your question..."
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                                        />
-                                        <button onClick={sendMessage} className="p-2 text-amber-500 hover:text-amber-400"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg></button>
+                    {/* Messages Area */}
+                    <ScrollArea className="flex-1 p-4 bg-muted/30">
+                        <div className="space-y-4">
+                            {messages.map((msg) => (
+                                <div
+                                    key={msg.id}
+                                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                                >
+                                    <div
+                                        className={`max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${msg.sender === "user"
+                                            ? "bg-primary text-primary-foreground rounded-tr-none"
+                                            : "bg-muted text-muted-foreground border border-border rounded-tl-none"
+                                            }`}
+                                    >
+                                        {msg.text}
                                     </div>
                                 </div>
-                            </>
-                        )}
-
-                        {/* --- TAB 2: LEAD FORM --- */}
-                        {activeTab === 'LEAD' && (
-                            <div className="p-6 h-full overflow-y-auto">
-                                {formStatus === 'SUCCESS' ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-4 animate-in zoom-in">
-                                        <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center"><svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></div>
-                                        <h3 className="text-white font-bold text-lg">Inquiry Sent!</h3>
-                                        <p className="text-slate-400 text-xs">We will contact you shortly.</p>
-                                        <button onClick={() => setFormStatus('IDLE')} className="text-amber-500 text-xs font-bold uppercase hover:underline">Send another</button>
+                            ))}
+                            {isTyping && (
+                                <div className="flex justify-start">
+                                    <div className="bg-muted p-3 rounded-2xl rounded-tl-none border border-border flex space-x-1">
+                                        <div className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                        <div className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                        <div className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce"></div>
                                     </div>
-                                ) : (
-                                    <form onSubmit={submitLead} className="space-y-4">
-                                        <h3 className="text-white font-bold text-sm mb-4">Get a Free Consultation</h3>
+                                </div>
+                            )}
+                            <div ref={scrollRef} />
+                        </div>
+                    </ScrollArea>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] uppercase font-bold text-slate-500">Full Name</label>
-                                            <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-amber-500 outline-none" placeholder="John Doe" />
-                                        </div>
-
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] uppercase font-bold text-slate-500">Phone Number</label>
-                                            <input required value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-amber-500 outline-none" placeholder="+44 7..." />
-                                        </div>
-
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] uppercase font-bold text-slate-500">Email Address</label>
-                                            <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-amber-500 outline-none" placeholder="john@example.com" />
-                                        </div>
-
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] uppercase font-bold text-slate-500">Interests / Requirements</label>
-                                            <textarea required value={formData.interest} onChange={e => setFormData({ ...formData, interest: e.target.value })} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-amber-500 outline-none h-24 resize-none" placeholder="Looking for Calacatta Gold..." />
-                                        </div>
-
-                                        {formStatus === 'ERROR' && <p className="text-red-500 text-xs">Something went wrong. Please try again.</p>}
-
-                                        <button type="submit" disabled={formStatus === 'SENDING'} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl uppercase text-xs tracking-wider transition-all disabled:opacity-50">
-                                            {formStatus === 'SENDING' ? 'Sending...' : 'Submit Inquiry'}
-                                        </button>
-                                    </form>
-                                )}
-                            </div>
-                        )}
+                    {/* Input Area */}
+                    <div className="p-3 bg-card border-t">
+                        <div className="flex items-center space-x-2">
+                            <Input
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={handleKeyPress}
+                                placeholder="Type a message..."
+                                className="bg-background"
+                            />
+                            <Button
+                                size="icon"
+                                onClick={handleSendMessage}
+                                disabled={!inputValue.trim() || isTyping}
+                            >
+                                <Send className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </Card>
+            )}
 
-            {/* 2. Floating Toggle Button (Always Visible) */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-14 h-14 bg-amber-500 hover:bg-amber-400 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-110 group relative z-[10000]"
-            >
-                {isOpen ? (
-                    <svg className="w-6 h-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                ) : (
-                    <>
-                        <svg className="w-6 h-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-                        {/* Notification Dot */}
-                        <span className="absolute top-0 right-0 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-900 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span></span>
-                    </>
-                )}
-            </button>
+            {/* FLOATING TOGGLE BUTTON - Uses Primary Brand Color */}
+            {!isOpen && (
+                <Button
+                    onClick={() => setIsOpen(true)}
+                    className="h-14 w-14 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 flex items-center justify-center group"
+                    size="icon"
+                >
+                    <MessageCircle className="h-7 w-7" />
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
+                    </span>
+                </Button>
+            )}
+
+            {/* MINIMIZED STATE BUBBLE */}
+            {isOpen && isMinimized && (
+                <Button
+                    onClick={() => setIsMinimized(false)}
+                    className="h-14 w-14 rounded-full shadow-xl"
+                    variant="secondary"
+                >
+                    <MessageCircle className="h-6 w-6" />
+                </Button>
+            )}
         </div>
     );
 }

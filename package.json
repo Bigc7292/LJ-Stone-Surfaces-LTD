@@ -113,6 +113,7 @@
     "bufferutil": "^4.0.8"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "@types/pg": "^8.16.0"
   }
 }

@@ -2,9 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { AppStep, Marker, MaterialOption } from '@/types/visualizer';
 import { MATERIALS } from '@/lib/visualizerConstants';
 
-// --- 1. IMPORT THE LOGO ---
-import logoImg from "@assets/Screenshot_20251226_103451_WhatsAppBusiness_1766730996434.jpg";
-
 // --- CONSTANTS ---
 const FINISH_OPTIONS = ['Polished', 'Honed', 'Leathered'];
 const STONE_TONES = [
@@ -16,9 +13,9 @@ const STONE_TONES = [
 ];
 
 // ============================================================================
-// COMPONENT: COMPARISON SLIDER
+// 1. COMPONENT: COMPARISON SLIDER (Mobile Responsive)
 // ============================================================================
-const ComparisonSlider: React.FC<{ original: string; modified: string; }> = ({ original, modified }) => {
+const ComparisonSlider: React.FC<{ original: string; modified: string; isFullScreen?: boolean }> = ({ original, modified, isFullScreen = false }) => {
     const [position, setPosition] = useState(50);
     const [isDragging, setIsDragging] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -33,13 +30,16 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; }> = ({ o
     useEffect(() => {
         const onMove = (e: MouseEvent | TouchEvent) => {
             if (!isDragging) return;
+            // Prevent page scrolling while dragging on mobile
+            if (e.cancelable) e.preventDefault();
+
             const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
             handleMove(clientX);
         };
         const onUp = () => setIsDragging(false);
         if (isDragging) {
-            window.addEventListener('mousemove', onMove);
-            window.addEventListener('touchmove', onMove);
+            window.addEventListener('mousemove', onMove, { passive: false });
+            window.addEventListener('touchmove', onMove, { passive: false });
             window.addEventListener('mouseup', onUp);
             window.addEventListener('touchend', onUp);
         }
@@ -54,17 +54,38 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; }> = ({ o
     return (
         <div
             ref={containerRef}
-            className="relative w-full h-full select-none overflow-hidden cursor-ew-resize touch-none group"
+            className={`relative w-full h-full select-none overflow-hidden cursor-ew-resize touch-none group ${isFullScreen ? 'bg-black' : ''}`}
             onMouseDown={() => setIsDragging(true)}
             onTouchStart={() => setIsDragging(true)}
         >
-            <img src={modified} alt="After" className="absolute inset-0 w-full h-full object-contain bg-slate-950 pointer-events-none" />
-            <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none" style={{ clipPath: `polygon(0 0, ${position}% 0, ${position}% 100%, 0 100%)` }}>
-                <img src={original} alt="Before" className="absolute inset-0 w-full h-full object-contain bg-slate-950" />
+            {/* Modified Image (Background) */}
+            <img
+                src={modified}
+                alt="After"
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+            />
+
+            {/* Original Image (Foreground - Clipped) */}
+            <div
+                className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none"
+                style={{ clipPath: `polygon(0 0, ${position}% 0, ${position}% 100%, 0 100%)` }}
+            >
+                <img
+                    src={original}
+                    alt="Before"
+                    className="absolute inset-0 w-full h-full object-contain"
+                />
             </div>
-            <div className="absolute inset-y-0 w-1 bg-white/80 shadow-[0_0_20px_rgba(0,0,0,0.5)] z-20 pointer-events-none" style={{ left: `${position}%` }}>
+
+            {/* Slider Handle */}
+            <div
+                className="absolute inset-y-0 w-1 bg-white/80 shadow-[0_0_20px_rgba(0,0,0,0.5)] z-20 pointer-events-none"
+                style={{ left: `${position}%` }}
+            >
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full border-2 border-white shadow-xl flex items-center justify-center transition-transform group-hover:scale-110">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l-3 3m0 0l3 3m-3-3h12m-3-3l3 3m0 0l-3 3" /></svg>
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l-3 3m0 0l3 3m-3-3h12m-3-3l3 3m0 0l-3 3" />
+                    </svg>
                 </div>
             </div>
         </div>
@@ -72,7 +93,7 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; }> = ({ o
 };
 
 // ============================================================================
-// COMPONENT: FULL SCREEN MODAL
+// 2. COMPONENT: FULL SCREEN MODAL (Mobile Responsive)
 // ============================================================================
 const FullScreenResultModal: React.FC<{
     original: string;
@@ -80,11 +101,11 @@ const FullScreenResultModal: React.FC<{
     onClose: () => void;
 }> = ({ original, modified, onClose }) => {
     return (
-        <div className="fixed inset-0 z-[9999] bg-black/95 flex flex-col animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[9999] bg-black flex flex-col h-[100dvh] w-screen">
             {/* Modal Header */}
-            <div className="absolute top-0 left-0 right-0 p-4 z-50 flex justify-between items-center pointer-events-none">
+            <div className="absolute top-4 left-4 right-4 z-50 flex justify-between items-center pointer-events-none">
                 <div className="bg-black/50 backdrop-blur px-4 py-2 rounded-full pointer-events-auto">
-                    <span className="text-white text-xs font-bold uppercase tracking-widest">Full Screen Compare</span>
+                    <span className="text-white text-xs font-bold uppercase tracking-widest">Compare</span>
                 </div>
                 <button
                     onClick={onClose}
@@ -97,15 +118,15 @@ const FullScreenResultModal: React.FC<{
             </div>
 
             {/* Slider Content */}
-            <div className="flex-1 w-full h-full p-2 md:p-10">
-                <ComparisonSlider original={original} modified={modified} />
+            <div className="flex-1 w-full h-full relative overflow-hidden">
+                <ComparisonSlider original={original} modified={modified} isFullScreen={true} />
             </div>
         </div>
     );
 };
 
 // ============================================================================
-// COMPONENT: CHAT INTERFACE
+// 3. COMPONENT: CHAT INTERFACE
 // ============================================================================
 const ChatInterface: React.FC<{
     onSendMessage: (msg: string) => void;
@@ -128,6 +149,7 @@ const ChatInterface: React.FC<{
                 </div>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 pl-4">Refine colors, lighting, or veins</p>
             </div>
+
             <div className="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar">
                 <div className="flex items-start space-x-3">
                     <div className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center text-[10px] font-black text-slate-900 shrink-0 shadow-lg">AI</div>
@@ -141,6 +163,7 @@ const ChatInterface: React.FC<{
                     </div>
                 </div>
             </div>
+
             <div className="p-3 bg-slate-950 border-t border-slate-800">
                 <div className="flex items-center space-x-2 bg-slate-900 border border-slate-700 rounded-xl p-1 focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/50 transition-all">
                     <input
@@ -169,7 +192,7 @@ const ChatInterface: React.FC<{
 };
 
 // ============================================================================
-// COMPONENT: MATERIAL OPTION CARD
+// 4. COMPONENT: MATERIAL OPTION CARD
 // ============================================================================
 const MaterialOptionItem: React.FC<{
     material: MaterialOption;
@@ -191,12 +214,7 @@ const MaterialOptionItem: React.FC<{
         </div>
         <div className="relative w-16 h-[70px] border-l border-slate-700/50 shrink-0 overflow-hidden rounded-r-2xl">
             {material.swatchUrl ? (
-                <>
-                    <img src={material.swatchUrl} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute bottom-0 right-full mr-2 mb-[-20px] w-48 h-48 rounded-xl border-2 border-amber-500 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-4 group-hover:translate-x-0 bg-slate-900 z-50 overflow-hidden">
-                        <img src={material.swatchUrl} className="w-full h-full object-cover" />
-                    </div>
-                </>
+                <img src={material.swatchUrl} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
             ) : (
                 <div className="w-full h-full flex items-center justify-center opacity-20 bg-slate-900">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" /></svg>
@@ -207,11 +225,12 @@ const MaterialOptionItem: React.FC<{
 );
 
 // ============================================================================
-// COMPONENT: MARKER INPUT MODAL
+// 5. COMPONENT: MARKER INPUT MODAL
 // ============================================================================
 const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel: () => void; }> = ({ onConfirm, onCancel }) => {
     const [input, setInput] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
+
     useEffect(() => { if (inputRef.current) inputRef.current.focus(); }, []);
 
     return (
@@ -224,7 +243,7 @@ const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel:
 };
 
 // ============================================================================
-// MAIN COMPONENT: LUXE STONE VISUALIZER
+// 6. MAIN COMPONENT: LUXE STONE VISUALIZER
 // ============================================================================
 export const LuxeStoneVisualizer: React.FC = () => {
     const [step, setStep] = useState<AppStep>('UPLOAD');
@@ -327,16 +346,17 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
             <div className="bg-slate-950 text-slate-100 rounded-3xl overflow-hidden border border-slate-800/50 shadow-2xl flex flex-col h-[850px]">
 
-                {/* --- VISUALIZER HEADER --- */}
+                {/* --- HEADER (UPDATED WITH URL LOGO & TEXT) --- */}
                 <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md px-6 py-4 flex justify-between items-center shrink-0 z-10">
                     <div className="flex items-center space-x-3">
-                        {/* 2. USED THE IMPORTED LOGO HERE */}
                         <img
-                            src={logoImg}
+                            src="https://lj-stone-app-64679742754.us-central1.run.app/assets/Screenshot_20251226_103451_WhatsAppBusiness_1766730996434-CH0FGqgL.jpg"
                             alt="LJ Stone Surfaces"
-                            className="h-9 w-auto object-contain rounded-md"
+                            className="h-10 w-auto object-contain rounded-md"
                         />
-                        <h2 className="text-lg font-bold uppercase tracking-tight">Stone<span className="text-amber-500">Vision</span></h2>
+                        <h2 className="text-lg font-bold uppercase tracking-tight text-white">
+                            LJ Stone <span className="text-amber-500">Visualizer</span>
+                        </h2>
                     </div>
                     {step !== 'UPLOAD' && <button onClick={() => { setStep('UPLOAD'); setOriginalImage(null); setMarkers([]); }} className="text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5">New Project</button>}
                 </header>
