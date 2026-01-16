@@ -1,0 +1,199 @@
+[2025-12-27T22:44:53.467Z] AI Consultant Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: fetch failed
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:395:20)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async Function.generateRecommendation (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:229:32)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T22:44:53.488Z] AI Chat Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: fetch failed
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:395:20)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async ChatSession.sendMessage (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:1208:9)
+    at async Function.chat (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:189:32)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:99:24)
+[2025-12-27T22:46:37.475Z] AI Consultant Error: All Gemini API keys exhausted or invalid.
+Error: All Gemini API keys exhausted or invalid.
+    at Function.generateRecommendation (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:244:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T22:46:38.047Z] AI Chat Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async ChatSession.sendMessage (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:1208:9)
+    at async Function.chat (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:189:32)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:99:24)
+[2025-12-27T23:45:13.078Z] AI Consultant Error: All Gemini API keys exhausted or invalid.
+Error: All Gemini API keys exhausted or invalid.
+    at Function.generateRecommendation (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:244:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:45:13.253Z] AI Chat Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async ChatSession.sendMessage (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:1208:9)
+    at async Function.chat (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:189:32)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:99:24)
+[2025-12-27T23:50:59.355Z] AI Consultant Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:51:18.793Z] AI Chat Error: Request failed with status code 400
+AxiosError: Request failed with status code 400
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:101:24)
+[2025-12-27T23:51:38.661Z] AI Consultant Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:51:39.374Z] AI Chat Error: Request failed with status code 400
+AxiosError: Request failed with status code 400
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:101:24)
+[2025-12-27T23:52:16.755Z] AI Consultant Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:52:17.061Z] AI Chat Error: Request failed with status code 400
+AxiosError: Request failed with status code 400
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:101:24)
+[2025-12-27T23:53:13.791Z] AI Consultant Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:53:14.102Z] AI Chat Error: Request failed with status code 400
+AxiosError: Request failed with status code 400
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:92:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:101:24)
+[2025-12-27T23:55:17.892Z] AI Consultant Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:96:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:55:35.927Z] AI Chat Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:96:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:101:24)
+[2025-12-27T23:56:37.014Z] AI Consultant Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:96:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:56:55.026Z] AI Chat Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:96:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:101:24)
+[2025-12-27T23:58:10.696Z] AI Consultant Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:96:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:60:30)
+[2025-12-27T23:58:28.704Z] AI Chat Error: Request failed with status code 402
+AxiosError: Request failed with status code 402
+    at settle (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/settle.js:19:12)
+    at IncomingMessage.handleStreamEnd (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/adapters/http.js:793:11)
+    at IncomingMessage.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at Axios.request (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/axios/lib/core/Axios.js:45:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Function.callTextAI (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:96:30)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:101:24)

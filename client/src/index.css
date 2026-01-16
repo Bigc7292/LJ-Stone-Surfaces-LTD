@@ -1,0 +1,92 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Lato', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+
+  /* Dark Luxury Theme - Base Colors */
+  --background: 0 0% 7%;        /* #121212 - Deep dark gray, almost black */
+  --foreground: 40 10% 94%;     /* #f3f0ea - Off-white/cream for readability */
+
+  /* Gold/Bronze Accents */
+  --primary: 38 45% 55%;        /* #aa8e55 - Muted elegant gold */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 0 0% 15%;        /* #262626 - Lighter gray for cards */
+  --secondary-foreground: 40 10% 94%;
+
+  --muted: 0 0% 20%;
+  --muted-foreground: 0 0% 60%;
+
+  --accent: 38 45% 55%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 60% 30%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 38 45% 55%;
+
+  --radius: 0rem; /* Sharp corners for luxury feel */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/30 selection:text-white;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-medium tracking-wide;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Utilities for animations */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-[#d4af37] to-primary bg-[length:200%_auto] animate-pulse;
+}
+
+/* Masonry Grid */
+.my-masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -32px; /* gutter size offset */
+  width: auto;
+}
+.my-masonry-grid_column {
+  padding-left: 32px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Style your items */
+.my-masonry-grid_column > div {
+  margin-bottom: 32px;
+}

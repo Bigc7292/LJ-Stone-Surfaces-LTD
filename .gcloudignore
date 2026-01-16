@@ -1,0 +1,7 @@
+.git
+.gitignore
+node_modules/
+server-errors.txt
+dev_error.log
+dev_error_final.log
+.DS_Store

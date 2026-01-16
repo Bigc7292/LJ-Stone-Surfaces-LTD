@@ -1,0 +1,7 @@
+{
+  "name": "Luxury Stone Visualizer",
+  "description": "An interactive tool for luxury kitchen fitters. Upload kitchen photos, mark surfaces, and visualize high-end stone materials like marble and quartz using AI-powered image editing.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

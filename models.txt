@@ -1,0 +1,56 @@
+﻿Fetching models from: https://generativelanguage.googleapis.com/v1beta/models?key=AIzaSyBfCNsLymrZohsTSLSfSQK8qdMbPqVyDH0
+AVAILABLE MODELS:
+MODEL: models/gemini-2.5-flash
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.0-flash-exp
+METHODS: generateContent, countTokens, bidiGenerateContent
+---
+MODEL: models/gemini-2.0-flash
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.0-flash-001
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.0-flash-exp-image-generation
+METHODS: generateContent, countTokens, bidiGenerateContent
+---
+MODEL: models/gemini-2.0-flash-lite-001
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.0-flash-lite
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.0-flash-lite-preview-02-05
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.0-flash-lite-preview
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.5-flash-preview-tts
+METHODS: countTokens, generateContent
+---
+MODEL: models/gemini-flash-latest
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-flash-lite-latest
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.5-flash-lite
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.5-flash-image-preview
+METHODS: generateContent, countTokens, batchGenerateContent
+---
+MODEL: models/gemini-2.5-flash-image
+METHODS: generateContent, countTokens, batchGenerateContent
+---
+MODEL: models/gemini-2.5-flash-preview-09-2025
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-2.5-flash-lite-preview-09-2025
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
+MODEL: models/gemini-3-flash-preview
+METHODS: generateContent, countTokens, createCachedContent, batchGenerateContent
+---
