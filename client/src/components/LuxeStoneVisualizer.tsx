@@ -35,7 +35,7 @@ const checkTone = (stone: any, tone: string) => {
 };
 
 // ============================================================================
-// 1. COMPONENT: IMAGE MAGNIFIER (THE LENS)
+// 1. COMPONENT: IMAGE MAGNIFIER (UPDATED WITH TOUCH & CLICK SUPPORT)
 // ============================================================================
 const ImageMagnifier: React.FC<{
     src: string;
@@ -49,19 +49,14 @@ const ImageMagnifier: React.FC<{
 
     if (!isActive) return <img src={src} className="w-full h-full object-contain" alt="Result" />;
 
-    const handleMouseEnter = (e: React.MouseEvent) => {
-        const elem = e.currentTarget;
-        const { width, height } = elem.getBoundingClientRect();
+    // Helper to update position for both Mouse and Touch
+    const updateCursor = (clientX: number, clientY: number, elem: HTMLElement) => {
+        const { top, left, width, height } = elem.getBoundingClientRect();
         setImgSize({ width, height });
-        setShowMagnifier(true);
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const elem = e.currentTarget;
-        const { top, left } = elem.getBoundingClientRect();
-        const x = e.clientX - left;
-        const y = e.clientY - top;
+        const x = clientX - left;
+        const y = clientY - top;
         setPosition({ x, y });
+        setShowMagnifier(true);
     };
 
     return (
@@ -71,10 +66,13 @@ const ImageMagnifier: React.FC<{
         >
             <img
                 src={src}
-                className="max-h-full max-w-full object-contain cursor-none"
-                onMouseEnter={handleMouseEnter}
-                onMouseMove={handleMouseMove}
+                className="max-h-full max-w-full object-contain cursor-none touch-none"
+                onMouseEnter={(e) => updateCursor(e.clientX, e.clientY, e.currentTarget)}
+                onMouseMove={(e) => updateCursor(e.clientX, e.clientY, e.currentTarget)}
                 onMouseLeave={() => setShowMagnifier(false)}
+                onTouchStart={(e) => updateCursor(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget as HTMLElement)}
+                onTouchMove={(e) => updateCursor(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget as HTMLElement)}
+                onTouchEnd={() => setShowMagnifier(false)}
                 alt="Zoomable Result"
             />
 
@@ -99,8 +97,9 @@ const ImageMagnifier: React.FC<{
                 />
             )}
 
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest pointer-events-none backdrop-blur-sm border border-white/10">
-                Hover to Inspect Texture
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest pointer-events-none backdrop-blur-sm border border-white/10 z-40">
+                <span className="hidden md:inline">Hover to Inspect Texture</span>
+                <span className="md:hidden">Touch & Drag to Magnify</span>
             </div>
         </div>
     );
@@ -164,7 +163,7 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; isFullScr
 };
 
 // ============================================================================
-// 3. COMPONENT: FULL SCREEN MODAL (WITH MAGNIFIER TOGGLE)
+// 3. COMPONENT: FULL SCREEN MODAL (UPDATED WITH CLEAR CONTROLS)
 // ============================================================================
 const FullScreenResultModal: React.FC<{
     original: string;
@@ -176,36 +175,51 @@ const FullScreenResultModal: React.FC<{
     return (
         <div className="fixed inset-0 z-[9999] bg-black flex flex-col h-[100dvh] w-screen animate-in fade-in duration-300">
             {/* Header Controls */}
-            <div className="absolute top-6 left-6 right-6 z-50 flex justify-between items-center pointer-events-none">
+            <div className="absolute top-6 left-6 right-6 z-50 flex justify-between items-start pointer-events-none">
 
-                {/* View Toggles */}
-                <div className="bg-slate-900/80 backdrop-blur-md p-1 rounded-xl border border-white/10 flex space-x-1 pointer-events-auto shadow-2xl">
+                {/* Left: View Toggles */}
+                <div className="bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-white/10 flex flex-col sm:flex-row gap-1 pointer-events-auto shadow-2xl">
                     <button
                         onClick={() => setViewMode('COMPARE')}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all ${viewMode === 'COMPARE' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-lg text-xs font-bold uppercase transition-all ${viewMode === 'COMPARE' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}
                     >
                         <Grid className="w-4 h-4" />
                         <span>Compare</span>
                     </button>
                     <button
                         onClick={() => setViewMode('MAGNIFY')}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all ${viewMode === 'MAGNIFY' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-lg text-xs font-bold uppercase transition-all ${viewMode === 'MAGNIFY' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}
                     >
                         <ZoomIn className="w-4 h-4" />
                         <span>Inspect Stone</span>
                     </button>
                 </div>
 
-                {/* Close Button */}
-                <button onClick={onClose} className="bg-slate-900/80 hover:bg-slate-800 text-white rounded-full p-3 pointer-events-auto transition-all backdrop-blur-md border border-white/10 shadow-xl group">
-                    <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+                {/* Right: EXIT Button */}
+                <button
+                    onClick={onClose}
+                    className="pointer-events-auto bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-2 border border-red-400 transition-transform active:scale-95"
+                >
+                    <X className="w-5 h-5" />
+                    <span className="hidden sm:inline">Exit Full Screen</span>
                 </button>
             </div>
 
             {/* Content Area */}
             <div className="flex-1 w-full h-full relative overflow-hidden">
                 {viewMode === 'COMPARE' ? (
-                    <ComparisonSlider original={original} modified={modified} isFullScreen={true} />
+                    <>
+                        <ComparisonSlider original={original} modified={modified} isFullScreen={true} />
+                        {/* Floating Action Button to prompt Zooming */}
+                        <div className="absolute bottom-24 right-6 z-40 pointer-events-auto animate-bounce">
+                            <button
+                                onClick={() => setViewMode('MAGNIFY')}
+                                className="bg-amber-500 text-slate-900 p-4 rounded-full shadow-2xl border-2 border-white/20 hover:scale-110 transition-transform"
+                            >
+                                <ZoomIn className="w-6 h-6" />
+                            </button>
+                        </div>
+                    </>
                 ) : (
                     <ImageMagnifier src={modified} isActive={true} />
                 )}
