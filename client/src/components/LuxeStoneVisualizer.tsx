@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, Grid, X, Filter, ChevronDown, ZoomIn, Eye } from 'lucide-react';
+import { Search, Grid, X, Filter, ChevronDown, ZoomIn, Eye, Minus, Plus } from 'lucide-react';
 import type { AppStep, Marker } from '@/types/visualizer';
 // IMPORT YOUR DATA
 import libraryData from '@/data/stoneLibrary.json';
@@ -35,63 +35,83 @@ const checkTone = (stone: any, tone: string) => {
 };
 
 // ============================================================================
-// 1. COMPONENT: IMAGE MAGNIFIER (UPDATED SIZE & CONTROLS)
+// 1. COMPONENT: ZOOM & PAN VIEW (REPLACES MAGNIFIER)
 // ============================================================================
-const ImageMagnifier: React.FC<{
-    src: string;
-    zoomLevel?: number;
-    cursorSize?: number;
-    isActive: boolean;
-}> = ({ src, zoomLevel = 2.5, cursorSize = 98, isActive }) => { // cursorSize reduced by 35%
+const ZoomableView: React.FC<{ src: string }> = ({ src }) => {
+    const [scale, setScale] = useState(1);
     const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [showMagnifier, setShowMagnifier] = useState(false);
-    const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    if (!isActive) return <img src={src} className="w-full h-full object-contain" alt="Result" />;
-
-    const updateCursor = (clientX: number, clientY: number, elem: HTMLElement) => {
-        const { top, left, width, height } = elem.getBoundingClientRect();
-        setImgSize({ width, height });
-        const x = clientX - left;
-        const y = clientY - top;
-        setPosition({ x, y });
-        setShowMagnifier(true);
+    // Limit zoom to 4x to maintain stone texture quality
+    const handleZoomIn = () => setScale(prev => Math.min(prev + 0.5, 4));
+    const handleZoomOut = () => {
+        const nextScale = Math.max(scale - 0.5, 1);
+        setScale(nextScale);
+        if (nextScale === 1) setPosition({ x: 0, y: 0 });
     };
 
-    return (
-        <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/90">
-            <img
-                src={src}
-                className="max-h-full max-w-full object-contain cursor-none touch-none"
-                onMouseEnter={(e) => updateCursor(e.clientX, e.clientY, e.currentTarget)}
-                onMouseMove={(e) => updateCursor(e.clientX, e.clientY, e.currentTarget)}
-                onMouseLeave={() => setShowMagnifier(false)}
-                onTouchStart={(e) => updateCursor(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget as HTMLElement)}
-                onTouchMove={(e) => updateCursor(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget as HTMLElement)}
-                onTouchEnd={() => setShowMagnifier(false)}
-                alt="Zoomable Result"
-            />
+    const handlePointerDown = (e: React.PointerEvent) => {
+        if (scale > 1) {
+            setIsDragging(true);
+            setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
+        }
+    };
 
-            {showMagnifier && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: `${position.x - cursorSize / 2}px`,
-                        top: `${position.y - cursorSize / 2}px`,
-                        width: `${cursorSize}px`,
-                        height: `${cursorSize}px`,
-                        border: '2px solid rgba(255, 255, 255, 0.5)',
-                        borderRadius: '50%',
-                        backgroundImage: `url('${src}')`,
-                        backgroundSize: `${imgSize.width * zoomLevel}px ${imgSize.height * zoomLevel}px`,
-                        backgroundPositionX: `${-position.x * zoomLevel + cursorSize / 2}px`,
-                        backgroundPositionY: `${-position.y * zoomLevel + cursorSize / 2}px`,
-                        pointerEvents: 'none',
-                        zIndex: 50,
-                        boxShadow: '0 0 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.5)'
-                    }}
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!isDragging || scale <= 1) return;
+        setPosition({
+            x: e.clientX - startPos.x,
+            y: e.clientY - startPos.y
+        });
+    };
+
+    const handlePointerUp = () => setIsDragging(false);
+
+    return (
+        <div
+            ref={containerRef}
+            className="relative w-full h-full overflow-hidden bg-black flex items-center justify-center touch-none select-none"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+        >
+            <div
+                style={{
+                    transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                    transition: isDragging ? 'none' : 'transform 0.2s cubic-bezier(0.2, 0, 0.2, 1)',
+                    cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                }}
+                className="w-full h-full flex items-center justify-center"
+            >
+                <img
+                    src={src}
+                    alt="Zoomable Result"
+                    className="max-h-full max-w-full object-contain pointer-events-none"
+                    draggable={false}
                 />
-            )}
+            </div>
+
+            {/* Floating Zoom Controls Inside the View Area */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-2xl z-[110]">
+                <button
+                    onClick={handleZoomOut}
+                    className="p-3 hover:bg-white/10 rounded-xl text-white transition-colors"
+                >
+                    <Minus className="w-4 h-4" />
+                </button>
+                <div className="text-[10px] font-black text-amber-500 w-12 text-center uppercase tracking-widest">
+                    {Math.round(scale * 100)}%
+                </div>
+                <button
+                    onClick={handleZoomIn}
+                    className="p-3 hover:bg-white/10 rounded-xl text-white transition-colors"
+                >
+                    <Plus className="w-4 h-4" />
+                </button>
+            </div>
         </div>
     );
 };
@@ -154,28 +174,29 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; isFullScr
 };
 
 // ============================================================================
-// 3. COMPONENT: FULL SCREEN MODAL (REPOSITIONED CONTROLS TO BOTTOM)
+// 3. COMPONENT: FULL SCREEN MODAL (UPDATED FOR ZOOM)
 // ============================================================================
 const FullScreenResultModal: React.FC<{
     original: string;
     modified: string;
     onClose: () => void;
 }> = ({ original, modified, onClose }) => {
-    const [viewMode, setViewMode] = useState<'COMPARE' | 'MAGNIFY'>('COMPARE');
+    // viewMode updated to use 'ZOOM' instead of 'MAGNIFY'
+    const [viewMode, setViewMode] = useState<'COMPARE' | 'ZOOM'>('COMPARE');
 
     return (
         <div className="fixed inset-0 z-[9999] bg-black flex flex-col h-[100dvh] w-screen animate-in fade-in duration-300">
 
-            {/* Main View Area */}
-            <div className="flex-1 w-full h-full relative overflow-hidden pb-24">
+            {/* Main View Area - pb-32 allows space for zoom buttons */}
+            <div className="flex-1 w-full h-full relative overflow-hidden pb-32">
                 {viewMode === 'COMPARE' ? (
                     <ComparisonSlider original={original} modified={modified} isFullScreen={true} />
                 ) : (
-                    <ImageMagnifier src={modified} isActive={true} />
+                    <ZoomableView src={modified} />
                 )}
             </div>
 
-            {/* FLOATING BOTTOM ACTION BAR: Repositioned to stay clear of top header */}
+            {/* FLOATING BOTTOM ACTION BAR */}
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[95%] max-w-md z-[10000] flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4">
 
                 {/* Left side: View Toggles */}
@@ -188,8 +209,8 @@ const FullScreenResultModal: React.FC<{
                         <span className="hidden sm:inline">Compare</span>
                     </button>
                     <button
-                        onClick={() => setViewMode('MAGNIFY')}
-                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${viewMode === 'MAGNIFY' ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:text-white'}`}
+                        onClick={() => setViewMode('ZOOM')}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${viewMode === 'ZOOM' ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:text-white'}`}
                     >
                         <ZoomIn className="w-4 h-4" />
                         <span className="hidden sm:inline">Inspect</span>
@@ -212,7 +233,7 @@ const FullScreenResultModal: React.FC<{
             {/* Small Hint Text */}
             <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-none z-40">
                 <p className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em] whitespace-nowrap bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">
-                    {viewMode === 'COMPARE' ? 'Slide Center Bar' : 'Drag to Zoom'}
+                    {viewMode === 'COMPARE' ? 'Slide Center Bar' : 'Drag Image to Pan'}
                 </p>
             </div>
         </div>
