@@ -154,7 +154,7 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; isFullScr
 };
 
 // ============================================================================
-// 3. COMPONENT: FULL SCREEN MODAL (FIXED EXIT & POSITIONING)
+// 3. COMPONENT: FULL SCREEN MODAL (REPOSITIONED CONTROLS TO BOTTOM)
 // ============================================================================
 const FullScreenResultModal: React.FC<{
     original: string;
@@ -165,38 +165,9 @@ const FullScreenResultModal: React.FC<{
 
     return (
         <div className="fixed inset-0 z-[9999] bg-black flex flex-col h-[100dvh] w-screen animate-in fade-in duration-300">
-            {/* Header: Repositioned to avoid overlap with bottom-right floating icons */}
-            <div className="absolute top-6 left-6 right-6 z-50 flex justify-between items-start pointer-events-none">
 
-                {/* Left side View Toggles (safe from WhatsApp icon) */}
-                <div className="flex flex-col sm:flex-row gap-2 pointer-events-auto">
-                    <button
-                        onClick={() => setViewMode('COMPARE')}
-                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold uppercase transition-all backdrop-blur-md border border-white/10 ${viewMode === 'COMPARE' ? 'bg-amber-500 text-slate-950' : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800'}`}
-                    >
-                        <Grid className="w-4 h-4" />
-                        <span>Compare</span>
-                    </button>
-                    <button
-                        onClick={() => setViewMode('MAGNIFY')}
-                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold uppercase transition-all backdrop-blur-md border border-white/10 ${viewMode === 'MAGNIFY' ? 'bg-amber-500 text-slate-950' : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800'}`}
-                    >
-                        <ZoomIn className="w-4 h-4" />
-                        <span>Inspect Stone</span>
-                    </button>
-                </div>
-
-                {/* Clear RED EXIT Button (High visibility, top right) */}
-                <button
-                    onClick={onClose}
-                    className="pointer-events-auto bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl flex items-center gap-2 border border-red-400/50 transition-all active:scale-95 shadow-red-600/20"
-                >
-                    <X className="w-5 h-5" />
-                    <span>Exit</span>
-                </button>
-            </div>
-
-            <div className="flex-1 w-full h-full relative overflow-hidden">
+            {/* Main View Area */}
+            <div className="flex-1 w-full h-full relative overflow-hidden pb-24">
                 {viewMode === 'COMPARE' ? (
                     <ComparisonSlider original={original} modified={modified} isFullScreen={true} />
                 ) : (
@@ -204,9 +175,45 @@ const FullScreenResultModal: React.FC<{
                 )}
             </div>
 
-            {/* Helper text repositioned to bottom center to stay clear of corners */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest pointer-events-none backdrop-blur-sm border border-white/10 z-40">
-                {viewMode === 'COMPARE' ? 'Slide to Compare Before & After' : 'Drag to Inspect Texture'}
+            {/* FLOATING BOTTOM ACTION BAR: Repositioned to stay clear of top header */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[95%] max-w-md z-[10000] flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-4">
+
+                {/* Left side: View Toggles */}
+                <div className="flex gap-1">
+                    <button
+                        onClick={() => setViewMode('COMPARE')}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${viewMode === 'COMPARE' ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:text-white'}`}
+                    >
+                        <Grid className="w-4 h-4" />
+                        <span className="hidden sm:inline">Compare</span>
+                    </button>
+                    <button
+                        onClick={() => setViewMode('MAGNIFY')}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${viewMode === 'MAGNIFY' ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20' : 'text-slate-400 hover:text-white'}`}
+                    >
+                        <ZoomIn className="w-4 h-4" />
+                        <span className="hidden sm:inline">Inspect</span>
+                    </button>
+                </div>
+
+                {/* Vertical Divider */}
+                <div className="w-px h-8 bg-white/10 mx-2" />
+
+                {/* Right side: RED EXIT Button */}
+                <button
+                    onClick={onClose}
+                    className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg flex items-center gap-2 transition-all active:scale-95"
+                >
+                    <X className="w-4 h-4" />
+                    <span>Exit</span>
+                </button>
+            </div>
+
+            {/* Small Hint Text */}
+            <div className="absolute bottom-28 left-1/2 -translate-x-1/2 pointer-events-none z-40">
+                <p className="text-[9px] font-bold text-white/40 uppercase tracking-[0.2em] whitespace-nowrap bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">
+                    {viewMode === 'COMPARE' ? 'Slide Center Bar' : 'Drag to Zoom'}
+                </p>
             </div>
         </div>
     );
