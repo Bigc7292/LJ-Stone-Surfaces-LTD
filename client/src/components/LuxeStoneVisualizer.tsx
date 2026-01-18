@@ -15,7 +15,6 @@ const STONE_TONES = [
     { id: 'natural', name: 'Natural / Unchanged', hex: '#e2e8f0' },
     { id: 'cool', name: 'Cool / Grey', hex: '#94a3b8' },
     { id: 'warm', name: 'Warm / Beige', hex: '#d6d3d1' },
-    { id: 'dark', name: 'Dark / Charcoal', hex: '#334155' },
     { id: 'dramatic', name: 'High Contrast', hex: '#0f172a' },
 ];
 
@@ -66,7 +65,10 @@ const ImageMagnifier: React.FC<{
     };
 
     return (
-        <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/90">
+        <div
+            className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/90"
+            style={{ position: 'relative' }}
+        >
             <img
                 src={src}
                 className="max-h-full max-w-full object-contain cursor-none"
