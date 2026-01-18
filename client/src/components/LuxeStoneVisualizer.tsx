@@ -35,21 +35,20 @@ const checkTone = (stone: any, tone: string) => {
 };
 
 // ============================================================================
-// 1. COMPONENT: IMAGE MAGNIFIER (UPDATED WITH TOUCH & CLICK SUPPORT)
+// 1. COMPONENT: IMAGE MAGNIFIER (UPDATED SIZE & CONTROLS)
 // ============================================================================
 const ImageMagnifier: React.FC<{
     src: string;
     zoomLevel?: number;
     cursorSize?: number;
     isActive: boolean;
-}> = ({ src, zoomLevel = 2.5, cursorSize = 150, isActive }) => {
+}> = ({ src, zoomLevel = 2.5, cursorSize = 98, isActive }) => { // cursorSize reduced by 35%
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [showMagnifier, setShowMagnifier] = useState(false);
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
 
     if (!isActive) return <img src={src} className="w-full h-full object-contain" alt="Result" />;
 
-    // Helper to update position for both Mouse and Touch
     const updateCursor = (clientX: number, clientY: number, elem: HTMLElement) => {
         const { top, left, width, height } = elem.getBoundingClientRect();
         setImgSize({ width, height });
@@ -60,10 +59,7 @@ const ImageMagnifier: React.FC<{
     };
 
     return (
-        <div
-            className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/90"
-            style={{ position: 'relative' }}
-        >
+        <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/90">
             <img
                 src={src}
                 className="max-h-full max-w-full object-contain cursor-none touch-none"
@@ -96,11 +92,6 @@ const ImageMagnifier: React.FC<{
                     }}
                 />
             )}
-
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest pointer-events-none backdrop-blur-sm border border-white/10 z-40">
-                <span className="hidden md:inline">Hover to Inspect Texture</span>
-                <span className="md:hidden">Touch & Drag to Magnify</span>
-            </div>
         </div>
     );
 };
@@ -163,7 +154,7 @@ const ComparisonSlider: React.FC<{ original: string; modified: string; isFullScr
 };
 
 // ============================================================================
-// 3. COMPONENT: FULL SCREEN MODAL (UPDATED WITH CLEAR CONTROLS)
+// 3. COMPONENT: FULL SCREEN MODAL (FIXED EXIT & POSITIONING)
 // ============================================================================
 const FullScreenResultModal: React.FC<{
     original: string;
@@ -174,62 +165,55 @@ const FullScreenResultModal: React.FC<{
 
     return (
         <div className="fixed inset-0 z-[9999] bg-black flex flex-col h-[100dvh] w-screen animate-in fade-in duration-300">
-            {/* Header Controls */}
+            {/* Header: Repositioned to avoid overlap with bottom-right floating icons */}
             <div className="absolute top-6 left-6 right-6 z-50 flex justify-between items-start pointer-events-none">
 
-                {/* Left: View Toggles */}
-                <div className="bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-white/10 flex flex-col sm:flex-row gap-1 pointer-events-auto shadow-2xl">
+                {/* Left side View Toggles (safe from WhatsApp icon) */}
+                <div className="flex flex-col sm:flex-row gap-2 pointer-events-auto">
                     <button
                         onClick={() => setViewMode('COMPARE')}
-                        className={`flex items-center space-x-2 px-4 py-3 rounded-lg text-xs font-bold uppercase transition-all ${viewMode === 'COMPARE' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold uppercase transition-all backdrop-blur-md border border-white/10 ${viewMode === 'COMPARE' ? 'bg-amber-500 text-slate-950' : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800'}`}
                     >
                         <Grid className="w-4 h-4" />
                         <span>Compare</span>
                     </button>
                     <button
                         onClick={() => setViewMode('MAGNIFY')}
-                        className={`flex items-center space-x-2 px-4 py-3 rounded-lg text-xs font-bold uppercase transition-all ${viewMode === 'MAGNIFY' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold uppercase transition-all backdrop-blur-md border border-white/10 ${viewMode === 'MAGNIFY' ? 'bg-amber-500 text-slate-950' : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800'}`}
                     >
                         <ZoomIn className="w-4 h-4" />
                         <span>Inspect Stone</span>
                     </button>
                 </div>
 
-                {/* Right: EXIT Button */}
+                {/* Clear RED EXIT Button (High visibility, top right) */}
                 <button
                     onClick={onClose}
-                    className="pointer-events-auto bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-2 border border-red-400 transition-transform active:scale-95"
+                    className="pointer-events-auto bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl flex items-center gap-2 border border-red-400/50 transition-all active:scale-95 shadow-red-600/20"
                 >
                     <X className="w-5 h-5" />
-                    <span className="hidden sm:inline">Exit Full Screen</span>
+                    <span>Exit</span>
                 </button>
             </div>
 
-            {/* Content Area */}
             <div className="flex-1 w-full h-full relative overflow-hidden">
                 {viewMode === 'COMPARE' ? (
-                    <>
-                        <ComparisonSlider original={original} modified={modified} isFullScreen={true} />
-                        {/* Floating Action Button to prompt Zooming */}
-                        <div className="absolute bottom-24 right-6 z-40 pointer-events-auto animate-bounce">
-                            <button
-                                onClick={() => setViewMode('MAGNIFY')}
-                                className="bg-amber-500 text-slate-900 p-4 rounded-full shadow-2xl border-2 border-white/20 hover:scale-110 transition-transform"
-                            >
-                                <ZoomIn className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </>
+                    <ComparisonSlider original={original} modified={modified} isFullScreen={true} />
                 ) : (
                     <ImageMagnifier src={modified} isActive={true} />
                 )}
+            </div>
+
+            {/* Helper text repositioned to bottom center to stay clear of corners */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest pointer-events-none backdrop-blur-sm border border-white/10 z-40">
+                {viewMode === 'COMPARE' ? 'Slide to Compare Before & After' : 'Drag to Inspect Texture'}
             </div>
         </div>
     );
 };
 
 // ============================================================================
-// 4. COMPONENT: MATERIAL LIBRARY MODAL (FIXED THUMBNAILS)
+// 4. COMPONENT: MATERIAL LIBRARY MODAL
 // ============================================================================
 const MaterialLibraryModal: React.FC<{
     isOpen: boolean;
@@ -321,7 +305,6 @@ const MaterialLibraryModal: React.FC<{
                                 onClick={() => { onSelect(m); onClose(); }}
                                 className="group flex flex-col bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-amber-500 transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] text-left relative"
                             >
-                                {/* --- THUMBNAIL FIX: Fit Image + Dark BG --- */}
                                 <div className="aspect-square overflow-hidden relative w-full bg-slate-950 p-2 flex items-center justify-center">
                                     <div className="absolute inset-0 bg-neutral-900"></div>
                                     <img
@@ -356,13 +339,6 @@ const MaterialLibraryModal: React.FC<{
                                 Load More <ChevronDown className="w-4 h-4" />
                             </button>
                             <p className="text-[10px] text-slate-500 mt-2">Showing {visibleCount} of {filtered.length} matches</p>
-                        </div>
-                    )}
-                    {filtered.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 text-slate-500">
-                            <Filter className="w-12 h-12 mb-4 opacity-20" />
-                            <p className="text-sm font-medium">No materials found.</p>
-                            <button onClick={() => { setSearch(''); setActiveCategory('All'); setActiveTone('All'); }} className="mt-4 text-amber-500 text-xs font-bold uppercase hover:underline">Clear Filters</button>
                         </div>
                     )}
                 </div>
@@ -410,7 +386,7 @@ const ChatInterface: React.FC<{ onSendMessage: (msg: string) => void; isLoading:
 };
 
 // ============================================================================
-// 6. COMPONENT: SELECTED MATERIAL CARD (SIDEBAR VIEW)
+// 6. COMPONENT: SELECTED MATERIAL CARD
 // ============================================================================
 const SelectedMaterialCard: React.FC<{ material: any; onClick: () => void }> = ({ material, onClick }) => (
     <button
@@ -427,18 +403,9 @@ const SelectedMaterialCard: React.FC<{ material: any; onClick: () => void }> = (
             <span className="text-[8px] opacity-60 uppercase tracking-widest font-bold mt-1 ml-3.5 text-slate-300">
                 {material.category} • {material.texture}
             </span>
-            <span className="text-[8px] text-amber-500/50 uppercase font-bold mt-2 ml-3.5 flex items-center gap-1">
-                <Grid className="w-3 h-3" /> Change Material
-            </span>
         </div>
         <div className="relative w-20 h-[80px] border-l border-amber-500/30 shrink-0 overflow-hidden rounded-r-2xl">
-            {material.swatchUrl ? (
-                <img src={material.swatchUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-                <div className="w-full h-full flex items-center justify-center bg-slate-900/50">
-                    <Grid className="w-6 h-6 text-amber-500/50" />
-                </div>
-            )}
+            {material.swatchUrl ? <img src={material.swatchUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-900/50"><Grid className="w-6 h-6 text-amber-500/50" /></div>}
         </div>
     </button>
 );
@@ -538,7 +505,13 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
     return (
         <>
-            {showFsModal && originalImage && resultImage && (<FullScreenResultModal original={originalImage} modified={resultImage} onClose={() => setShowFsModal(false)} />)}
+            {showFsModal && originalImage && resultImage && (
+                <FullScreenResultModal
+                    original={originalImage}
+                    modified={resultImage}
+                    onClose={() => setShowFsModal(false)}
+                />
+            )}
 
             <MaterialLibraryModal
                 isOpen={showLibraryModal}
