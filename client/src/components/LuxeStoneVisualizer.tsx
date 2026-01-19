@@ -458,6 +458,9 @@ const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel:
 // 8. MAIN COMPONENT: LUXE STONE VISUALIZER
 // ============================================================================
 export const LuxeStoneVisualizer: React.FC = () => {
+    const [roomImage1, setRoomImage1] = useState<string | null>(null);
+    const [roomImage2, setRoomImage2] = useState<string | null>(null);
+    const [stoneSample, setStoneSample] = useState<string | null>(null);
     const [step, setStep] = useState<AppStep>('UPLOAD');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [resultImage, setResultImage] = useState<string | null>(null);
@@ -514,6 +517,8 @@ export const LuxeStoneVisualizer: React.FC = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     image: imageToProcess,
+                    imagePath2: roomImage2, // Angle 2 (New)
+                    stoneSlabPath: selectedMaterial.swatchUrl, // Catalog Stone Image (New)
                     stoneType: selectedMaterial.name,
                     stoneDescription: (selectedMaterial as any).description || `A ${selectedMaterial.texture} stone surface named ${selectedMaterial.name}`,
                     color: selectedTone.name,

@@ -23,7 +23,7 @@ export async function registerRoutes(
 
     try {
       // 2. Destructure inputs - ADDED "stoneDescription"
-      const { image, stoneType, markers, finishType, color, prompt, stoneDescription } = req.body;
+      const { image, imagePath2, stoneSlabPath, stoneType, markers, finishType, color, prompt, stoneDescription } = req.body;
 
       // Validation
       if (!image) return res.status(400).json({ message: "Image data is required" });
@@ -52,6 +52,8 @@ export async function registerRoutes(
       // 4. Call the Advanced AI Service
       const imageUrl = await AIService.performInpainting({
         imagePath: image,
+        imagePath2: imagePath2,
+        stoneSlabPath: stoneSlabPath,
         stoneType: stoneType || "Marble",
         // Send our new detailed prompt
         prompt: finalPrompt,
@@ -126,7 +128,7 @@ export async function registerRoutes(
   app.post(api.ai.tts.path, async (req, res) => {
     try {
       const { text } = api.ai.tts.input.parse(req.body);
-      await AIService.generateRecommendation(text);
+      await AIService.generateRecommendation(text, undefined);
       res.json({ audioBase64: "" });
     } catch (err) {
       console.error("AI TTS Error:", err);
@@ -205,6 +207,8 @@ export async function registerRoutes(
       // 2. Generate Image via Backend Service
       const generatedImageUrl = await AIService.performInpainting({
         imagePath: input.originalImageUrl,
+        imagePath2: undefined,
+        stoneSlabPath: undefined,
         stoneType: input.stoneSelected,
         markers: input.markers || [],
         prompt: input.promptUsed

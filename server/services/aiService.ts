@@ -35,6 +35,12 @@ const ai = new GoogleGenAI({ apiKey: apiKey || "missing-key" });
 // 2. AI SERVICE (THE BRAIN)
 // ============================================================================
 export class AIService {
+    static generateRecommendation(fullPrompt: string, image: string | undefined) {
+        throw new Error("Method not implemented.");
+    }
+    static generateImage(description: string) {
+        throw new Error("Method not implemented.");
+    }
 
     /**
      * FEATURE 1: SMART SURFACE DETECTION
@@ -89,20 +95,25 @@ export class AIService {
      * Includes: Depth Awareness, Magic Eraser, and Similar Surface Recognition
      */
     static async performInpainting({
-        imagePath,
+        imagePath,        // Angle 1 (Main)
+        imagePath2,       // Angle 2 (Perspective)
+        stoneSlabPath,    // The Actual Stone Slab Reference
         stoneType,
         stoneDescription,
         finishType,
         color,
         prompt: userPrompt,
         markers,
-        declutter = false, // FEATURE 4: Magic Eraser flag
-        autoDetectSimilar = true // FEATURE 1 & 5: Auto-apply to similar surfaces
+        declutter = false,
+        autoDetectSimilar = true
     }: any) {
 
-        const base64Data = imagePath.replace(/^data:image\/\w+;base64,/, "");
+        // Clean Base64 data for all three inputs
+        const base64Data1 = imagePath.replace(/^data:image\/\w+;base64,/, "");
+        const base64Data2 = imagePath2 ? imagePath2.replace(/^data:image\/\w+;base64,/, "") : base64Data1;
+        const base64Slab = stoneSlabPath ? stoneSlabPath.replace(/^data:image\/\w+;base64,/, "") : null;
 
-        // A. Finish Logic
+        // A. Finish Logic (Preserved)
         let finishInstruction = '';
         switch (finishType) {
             case 'Polished': finishInstruction = `FINISH: POLISHED. High gloss, sharp specular highlights, mirror-like reflectivity.`; break;
@@ -111,7 +122,7 @@ export class AIService {
             default: finishInstruction = `FINISH: POLISHED.`;
         }
 
-        // B. Smart Targeting Logic
+        // B. Smart Targeting Logic (Preserved)
         let targetInstruction = "Detect the main surface.";
         if (markers && markers.length > 0) {
             targetInstruction = markers.map((m: any, i: number) =>
@@ -119,52 +130,53 @@ export class AIService {
             ).join("\n");
 
             if (autoDetectSimilar) {
-                targetInstruction += "\nINTELLIGENT EXPANSION: Identify and include ALL surfaces that are structurally identical or contiguous to the targets above (e.g., if one wall is marked, apply to ALL walls).";
+                targetInstruction += "\nINTELLIGENT EXPANSION: Identify and include ALL surfaces that are structurally identical.";
             }
         }
 
-        // C. The "Mega-Prompt" with Depth & Decluttering
+        // C. The "Mega-Prompt" (Updated for Spatial Consistency)
         const fullPrompt = `
       ROLE: Expert 3D Architectural Visualizer & Retoucher.
-      
-      OBJECTIVE: Apply a specific stone material to the targeted architectural elements.
+      TASK: Replace the identified countertops in both room images with the texture from the stone slab image.
 
-      --- 1. ANALYSIS PHASE (INTERNAL) ---
-      - DEPTH MAPPING: Analyze the scene's volumetric geometry. Identify curved surfaces, corners, and lighting fall-off.
-      - DECLUTTERING: ${declutter ? "REMOVE small objects (cups, mail, bottles) from the target surfaces before applying stone." : "Preserve existing objects on the surface."}
-      - SEGMENTATION: Identify the exact boundaries of:
-      ${targetInstruction}
+      --- 1. SPATIAL REASONING ---
+      - Cross-reference Image 1 and Image 2 to understand the 3D volume of the surfaces.
+      - Ensure the stone veining flows naturally across corners and joins.
+      - MATCH LIGHTING: The stone must inherit the exact highlights and shadows of the room.
 
-      --- 2. MATERIAL SPECIFICATION ---
-      NAME: ${stoneType}
-      VISUAL GENOME: ${stoneDescription || `A generic ${color} stone.`}
-      TONE: ${color}
+      --- 2. SURFACE DATA ---
+      TARGETS: ${targetInstruction}
+      MATERIAL: ${stoneType} (${stoneDescription})
       ${finishInstruction}
+      ${declutter ? "MAGIC ERASER: Remove clutter from surfaces first." : ""}
 
-      --- 3. EXECUTION PROTOCOL ---
-      - MAPPING: Wrap the stone texture physically around the object's geometry (UV Mapping).
-      - LIGHTING: Preserve all Ambient Occlusion and Cast Shadows. The stone must look physically "sunken" into the light environment.
-      - EDGES: Maintain razor-sharp masking edges against floors, ceilings, and faucets.
-      
-      USER INSTRUCTION: "${userPrompt || 'Replace these surfaces.'}"
-
-      OUTPUT: Return ONLY the final photorealistic image.
+      OUTPUT: Return ONLY the final photorealistic render of the first room image.
     `;
 
-        // D. Call Google Gemini 2.5
+        // D. Call Google Gemini with Multi-Part Payload
         return fetchWithRetry(async () => {
-            console.log(`[AI Service] Generating... Declutter: ${declutter}, Auto-Expand: ${autoDetectSimilar}`);
+            console.log(`[AI Service] Multi-Perspective Rendering Start...`);
+
+            const parts: any[] = [
+                { inlineData: { data: base64Data1, mimeType: 'image/jpeg' } }, // View 1
+                { inlineData: { data: base64Data2, mimeType: 'image/jpeg' } }, // View 2
+            ];
+
+            if (base64Slab) {
+                parts.push({ inlineData: { data: base64Slab, mimeType: 'image/jpeg' } }); // The Stone
+            }
+
+            parts.push({ text: fullPrompt });
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-image',
-                contents: {
-                    parts: [
-                        { inlineData: { data: base64Data, mimeType: 'image/jpeg' } },
-                        { text: fullPrompt },
-                    ],
-                },
+                model: 'gemini-2.0-flash', // Optimized for image-to-image spatial tasks
+                contents: [
+                    {
+                        parts: parts,
+                    }
+                ],
                 config: {
-                    responseModalities: ["IMAGE"], // Force Image Output
+                    responseModalities: ["IMAGE"],
                 }
             });
 
@@ -176,11 +188,7 @@ export class AIService {
                     return `data:image/png;base64,${part.inlineData.data}`;
                 }
             }
-
             throw new ArchitecturalEngineError('REFUSAL', "Model refused to render.");
-        }).catch((error: any) => {
-            console.error("[AI Error]", error);
-            throw new Error(`Visualizer Error: ${error.message}`);
         });
     }
 
