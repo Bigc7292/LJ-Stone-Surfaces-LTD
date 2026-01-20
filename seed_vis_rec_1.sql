@@ -1,0 +1,1 @@
+INSERT INTO visualizer_generations (id, original_image_url, generated_image_url, stone_selected, prompt_used, markers, created_at) VALUES ('1', 'https://example.com/image.jpg', NULL, 'marble', 'Auto-generated on server', NULL, 'NOW()') ON CONFLICT (id) DO NOTHING;

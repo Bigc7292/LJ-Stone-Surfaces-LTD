@@ -84,3 +84,16 @@ export const insertDesignSessionSchema = createInsertSchema(designSessions).omit
 export type DesignSession = typeof designSessions.$inferSelect;
 export type InsertDesignSession = z.infer<typeof insertDesignSessionSchema>;
 
+
+export const portfolio_gallery = pgTable("portfolio_gallery", {
+  id: serial("id").primaryKey(),
+  imageUrl: text("image_url").notNull(),
+  title: text("title").notNull(),
+  category: text("category").default('Kitchen'),
+  createdAt: text("created_at").default("NOW()"),
+});
+
+export const insertPortfolioSchema = createInsertSchema(portfolio_gallery);
+export const selectPortfolioSchema = createSelectSchema(portfolio_gallery);
+export type InsertPortfolio = z.infer<typeof insertPortfolioSchema>;
+export type PortfolioItem = z.infer<typeof selectPortfolioSchema>;
