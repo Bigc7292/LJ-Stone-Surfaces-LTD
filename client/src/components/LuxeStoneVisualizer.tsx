@@ -2,11 +2,11 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, Grid, X, Filter, ChevronDown, ZoomIn, Eye, Minus, Plus } from 'lucide-react';
 import type { AppStep } from '@/types/visualizer';
 // IMPORT YOUR DATA
-import libraryData from '@/data/stoneLibrary.json';
+import { STONE_LIBRARY_3D } from '@/data/stoneLibrary3D';
 
 // Fallback to prevent crashes if data is missing
-const SAFE_LIBRARY = libraryData.length > 0 ? libraryData : [
-    { id: 'fallback', name: 'Loading Stones...', category: 'System', texture: 'Matte', swatchUrl: '', description: '' }
+const SAFE_LIBRARY = STONE_LIBRARY_3D.length > 0 ? STONE_LIBRARY_3D : [
+    { id: 'fallback', name: 'Loading Stones...', category: 'System', swatchUrl: '', texturePath: '' }
 ];
 
 // --- CONSTANTS ---
@@ -347,7 +347,7 @@ const MaterialLibraryModal: React.FC<{
                                     />
                                     <div className="absolute top-2 left-2 z-20">
                                         <span className="bg-black/60 backdrop-blur px-2 py-0.5 rounded text-[8px] font-bold text-white uppercase border border-white/10">
-                                            {m.id.startsWith('cs') ? 'Caesarstone' : m.id.startsWith('cos') ? 'Cosentino' : 'Gemini'}
+                                            3D Texture
                                         </span>
                                     </div>
                                 </div>
@@ -429,7 +429,7 @@ const SelectedMaterialCard: React.FC<{ material: any; onClick: () => void }> = (
                 </span>
             </div>
             <span className="text-[8px] opacity-60 uppercase tracking-widest font-bold mt-1 ml-3.5 text-slate-300">
-                {material.category} • {material.texture}
+                {material.category} • HD Texture
             </span>
         </div>
         <div className="relative w-20 h-[80px] border-l border-amber-500/30 shrink-0 overflow-hidden rounded-r-2xl">
@@ -460,7 +460,6 @@ const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel:
 export const LuxeStoneVisualizer: React.FC = () => {
     const [angleAFile, setAngleAFile] = useState<string | null>(null);
     const [angleBFile, setAngleBFile] = useState<string | null>(null);
-    const [styleReferenceFile, setStyleReferenceFile] = useState<string | null>(null);
     const [step, setStep] = useState<AppStep>('UPLOAD');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [resultImage, setResultImage] = useState<string | null>(null);
@@ -476,7 +475,6 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
     const angleAInputRef = useRef<HTMLInputElement>(null);
     const angleBInputRef = useRef<HTMLInputElement>(null);
-    const styleReferenceInputRef = useRef<HTMLInputElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -498,17 +496,13 @@ export const LuxeStoneVisualizer: React.FC = () => {
         }
     };
 
-    const handleStyleReferenceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => { setStyleReferenceFile(event.target?.result as string); };
-            reader.readAsDataURL(file);
-        }
-    };
+    // Check if both room images are uploaded and a stone is selected
+    const allUploadsComplete = angleAFile && angleBFile && selectedMaterial;
 
-    // Check if all three images are uploaded to proceed
-    const allUploadsComplete = angleAFile && angleBFile && styleReferenceFile;
+    // Helper to derive high-res texture folder path
+    const getHighResTexturePath = (stone: any) => {
+        return stone.texturePath || '/textures/quartz';
+    };
 
     // Start automated AI analysis (no manual marking required)
     const startAutoAnalysis = async () => {
@@ -521,19 +515,26 @@ export const LuxeStoneVisualizer: React.FC = () => {
         setResultImage(null);
 
         try {
+            const highResTexturePath = getHighResTexturePath(selectedMaterial);
             const response = await fetch('/api/ai/re-imager', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     image: angleAFile,
                     imagePath2: angleBFile,
-                    styleReference: styleReferenceFile,
+                    // High-fidelity texture data
                     stoneSlabPath: selectedMaterial.swatchUrl,
+                    highResTexturePath: highResTexturePath,
+                    stoneId: selectedMaterial.id,
                     stoneType: selectedMaterial.name,
+                    stoneCategory: selectedMaterial.category,
                     stoneDescription: (selectedMaterial as any).description || `A ${selectedMaterial.texture} stone surface named ${selectedMaterial.name}`,
                     color: selectedTone.name,
                     finishType: selectedFinish,
-                    autoDetectSurfaces: true // AI will automatically detect surfaces
+                    autoDetectSurfaces: true,
+                    // Instruct AI to use high-fidelity PBR textures
+                    useHighResTextures: true,
+                    textureInstructions: `Use high-fidelity 3D texture data from ${highResTexturePath}. Apply PBR materials including Normal maps and Roughness data for realistic stone rendering.`
                 })
             });
             const data = await response.json();
@@ -565,14 +566,17 @@ export const LuxeStoneVisualizer: React.FC = () => {
                 body: JSON.stringify({
                     image: resultImage,
                     imagePath2: angleBFile,
-                    styleReference: styleReferenceFile,
                     stoneSlabPath: selectedMaterial.swatchUrl,
+                    highResTexturePath: getHighResTexturePath(selectedMaterial),
+                    stoneId: selectedMaterial.id,
                     stoneType: selectedMaterial.name,
+                    stoneCategory: selectedMaterial.category,
                     stoneDescription: (selectedMaterial as any).description || `A ${selectedMaterial.texture} stone surface named ${selectedMaterial.name}`,
                     color: selectedTone.name,
                     finishType: selectedFinish,
                     prompt: customPrompt,
-                    autoDetectSurfaces: true
+                    autoDetectSurfaces: true,
+                    useHighResTextures: true
                 })
             });
             const data = await response.json();
@@ -613,7 +617,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                             LJ Stone <span className="text-amber-500">Visualizer</span>
                         </h2>
                     </div>
-                    {step !== 'UPLOAD' && <button onClick={() => { setStep('UPLOAD'); setOriginalImage(null); setResultImage(null); setAngleAFile(null); setAngleBFile(null); setStyleReferenceFile(null); }} className="text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5">New Project</button>}
+                    {step !== 'UPLOAD' && <button onClick={() => { setStep('UPLOAD'); setOriginalImage(null); setResultImage(null); setAngleAFile(null); setAngleBFile(null); }} className="text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5">New Project</button>}
                 </header>
 
                 <main className="flex-1 overflow-hidden p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -679,34 +683,39 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                             <input type="file" ref={angleBInputRef} onChange={handleAngleBUpload} className="hidden" accept="image/*" />
                                         </div>
 
-                                        {/* Slot 3: Jack Davis Style Inspiration */}
+                                        {/* Slot 3: Selected Stone Texture */}
                                         <div className="flex flex-col items-center">
                                             <div
-                                                onClick={() => styleReferenceInputRef.current?.click()}
-                                                className={`w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${styleReferenceFile ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
+                                                onClick={() => setShowLibraryModal(true)}
+                                                className="w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 border-green-500 bg-green-500/10"
                                             >
-                                                {styleReferenceFile ? (
-                                                    <img src={styleReferenceFile} alt="Style reference" className="w-full h-full object-cover rounded-xl" />
+                                                {selectedMaterial?.swatchUrl ? (
+                                                    <div className="w-full h-full relative">
+                                                        <img src={selectedMaterial.swatchUrl} alt={selectedMaterial.name} className="w-full h-full object-cover rounded-xl" />
+                                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 to-transparent p-2 rounded-b-xl">
+                                                            <p className="text-[9px] font-bold text-white truncate">{selectedMaterial.name}</p>
+                                                            <p className="text-[8px] text-amber-500 truncate">{selectedMaterial.category}</p>
+                                                        </div>
+                                                    </div>
                                                 ) : (
                                                     <>
                                                         <svg className="w-8 h-8 text-amber-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Click to Upload</span>
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Select Texture</span>
                                                     </>
                                                 )}
                                             </div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Jack Davis Style Inspiration</h4>
-                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Portfolio stone reference</p>
-                                            <input type="file" ref={styleReferenceInputRef} onChange={handleStyleReferenceUpload} className="hidden" accept="image/*" />
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Step 3: Selected Stone Texture</h4>
+                                            <p className="text-[9px] text-slate-500 mt-1 text-center">High-res 3D texture</p>
                                         </div>
                                     </div>
 
-                                    {/* Generate 360° Design Button - Only enabled when all 3 are uploaded */}
+                                    {/* Generate 360° Design Button */}
                                     <button
                                         onClick={startAutoAnalysis}
-                                        disabled={!allUploadsComplete}
-                                        className={`mt-8 px-10 py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${allUploadsComplete ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-lg shadow-amber-500/30' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
+                                        disabled={!(angleAFile && angleBFile)}
+                                        className={`mt-8 px-10 py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${(angleAFile && angleBFile) ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-lg shadow-amber-500/30' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
                                     >
-                                        {allUploadsComplete ? '✨ Generate 360° Design' : `Upload All 3 Images (${[angleAFile, angleBFile, styleReferenceFile].filter(Boolean).length}/3)`}
+                                        {(angleAFile && angleBFile) ? `✨ Generate with ${selectedMaterial.name}` : `Upload Both Room Views (${[angleAFile, angleBFile].filter(Boolean).length}/2)`}
                                     </button>
                                 </div>
                             )}
