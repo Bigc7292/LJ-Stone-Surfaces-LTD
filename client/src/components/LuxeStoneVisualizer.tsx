@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, Grid, X, Filter, ChevronDown, ZoomIn, Eye, Minus, Plus } from 'lucide-react';
-import type { AppStep, Marker } from '@/types/visualizer';
+import type { AppStep } from '@/types/visualizer';
 // IMPORT YOUR DATA
 import libraryData from '@/data/stoneLibrary.json';
 
@@ -458,14 +458,12 @@ const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel:
 // 8. MAIN COMPONENT: LUXE STONE VISUALIZER
 // ============================================================================
 export const LuxeStoneVisualizer: React.FC = () => {
-    const [roomImage1, setRoomImage1] = useState<string | null>(null);
-    const [roomImage2, setRoomImage2] = useState<string | null>(null);
-    const [stoneSample, setStoneSample] = useState<string | null>(null);
+    const [angleAFile, setAngleAFile] = useState<string | null>(null);
+    const [angleBFile, setAngleBFile] = useState<string | null>(null);
+    const [styleReferenceFile, setStyleReferenceFile] = useState<string | null>(null);
     const [step, setStep] = useState<AppStep>('UPLOAD');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [resultImage, setResultImage] = useState<string | null>(null);
-    const [markers, setMarkers] = useState<Marker[]>([]);
-    const [pendingMarker, setPendingMarker] = useState<{ x: number, y: number } | null>(null);
     const [selectedMaterial, setSelectedMaterial] = useState(SAFE_LIBRARY[0]);
     const [selectedTone, setSelectedTone] = useState(STONE_TONES[0]);
     const [selectedFinish, setSelectedFinish] = useState('Polished');
@@ -476,60 +474,110 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const [showFsModal, setShowFsModal] = useState(false);
     const [showLibraryModal, setShowLibraryModal] = useState(false);
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const angleAInputRef = useRef<HTMLInputElement>(null);
+    const angleBInputRef = useRef<HTMLInputElement>(null);
+    const styleReferenceInputRef = useRef<HTMLInputElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAngleAUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (event) => { setOriginalImage(event.target?.result as string); setStep('MARK'); setMarkers([]); setResultImage(null); };
+            reader.onload = (event) => { setAngleAFile(event.target?.result as string); };
             reader.readAsDataURL(file);
         }
     };
 
-    const handleImageClick = (e: React.PointerEvent) => {
-        if (step !== 'MARK' && step !== 'CONFIGURE') return;
-        if (!imageRef.current || (e.target as HTMLElement).closest('button')) return;
-        const rect = imageRef.current.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        if (x >= 0 && x <= 100 && y >= 0 && y <= 100) setPendingMarker({ x, y });
-    };
-
-    const confirmMarker = (label: string) => {
-        if (pendingMarker) {
-            setMarkers([...markers, { ...pendingMarker, label, customLabel: label }]);
-            setPendingMarker(null);
-            if (markers.length === 0) setStep('CONFIGURE');
+    const handleAngleBUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => { setAngleBFile(event.target?.result as string); };
+            reader.readAsDataURL(file);
         }
     };
 
-    const startVisualization = async (customPrompt?: string) => {
-        if (!originalImage || markers.length === 0) return;
+    const handleStyleReferenceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => { setStyleReferenceFile(event.target?.result as string); };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Check if all three images are uploaded to proceed
+    const allUploadsComplete = angleAFile && angleBFile && styleReferenceFile;
+
+    // Start automated AI analysis (no manual marking required)
+    const startAutoAnalysis = async () => {
+        if (!allUploadsComplete) return;
+
+        setOriginalImage(angleAFile);
+        setStep('PROCESSING');
         setIsLoading(true);
         setErrorInfo(null);
+        setResultImage(null);
+
         try {
-            const imageToProcess = (step === 'RESULT' && resultImage && customPrompt) ? resultImage : originalImage;
             const response = await fetch('/api/ai/re-imager', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    image: imageToProcess,
-                    imagePath2: roomImage2, // Angle 2 (New)
-                    stoneSlabPath: selectedMaterial.swatchUrl, // Catalog Stone Image (New)
+                    image: angleAFile,
+                    imagePath2: angleBFile,
+                    styleReference: styleReferenceFile,
+                    stoneSlabPath: selectedMaterial.swatchUrl,
+                    stoneType: selectedMaterial.name,
+                    stoneDescription: (selectedMaterial as any).description || `A ${selectedMaterial.texture} stone surface named ${selectedMaterial.name}`,
+                    color: selectedTone.name,
+                    finishType: selectedFinish,
+                    autoDetectSurfaces: true // AI will automatically detect surfaces
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.details || "AI Server Error");
+            if (data.imageUrl) {
+                setResultImage(data.imageUrl);
+                setStep('RESULT');
+            } else {
+                throw new Error("No image returned.");
+            }
+        } catch (err: any) {
+            console.error(err);
+            setErrorInfo({ message: err.message || "Failed to render." });
+            setStep('UPLOAD'); // Return to upload on error
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Refinement visualization (for chat-based adjustments after initial result)
+    const refineVisualization = async (customPrompt?: string) => {
+        if (!originalImage || !resultImage) return;
+        setIsLoading(true);
+        setErrorInfo(null);
+        try {
+            const response = await fetch('/api/ai/re-imager', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image: resultImage,
+                    imagePath2: angleBFile,
+                    styleReference: styleReferenceFile,
+                    stoneSlabPath: selectedMaterial.swatchUrl,
                     stoneType: selectedMaterial.name,
                     stoneDescription: (selectedMaterial as any).description || `A ${selectedMaterial.texture} stone surface named ${selectedMaterial.name}`,
                     color: selectedTone.name,
                     finishType: selectedFinish,
                     prompt: customPrompt,
-                    markers: markers
+                    autoDetectSurfaces: true
                 })
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.details || "AI Server Error");
-            if (data.imageUrl) { setResultImage(data.imageUrl); setStep('RESULT'); }
+            if (data.imageUrl) { setResultImage(data.imageUrl); }
             else { throw new Error("No image returned."); }
         } catch (err: any) { console.error(err); setErrorInfo({ message: err.message || "Failed to render." }); } finally { setIsLoading(false); }
     };
@@ -565,7 +613,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                             LJ Stone <span className="text-amber-500">Visualizer</span>
                         </h2>
                     </div>
-                    {step !== 'UPLOAD' && <button onClick={() => { setStep('UPLOAD'); setOriginalImage(null); setMarkers([]); }} className="text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5">New Project</button>}
+                    {step !== 'UPLOAD' && <button onClick={() => { setStep('UPLOAD'); setOriginalImage(null); setResultImage(null); setAngleAFile(null); setAngleBFile(null); setStyleReferenceFile(null); }} className="text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5">New Project</button>}
                 </header>
 
                 <main className="flex-1 overflow-hidden p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -589,17 +637,99 @@ export const LuxeStoneVisualizer: React.FC = () => {
                             )}
                             {isLoading && <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center"><div className="w-16 h-16 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mb-6"></div><h3 className="text-xl font-black uppercase tracking-widest text-white">Rendering...</h3></div>}
                             {step === 'UPLOAD' && (
-                                <div className="flex-1 flex flex-col items-center justify-center p-10 animate-in zoom-in duration-300">
-                                    <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 border border-slate-700"><svg className="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
-                                    <button onClick={() => fileInputRef.current?.click()} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-8 py-4 rounded-xl shadow-lg uppercase text-xs tracking-widest">Select Image</button>
-                                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
+                                <div className="flex-1 flex flex-col items-center justify-center p-6 animate-in zoom-in duration-300">
+                                    <div className="grid grid-cols-3 gap-4 w-full max-w-3xl">
+                                        {/* Slot 1: Primary Room View (0°) */}
+                                        <div className="flex flex-col items-center">
+                                            <div
+                                                onClick={() => angleAInputRef.current?.click()}
+                                                className={`w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${angleAFile ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
+                                            >
+                                                {angleAFile ? (
+                                                    <img src={angleAFile} alt="Primary view" className="w-full h-full object-cover rounded-xl" />
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-8 h-8 text-amber-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Click to Upload</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Primary Room View (0°)</h4>
+                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Main angle of your space</p>
+                                            <input type="file" ref={angleAInputRef} onChange={handleAngleAUpload} className="hidden" accept="image/*" />
+                                        </div>
+
+                                        {/* Slot 2: Opposite Room View (180°) */}
+                                        <div className="flex flex-col items-center">
+                                            <div
+                                                onClick={() => angleBInputRef.current?.click()}
+                                                className={`w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${angleBFile ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
+                                            >
+                                                {angleBFile ? (
+                                                    <img src={angleBFile} alt="Opposite view" className="w-full h-full object-cover rounded-xl" />
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-8 h-8 text-amber-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Click to Upload</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Opposite Room View (180°)</h4>
+                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Opposite angle for depth</p>
+                                            <input type="file" ref={angleBInputRef} onChange={handleAngleBUpload} className="hidden" accept="image/*" />
+                                        </div>
+
+                                        {/* Slot 3: Jack Davis Style Inspiration */}
+                                        <div className="flex flex-col items-center">
+                                            <div
+                                                onClick={() => styleReferenceInputRef.current?.click()}
+                                                className={`w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${styleReferenceFile ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
+                                            >
+                                                {styleReferenceFile ? (
+                                                    <img src={styleReferenceFile} alt="Style reference" className="w-full h-full object-cover rounded-xl" />
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-8 h-8 text-amber-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Click to Upload</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Jack Davis Style Inspiration</h4>
+                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Portfolio stone reference</p>
+                                            <input type="file" ref={styleReferenceInputRef} onChange={handleStyleReferenceUpload} className="hidden" accept="image/*" />
+                                        </div>
+                                    </div>
+
+                                    {/* Generate 360° Design Button - Only enabled when all 3 are uploaded */}
+                                    <button
+                                        onClick={startAutoAnalysis}
+                                        disabled={!allUploadsComplete}
+                                        className={`mt-8 px-10 py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${allUploadsComplete ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-lg shadow-amber-500/30' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
+                                    >
+                                        {allUploadsComplete ? '✨ Generate 360° Design' : `Upload All 3 Images (${[angleAFile, angleBFile, styleReferenceFile].filter(Boolean).length}/3)`}
+                                    </button>
                                 </div>
                             )}
-                            {(step === 'MARK' || step === 'CONFIGURE') && originalImage && (
-                                <div className="relative w-full h-full flex items-center justify-center bg-black">
-                                    <img ref={imageRef} src={originalImage} alt="Workspace" className="max-w-full max-h-full object-contain cursor-crosshair" onPointerUp={handleImageClick} />
-                                    {markers.map((m, i) => (<div key={i} style={{ left: `${m.x}%`, top: `${m.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2 z-30 group"><div className="w-6 h-6 bg-amber-500 border-2 border-white rounded-full flex items-center justify-center shadow-lg"><span className="text-[10px] font-black text-slate-900">{i + 1}</span></div><button onClick={(e) => { e.stopPropagation(); setMarkers(markers.filter((_, idx) => idx !== i)); }} className="absolute -top-6 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">REMOVE</button></div>))}
-                                    {pendingMarker && <MarkerInputModal onConfirm={confirmMarker} onCancel={() => setPendingMarker(null)} />}
+                            {step === 'PROCESSING' && (
+                                <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center animate-in fade-in duration-500">
+                                    {/* Luxury Loading Animation */}
+                                    <div className="relative w-32 h-32 mb-8">
+                                        <div className="absolute inset-0 border-4 border-amber-500/20 rounded-full"></div>
+                                        <div className="absolute inset-0 border-4 border-transparent border-t-amber-500 rounded-full animate-spin"></div>
+                                        <div className="absolute inset-4 border-4 border-transparent border-t-orange-500 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                                        <div className="absolute inset-8 border-4 border-transparent border-t-amber-400 rounded-full animate-spin" style={{ animationDuration: '2s' }}></div>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="w-8 h-8 bg-amber-500 rounded-full animate-pulse shadow-lg shadow-amber-500/50"></div>
+                                        </div>
+                                    </div>
+                                    <h3 className="text-2xl font-black uppercase tracking-[0.3em] text-white mb-3">Analyzing</h3>
+                                    <p className="text-amber-500 font-bold uppercase tracking-widest text-xs mb-6">Jack's AI is analyzing your space...</p>
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                        <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                        <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                    </div>
+                                    <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-6">Detecting surfaces • Applying stone textures • Rendering 360°</p>
                                 </div>
                             )}
                             {step === 'RESULT' && resultImage && originalImage && (
@@ -616,24 +746,35 @@ export const LuxeStoneVisualizer: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col min-h-0 space-y-4">
-                        {step === 'RESULT' ? (<ChatInterface onSendMessage={startVisualization} isLoading={isLoading} />) : (
+                        {step === 'RESULT' ? (<ChatInterface onSendMessage={refineVisualization} isLoading={isLoading} />) : (
                             <div className="bg-slate-900 rounded-2xl border border-slate-800/50 p-6 flex-1 overflow-y-auto custom-scrollbar shadow-xl">
-                                <div className="flex items-center space-x-3 mb-6"><div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 font-bold text-xs">{step === 'UPLOAD' ? '1' : step === 'MARK' ? '2' : '3'}</div><h3 className="text-sm font-black uppercase tracking-widest text-slate-200">{step === 'UPLOAD' ? 'Start' : step === 'MARK' ? 'Markers' : 'Design'}</h3></div>
-                                {(step === 'MARK' || step === 'CONFIGURE') && (
+                                <div className="flex items-center space-x-3 mb-6"><div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 font-bold text-xs">{step === 'UPLOAD' ? '1' : step === 'PROCESSING' ? '2' : '3'}</div><h3 className="text-sm font-black uppercase tracking-widest text-slate-200">{step === 'UPLOAD' ? 'Upload Images' : step === 'PROCESSING' ? 'AI Processing' : 'View Design'}</h3></div>
+                                {step === 'UPLOAD' && (
                                     <div className="space-y-6">
-                                        <div><h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Surfaces ({markers.length})</h4>{markers.length === 0 ? (<div className="p-4 rounded-xl border-2 border-dashed border-slate-800 text-center text-[10px] text-slate-500 uppercase">Tap image to place markers</div>) : (<div className="space-y-2">{markers.map((m, i) => <div key={i} className="flex justify-between items-center bg-slate-800/50 px-3 py-2 rounded-lg border border-slate-700"><span className="text-xs font-bold text-slate-300">#{i + 1} {m.customLabel}</span></div>)}</div>)}</div>
-                                        <div className={step === 'CONFIGURE' ? 'opacity-100' : 'opacity-40 pointer-events-none'}>
-                                            <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Material</h4>
+                                        <div>
+                                            <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Material Selection</h4>
                                             <SelectedMaterialCard
                                                 material={selectedMaterial}
                                                 onClick={() => setShowLibraryModal(true)}
                                             />
-                                            <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mt-6 mb-3">Tone Family</h4>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Tone Family</h4>
                                             <div className="grid grid-cols-2 gap-2">{STONE_TONES.map(t => (<button key={t.id} onClick={() => setSelectedTone(t)} className={`flex items-center space-x-2 p-2 rounded-lg border transition-all ${selectedTone.id === t.id ? 'bg-slate-700 border-white/20' : 'bg-slate-800 border-transparent opacity-60'}`}><div className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: t.hex }} /><span className="text-[9px] font-bold uppercase">{t.name.split(' / ')[0]}</span></button>))}</div>
-                                            <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mt-6 mb-3">Surface Finish</h4>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Surface Finish</h4>
                                             <div className="flex bg-slate-800 p-1 rounded-xl">{FINISH_OPTIONS.map(f => (<button key={f} onClick={() => setSelectedFinish(f)} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all ${selectedFinish === f ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}>{f}</button>))}</div>
                                         </div>
-                                        <button onClick={() => startVisualization()} disabled={markers.length === 0 || isLoading} className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-black py-4 rounded-xl uppercase text-xs tracking-[0.2em] shadow-xl shadow-amber-500/10 transition-all mt-4">{isLoading ? 'Processing...' : 'Visualize'}</button>
+                                        <div className="pt-4 border-t border-slate-800">
+                                            <p className="text-[9px] text-slate-500 uppercase tracking-widest text-center">Upload all 3 images to generate your 360° design</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {step === 'PROCESSING' && (
+                                    <div className="flex flex-col items-center justify-center py-8">
+                                        <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+                                        <p className="text-xs text-slate-400 uppercase tracking-widest">AI is working...</p>
                                     </div>
                                 )}
                             </div>
