@@ -22,14 +22,12 @@ def generate_metadata():
         # Path format in GCS: gs://lj-stone-vertex-data/training_samples/sample_{id}.jpg
         gcs_uri = f"gs://{BUCKET_NAME}/training_samples/sample_{gen_id}.jpg"
         
-        # Vertex AI Image Classification expects plural "classificationAnnotations" list
+        # Vertex AI Image Classification (Single Label) expects singular "classificationAnnotation"
         entry = {
             "imageGcsUri": gcs_uri,
-            "classificationAnnotations": [
-                {
-                    "displayName": stone_name
-                }
-            ]
+            "classificationAnnotation": {
+                "displayName": stone_name
+            }
         }
         metadata_entries.append(entry)
 

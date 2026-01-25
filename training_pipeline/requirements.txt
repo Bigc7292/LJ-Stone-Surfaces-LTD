@@ -1,0 +1,10 @@
+numpy==1.26.4
+google-cloud-storage
+google-cloud-aiplatform
+pandas
+torch
+diffusers
+transformers
+accelerate
+safetensors
+opencv-python

@@ -1,5 +1,5 @@
 # LJ Stone Surfaces - Project Status Report
-**Date:** 2026-01-20
+**Date:** 2026-01-25
 **Environment:** Development / Replit-Exported
 
 ## 1. System Overview
@@ -31,6 +31,9 @@ The database schema has been fully migrated and seeded. Row level security (RLS)
     - **Chat Logs**: Imported 11 historical records.
     - **Products**: Initially imported 6 records, then **synchronized with `stone_library`** to expand the catalog to 157 items.
 2.  **Product Sync**: The `products` table was cleared and repopulated using data from `stone_library` to ensure a complete and consistent product offering on the frontend. Column mapping was applied (`swatch_url` -> `image_url`).
+3.  **Infrastructure & AI Training**:
+    - **Dockerfile**: Updated to support new dependencies.
+    - **Training Pipeline**: Updated `requirements.txt` with necessary packages (e.g., pandas) for the AI training pipeline.
 
 ## 3. Configuration & Security
 - **Credentials**: API keys and secrets are managed via environment variables (`.env`).
