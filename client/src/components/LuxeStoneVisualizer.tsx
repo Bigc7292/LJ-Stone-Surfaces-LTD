@@ -1,13 +1,20 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, Grid, X, Filter, ChevronDown, ZoomIn, Eye, Minus, Plus } from 'lucide-react';
+import { Search, Grid, X, Filter, ChevronDown, ZoomIn, Eye, Minus, Plus, Box, Cuboid } from 'lucide-react';
 import type { AppStep } from '@/types/visualizer';
 // IMPORT YOUR DATA
 import { STONE_LIBRARY_3D } from '@/data/stoneLibrary3D';
+import { shuffleStones } from '@/data/stoneLibrary3D_utils';
+
+// Filter for allowed categories and apply Showroom Shuffle
+const ALLOWED_CATEGORIES = ['Marble', 'Quartz', 'Granite', 'Dekton'];
+const FILTERED_LIBRARY = STONE_LIBRARY_3D.filter((s: any) =>
+    ALLOWED_CATEGORIES.includes(s.category)
+);
 
 // Fallback to prevent crashes if data is missing
-const SAFE_LIBRARY = STONE_LIBRARY_3D.length > 0 ? STONE_LIBRARY_3D : [
-    { id: 'fallback', name: 'Loading Stones...', category: 'System', swatchUrl: '', texturePath: '' }
-];
+const SAFE_LIBRARY = shuffleStones(FILTERED_LIBRARY.length > 0 ? FILTERED_LIBRARY : [
+    { id: 'fallback', name: 'Loading Stones...', category: 'System', swatchUrl: '', texturePath: '', tone: 'Light' }
+]);
 
 // --- CONSTANTS ---
 const FINISH_OPTIONS = ['Polished', 'Honed', 'Leathered'];
@@ -18,7 +25,7 @@ const STONE_TONES = [
     { id: 'dramatic', name: 'High Contrast', hex: '#0f172a' },
 ];
 
-const CATEGORIES = ['All', ...Array.from(new Set(SAFE_LIBRARY.map((s: any) => s.category)))];
+const CATEGORIES = ['All', 'Marble', 'Quartz', 'Granite', 'Dekton'];
 
 // --- TONE LOGIC ---
 const TONE_KEYWORDS: Record<string, string[]> = {
@@ -416,15 +423,18 @@ const ChatInterface: React.FC<{ onSendMessage: (msg: string) => void; isLoading:
 // ============================================================================
 // 6. COMPONENT: SELECTED MATERIAL CARD
 // ============================================================================
-const SelectedMaterialCard: React.FC<{ material: any; onClick: () => void }> = ({ material, onClick }) => (
+const SelectedMaterialCard: React.FC<{ material: any; onClick: () => void; isSelected?: boolean }> = ({ material, onClick, isSelected }) => (
     <button
         onClick={onClick}
-        className="group w-full p-0 rounded-2xl border border-amber-500 bg-amber-500/10 shadow-[0_0_20px_rgba(245,158,11,0.15)] text-left transition-all relative flex items-center min-h-[80px]"
+        className={`group w-full p-0 rounded-2xl border transition-all relative flex items-center min-h-[80px] ${isSelected
+            ? 'border-[#D4AF37] bg-[#D4AF37]/10 shadow-[0_0_20px_rgba(212,175,55,0.3)] animate-pulse'
+            : 'border-slate-800 bg-slate-900/50 hover:border-amber-500/50'
+            }`}
     >
         <div className="flex-1 p-4 flex flex-col justify-center">
             <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-amber-500 animate-pulse" />
-                <span className="font-black tracking-widest text-[10px] uppercase leading-none text-amber-500">
+                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected ? 'bg-[#D4AF37]' : 'bg-amber-500'} animate-pulse`} />
+                <span className={`font-black tracking-widest text-[10px] uppercase leading-none ${isSelected ? 'text-[#D4AF37]' : 'text-amber-500'}`}>
                     {material.name}
                 </span>
             </div>
@@ -432,7 +442,7 @@ const SelectedMaterialCard: React.FC<{ material: any; onClick: () => void }> = (
                 {material.category} • HD Texture
             </span>
         </div>
-        <div className="relative w-20 h-[80px] border-l border-amber-500/30 shrink-0 overflow-hidden rounded-r-2xl">
+        <div className={`relative w-20 h-[80px] border-l shrink-0 overflow-hidden rounded-r-2xl ${isSelected ? 'border-[#D4AF37]/30' : 'border-slate-800'}`}>
             {material.swatchUrl ? <img src={material.swatchUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-900/50"><Grid className="w-6 h-6 text-amber-500/50" /></div>}
         </div>
     </button>
@@ -458,8 +468,8 @@ const MarkerInputModal: React.FC<{ onConfirm: (label: string) => void; onCancel:
 // 8. MAIN COMPONENT: LUXE STONE VISUALIZER
 // ============================================================================
 export const LuxeStoneVisualizer: React.FC = () => {
-    const [angleAFile, setAngleAFile] = useState<string | null>(null);
-    const [angleBFile, setAngleBFile] = useState<string | null>(null);
+    const [baseImage, setBaseImage] = useState<string | null>(null);
+    const [depthImage, setDepthImage] = useState<string | null>(null);
     const [step, setStep] = useState<AppStep>('UPLOAD');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [resultImage, setResultImage] = useState<string | null>(null);
@@ -470,34 +480,35 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const [errorInfo, setErrorInfo] = useState<{ message: string } | null>(null);
     const [compareMode, setCompareMode] = useState<'SLIDE' | 'TOGGLE'>('SLIDE');
     const [isShowingOriginal, setIsShowingOriginal] = useState(false);
+
     const [showFsModal, setShowFsModal] = useState(false);
     const [showLibraryModal, setShowLibraryModal] = useState(false);
 
-    const angleAInputRef = useRef<HTMLInputElement>(null);
-    const angleBInputRef = useRef<HTMLInputElement>(null);
+    const baseInputRef = useRef<HTMLInputElement>(null);
+    const depthInputRef = useRef<HTMLInputElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const handleAngleAUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleBaseUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (event) => { setAngleAFile(event.target?.result as string); };
+            reader.onload = (event) => { setBaseImage(event.target?.result as string); };
             reader.readAsDataURL(file);
         }
     };
 
-    const handleAngleBUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDepthUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (event) => { setAngleBFile(event.target?.result as string); };
+            reader.onload = (event) => { setDepthImage(event.target?.result as string); };
             reader.readAsDataURL(file);
         }
     };
 
     // Check if both room images are uploaded and a stone is selected
-    const allUploadsComplete = angleAFile && angleBFile && selectedMaterial;
+    const allUploadsComplete = baseImage && depthImage && selectedMaterial;
 
     // Helper to derive high-res texture folder path
     const getHighResTexturePath = (stone: any) => {
@@ -508,7 +519,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const startAutoAnalysis = async () => {
         if (!allUploadsComplete) return;
 
-        setOriginalImage(angleAFile);
+        setOriginalImage(baseImage);
         setStep('PROCESSING');
         setIsLoading(true);
         setErrorInfo(null);
@@ -520,9 +531,12 @@ export const LuxeStoneVisualizer: React.FC = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    image: angleAFile,
-                    imagePath2: angleBFile,
-                    // High-fidelity texture data
+                    // Triple-Image Payload
+                    primary_room: baseImage,
+                    offset_room: depthImage,
+                    stone_texture: selectedMaterial.swatchUrl, // Sending high-res texture/swatch
+
+                    // Additional Context
                     stoneSlabPath: selectedMaterial.swatchUrl,
                     highResTexturePath: highResTexturePath,
                     stoneId: selectedMaterial.id,
@@ -532,7 +546,6 @@ export const LuxeStoneVisualizer: React.FC = () => {
                     color: selectedTone.name,
                     finishType: selectedFinish,
                     autoDetectSurfaces: true,
-                    // Instruct AI to use high-fidelity PBR textures
                     useHighResTextures: true,
                     textureInstructions: `Use high-fidelity 3D texture data from ${highResTexturePath}. Apply PBR materials including Normal maps and Roughness data for realistic stone rendering.`
                 })
@@ -565,7 +578,9 @@ export const LuxeStoneVisualizer: React.FC = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     image: resultImage,
-                    imagePath2: angleBFile,
+                    primary_room: baseImage,
+                    offset_room: depthImage,
+                    stone_texture: selectedMaterial.swatchUrl,
                     stoneSlabPath: selectedMaterial.swatchUrl,
                     highResTexturePath: getHighResTexturePath(selectedMaterial),
                     stoneId: selectedMaterial.id,
@@ -617,7 +632,17 @@ export const LuxeStoneVisualizer: React.FC = () => {
                             LJ Stone <span className="text-amber-500">Visualizer</span>
                         </h2>
                     </div>
-                    {step !== 'UPLOAD' && <button onClick={() => { setStep('UPLOAD'); setOriginalImage(null); setResultImage(null); setAngleAFile(null); setAngleBFile(null); }} className="text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5">New Project</button>}
+                    {step !== 'UPLOAD' && (
+                        <div className="flex items-center gap-4">
+                            {baseImage && depthImage && (
+                                <div className="flex items-center gap-2 bg-slate-900 border border-amber-500/30 rounded-lg px-3 py-1.5 animate-pulse">
+                                    <Box className="w-4 h-4 text-amber-500" />
+                                    <span className="text-[10px] font-black uppercase text-amber-500 tracking-widest">3D STEREO ACTIVE</span>
+                                </div>
+                            )}
+                            <button onClick={() => { setStep('UPLOAD'); setOriginalImage(null); setResultImage(null); setBaseImage(null); setDepthImage(null); }} className="text-[10px] font-black uppercase text-slate-500 hover:text-white transition-colors bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5">New Project</button>
+                        </div>
+                    )}
                 </header>
 
                 <main className="flex-1 overflow-hidden p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -640,85 +665,70 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                 </div>
                             )}
                             {isLoading && <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center"><div className="w-16 h-16 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mb-6"></div><h3 className="text-xl font-black uppercase tracking-widest text-white">Rendering...</h3></div>}
+
                             {step === 'UPLOAD' && (
-                                <div className="flex-1 flex flex-col items-center justify-center p-6 animate-in zoom-in duration-300">
-                                    <div className="grid grid-cols-3 gap-4 w-full max-w-3xl">
-                                        {/* Slot 1: Primary Room View (0°) */}
-                                        <div className="flex flex-col items-center">
+                                <div className="flex flex-col items-center justify-center w-full h-full p-4">
+                                    <div className="flex flex-col md:flex-row gap-6 w-full max-w-4xl">
+                                        {/* Slot 1: Primary View (Center) */}
+                                        <div className="flex-1 flex flex-col items-center">
                                             <div
-                                                onClick={() => angleAInputRef.current?.click()}
-                                                className={`w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${angleAFile ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
+                                                onClick={() => baseInputRef.current?.click()}
+                                                className={`w-full aspect-[4/3] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${baseImage ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
                                             >
-                                                {angleAFile ? (
-                                                    <img src={angleAFile} alt="Primary view" className="w-full h-full object-cover rounded-xl" />
+                                                {baseImage ? (
+                                                    <img src={baseImage} alt="Primary view" className="w-full h-full object-cover rounded-xl" />
                                                 ) : (
                                                     <>
-                                                        <svg className="w-8 h-8 text-amber-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Click to Upload</span>
+                                                        <Box className="w-8 h-8 text-amber-500 mb-2" />
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Upload Primary</span>
                                                     </>
                                                 )}
                                             </div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Primary Room View (0°)</h4>
-                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Main angle of your space</p>
-                                            <input type="file" ref={angleAInputRef} onChange={handleAngleAUpload} className="hidden" accept="image/*" />
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center text-white">Primary View (Center)</h4>
+                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Center of the space</p>
+                                            <input type="file" ref={baseInputRef} onChange={handleBaseUpload} className="hidden" accept="image/*" />
                                         </div>
 
-                                        {/* Slot 2: Opposite Room View (180°) */}
-                                        <div className="flex flex-col items-center">
+                                        {/* Slot 2: Offset View (2ft to the Right) */}
+                                        <div className="flex-1 flex flex-col items-center">
                                             <div
-                                                onClick={() => angleBInputRef.current?.click()}
-                                                className={`w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${angleBFile ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
+                                                onClick={() => depthInputRef.current?.click()}
+                                                className={`w-full aspect-[4/3] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 ${depthImage ? 'border-green-500 bg-green-500/10' : 'border-slate-700 bg-slate-800/50'}`}
                                             >
-                                                {angleBFile ? (
-                                                    <img src={angleBFile} alt="Opposite view" className="w-full h-full object-cover rounded-xl" />
+                                                {depthImage ? (
+                                                    <img src={depthImage} alt="Offset view" className="w-full h-full object-cover rounded-xl" />
                                                 ) : (
                                                     <>
-                                                        <svg className="w-8 h-8 text-amber-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Click to Upload</span>
+                                                        <Cuboid className="w-8 h-8 text-amber-500 mb-2" />
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Upload Offset</span>
                                                     </>
                                                 )}
                                             </div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Opposite Room View (180°)</h4>
-                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Opposite angle for depth</p>
-                                            <input type="file" ref={angleBInputRef} onChange={handleAngleBUpload} className="hidden" accept="image/*" />
-                                        </div>
-
-                                        {/* Slot 3: Selected Stone Texture */}
-                                        <div className="flex flex-col items-center">
-                                            <div
-                                                onClick={() => setShowLibraryModal(true)}
-                                                className="w-full aspect-square rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all hover:border-amber-500 hover:bg-amber-500/5 border-green-500 bg-green-500/10"
-                                            >
-                                                {selectedMaterial?.swatchUrl ? (
-                                                    <div className="w-full h-full relative">
-                                                        <img src={selectedMaterial.swatchUrl} alt={selectedMaterial.name} className="w-full h-full object-cover rounded-xl" />
-                                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 to-transparent p-2 rounded-b-xl">
-                                                            <p className="text-[9px] font-bold text-white truncate">{selectedMaterial.name}</p>
-                                                            <p className="text-[8px] text-amber-500 truncate">{selectedMaterial.category}</p>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <svg className="w-8 h-8 text-amber-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Select Texture</span>
-                                                    </>
-                                                )}
-                                            </div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center">Step 3: Selected Stone Texture</h4>
-                                            <p className="text-[9px] text-slate-500 mt-1 text-center">High-res 3D texture</p>
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-3 text-center text-white">Offset View (2ft Right)</h4>
+                                            <p className="text-[9px] text-slate-500 mt-1 text-center">Required for 3D depth</p>
+                                            <input type="file" ref={depthInputRef} onChange={handleDepthUpload} className="hidden" accept="image/*" />
                                         </div>
                                     </div>
 
-                                    {/* Generate 360° Design Button */}
+                                    {/* 3D Indicator Checkbox/Light */}
+                                    {baseImage && depthImage && (
+                                        <div className="mt-8 flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-full border border-amber-500/20 animate-in fade-in zoom-in">
+                                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white">Stereo Link Synchronized</span>
+                                        </div>
+                                    )}
+
+                                    {/* Generate Button */}
                                     <button
                                         onClick={startAutoAnalysis}
-                                        disabled={!(angleAFile && angleBFile)}
-                                        className={`mt-8 px-10 py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${(angleAFile && angleBFile) ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-lg shadow-amber-500/30' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
+                                        disabled={!allUploadsComplete}
+                                        className={`mt-6 px-12 py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${allUploadsComplete ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-lg shadow-amber-500/30 active:scale-95' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
                                     >
-                                        {(angleAFile && angleBFile) ? `✨ Generate with ${selectedMaterial.name}` : `Upload Both Room Views (${[angleAFile, angleBFile].filter(Boolean).length}/2)`}
+                                        {allUploadsComplete ? `✨ Generate Stereo 3D Visual` : `Upload Both Views to Begin`}
                                     </button>
                                 </div>
                             )}
+
                             {step === 'PROCESSING' && (
                                 <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center animate-in fade-in duration-500">
                                     {/* Luxury Loading Animation */}
@@ -741,23 +751,48 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                     <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-6">Detecting surfaces • Applying stone textures • Rendering 360°</p>
                                 </div>
                             )}
+
                             {step === 'RESULT' && resultImage && originalImage && (
                                 <div className="w-full h-full flex flex-col relative animate-in fade-in duration-700">
-                                    {compareMode === 'SLIDE' ? <ComparisonSlider original={originalImage} modified={resultImage} /> : (
-                                        <div className="relative w-full h-full cursor-pointer" onMouseDown={() => setIsShowingOriginal(true)} onMouseUp={() => setIsShowingOriginal(false)} onTouchStart={() => setIsShowingOriginal(true)} onTouchEnd={() => setIsShowingOriginal(false)}>
-                                            <img src={isShowingOriginal ? originalImage : resultImage} alt="Vis" className="w-full h-full object-contain bg-black" />
-                                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-slate-900/70 backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 pointer-events-none">{isShowingOriginal ? 'Original Photo' : 'Touch & Hold to Compare'}</div>
+                                    <div className="absolute top-4 left-4 z-40 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 text-[10px] font-black uppercase text-amber-500 tracking-widest">
+                                        3D Reconstruction Active
+                                    </div>
+                                    <div className="flex-1 w-full bg-slate-950 flex items-center justify-center relative group">
+                                        {/* Future Three.js / React-Three-Fiber Canvas Container */}
+                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black opacity-40"></div>
+                                        <div className="relative z-10 text-center p-8 border-2 border-dashed border-white/5 rounded-3xl group-hover:border-amber-500/20 transition-all">
+                                            <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-4 mx-auto border border-amber-500/20">
+                                                <Cuboid className="w-8 h-8 text-amber-500 animate-pulse" />
+                                            </div>
+                                            <h3 className="text-xl font-black text-white uppercase tracking-widest mb-2">3D Viewport</h3>
+                                            <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em]">Canvas Placeholder for Stereo Reconstruction</p>
                                         </div>
-                                    )}
+
+                                        {/* Fallback Comparison view */}
+                                        <div className="absolute bottom-6 right-6 z-40">
+                                            <button onClick={() => setShowFsModal(true)} className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all">
+                                                Open Interactive Compare
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     <div className="flex flex-col min-h-0 space-y-4">
-                        {step === 'RESULT' ? (<ChatInterface onSendMessage={refineVisualization} isLoading={isLoading} />) : (
+                        {step === 'RESULT' ? (
+                            <ChatInterface onSendMessage={refineVisualization} isLoading={isLoading} />
+                        ) : (
                             <div className="bg-slate-900 rounded-2xl border border-slate-800/50 p-6 flex-1 overflow-y-auto custom-scrollbar shadow-xl">
-                                <div className="flex items-center space-x-3 mb-6"><div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 font-bold text-xs">{step === 'UPLOAD' ? '1' : step === 'PROCESSING' ? '2' : '3'}</div><h3 className="text-sm font-black uppercase tracking-widest text-slate-200">{step === 'UPLOAD' ? 'Upload Images' : step === 'PROCESSING' ? 'AI Processing' : 'View Design'}</h3></div>
+                                <div className="flex items-center space-x-3 mb-6">
+                                    <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 font-bold text-xs">
+                                        {step === 'UPLOAD' ? '1' : step === 'PROCESSING' ? '2' : '3'}
+                                    </div>
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-200">
+                                        {step === 'UPLOAD' ? 'Upload Images' : step === 'PROCESSING' ? 'AI Processing' : 'View Design'}
+                                    </h3>
+                                </div>
                                 {step === 'UPLOAD' && (
                                     <div className="space-y-6">
                                         <div>
@@ -765,18 +800,40 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                             <SelectedMaterialCard
                                                 material={selectedMaterial}
                                                 onClick={() => setShowLibraryModal(true)}
+                                                isSelected={true}
                                             />
                                         </div>
                                         <div>
                                             <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Tone Family</h4>
-                                            <div className="grid grid-cols-2 gap-2">{STONE_TONES.map(t => (<button key={t.id} onClick={() => setSelectedTone(t)} className={`flex items-center space-x-2 p-2 rounded-lg border transition-all ${selectedTone.id === t.id ? 'bg-slate-700 border-white/20' : 'bg-slate-800 border-transparent opacity-60'}`}><div className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: t.hex }} /><span className="text-[9px] font-bold uppercase">{t.name.split(' / ')[0]}</span></button>))}</div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {STONE_TONES.map(t => (
+                                                    <button
+                                                        key={t.id}
+                                                        onClick={() => setSelectedTone(t)}
+                                                        className={`flex items-center space-x-2 p-2 rounded-lg border transition-all ${selectedTone.id === t.id ? 'bg-slate-700 border-white/20' : 'bg-slate-800 border-transparent opacity-60'}`}
+                                                    >
+                                                        <div className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: t.hex }} />
+                                                        <span className="text-[9px] font-bold uppercase">{t.name.split(' / ')[0]}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                         <div>
                                             <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-widest mb-3">Surface Finish</h4>
-                                            <div className="flex bg-slate-800 p-1 rounded-xl">{FINISH_OPTIONS.map(f => (<button key={f} onClick={() => setSelectedFinish(f)} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all ${selectedFinish === f ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}>{f}</button>))}</div>
+                                            <div className="flex bg-slate-800 p-1 rounded-xl">
+                                                {FINISH_OPTIONS.map(f => (
+                                                    <button
+                                                        key={f}
+                                                        onClick={() => setSelectedFinish(f)}
+                                                        className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all ${selectedFinish === f ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'}`}
+                                                    >
+                                                        {f}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                         <div className="pt-4 border-t border-slate-800">
-                                            <p className="text-[9px] text-slate-500 uppercase tracking-widest text-center">Upload all 3 images to generate your 360° design</p>
+                                            <p className="text-[9px] text-slate-500 uppercase tracking-widest text-center">Upload primary & offset views to generate 3D design</p>
                                         </div>
                                     </div>
                                 )}

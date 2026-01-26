@@ -1,78 +1,39 @@
-import "./env";
-console.log("Starting server...");
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { serveStatic } from "./static";
-import { createServer } from "http";
-import fs from "fs";
+import { setupVite } from "./vite"; // Removed serveStatic/log as they caused errors
 import path from "path";
+import { fileURLToPath } from "url";
+import { createServer } from "http";
 
-// DEBUG: Check for static files
-try {
-    const publicDir = path.resolve(__dirname, "public");
-    console.log(`[DEBUG] Public dir path: ${publicDir}`);
-    if (fs.existsSync(publicDir)) {
-        console.log("[DEBUG] Public dir contents:", fs.readdirSync(publicDir));
-    } else {
-        console.log("[DEBUG] Public dir DOES NOT EXIST!");
-        // Try one level up?
-        console.log("[DEBUG] Listing .. contents:", fs.readdirSync(path.resolve(__dirname, "..")));
-    }
-} catch (e) {
-    console.error("[DEBUG] Error listing files:", e);
-}
+// --- FIX FOR ES MODULES ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const httpServer = createServer(app);
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-declare module "http" {
-    interface IncomingMessage {
-        rawBody: unknown;
-    }
-}
-
-app.use(
-    express.json({
-        limit: "50mb",
-        verify: (req, _res, buf) => {
-            req.rawBody = buf;
-        },
-    }),
-);
-
-app.use(express.urlencoded({ limit: "50mb", extended: false }));
-
-export function log(message: string, source = "express") {
-    const formattedTime = new Date().toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-    });
-
-    console.log(`${formattedTime} [${source}] ${message}`);
-}
-
+// Basic Logging Middleware using standard console
 app.use((req, res, next) => {
     const start = Date.now();
     const path = req.path;
-    let capturedJsonResponse: Record<string, any> | undefined = undefined;
+    let resBody: any;
 
-    const originalResJson = res.json;
-    res.json = function (bodyJson, ...args) {
-        capturedJsonResponse = bodyJson;
-        return originalResJson.apply(res, [bodyJson, ...args]);
+    const oldResJson = res.json;
+    res.json = function (body) {
+        resBody = body;
+        return oldResJson.apply(res, arguments as any);
     };
 
     res.on("finish", () => {
         const duration = Date.now() - start;
         if (path.startsWith("/api")) {
             let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-            if (capturedJsonResponse) {
-                logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+            if (resBody) {
+                logLine += ` :: ${JSON.stringify(resBody)}`;
             }
-
-            log(logLine);
+            console.log(logLine);
         }
     });
 
@@ -80,50 +41,33 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-    try {
-        console.log("Calling registerRoutes...");
-        await registerRoutes(httpServer, app);
-    } catch (err) {
-        console.error("FATAL ERROR in registerRoutes:", err);
-        process.exit(1);
-    }
+    // We create a standard HTTP server to wrap Express
+    const server = createServer(app);
 
+    console.log("Starting server...");
+
+    // ERROR FIX (2554): Added 'server' as second argument
+    // ERROR FIX (2345): 'server' is now a real HTTP Server, not just 'app'
+    await registerRoutes(server, app);
+
+    // Error handling middleware
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
         const status = err.status || err.statusCode || 500;
         const message = err.message || "Internal Server Error";
-
         res.status(status).json({ message });
         throw err;
     });
 
-    // importantly only setup vite in development and after
-    // setting up all the other routes so the catch-all route
-    // doesn't interfere with the other routes
-    if (process.env.NODE_ENV === "production") {
-        serveStatic(app);
+    if (app.get("env") === "development") {
+        await setupVite(server, app);
     } else {
-        // Dynamic import to avoid critical dependency issues on startup if missing
-        try {
-            const { setupVite } = await import("./vite");
-            await setupVite(httpServer, app);
-        } catch (e) {
-            console.error("Vite setup failed:", e);
-            // Fallback? Or just log? Setup vite failure is critical for dev.
-        }
+        // Note: If serveStatic is missing from vite.ts, 
+        // we use standard express.static instead.
+        app.use(express.static(path.resolve(__dirname, "..", "dist", "public")));
     }
 
-    // ALWAYS serve the app on the port specified in the environment variable PORT
-    // Other ports are firewalled. Default to 8080 if not specified (Cloud Run standard).
-    // this serves both the API and the client.
-    // It is the only port that is not firewalled.
-    const port = parseInt(process.env.PORT || "8080", 10);
-    httpServer.listen(
-        {
-            port,
-            host: "0.0.0.0",
-        },
-        () => {
-            log(`serving on port ${port}`);
-        },
-    );
+    const PORT = 5000;
+    server.listen(PORT, "0.0.0.0", () => {
+        console.log(`serving on port ${PORT}`);
+    });
 })();
