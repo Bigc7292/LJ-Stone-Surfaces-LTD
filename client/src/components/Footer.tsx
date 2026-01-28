@@ -3,23 +3,24 @@ import logoImg from "@assets/Screenshot_20251226_103451_WhatsAppBusiness_1766730
 
 export function Footer() {
   return (
-    <footer className="bg-secondary border-t border-white/5 pt-16 pb-8">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          
+    <footer className="bg-black border-t border-white/5 pt-24 pb-12 relative overflow-hidden font-sans">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#141414_0%,_transparent_100%)] opacity-30"></div>
+      <div className="container mx-auto px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+
           {/* Brand */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 overflow-hidden rounded-sm border border-primary/20">
+          <div className="space-y-8 md:col-span-2">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 overflow-hidden rounded-xl border border-white/10 shadow-3xl">
                 <img src={logoImg} alt="LJ Stone Surfaces" className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col">
-                <span className="font-serif text-lg font-bold tracking-wider text-foreground">LJ STONE</span>
-                <span className="text-[0.5rem] tracking-[0.2em] text-primary uppercase">Surfaces</span>
+                <span className="font-serif text-2xl font-bold tracking-[0.1em] text-white">LJ STONE</span>
+                <span className="text-[0.6rem] tracking-[0.4em] text-primary uppercase font-black">Architects</span>
               </div>
             </div>
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
-              Defining spaces with elegance and durability. Premium stone surfaces for the discerning client.
+            <p className="text-slate-500 text-sm leading-[2] max-w-sm font-medium uppercase tracking-widest opacity-80">
+              Defining architectural landscapes with the world's most exquisite natural stone. Bespoke installations for the discerning aesthetic.
             </p>
           </div>
 

@@ -32,33 +32,34 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-transparent to-background" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 text-center">
+        <div className="relative z-10 container mx-auto px-8 text-center mt-20">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="block text-primary tracking-[0.4em] text-sm md:text-base uppercase mb-6 font-semibold">
-              Premium Natural Stone
+            <span className="block text-primary tracking-[0.6em] text-xs md:text-sm uppercase mb-8 font-black">
+              Artisan Natural Stone
             </span>
-            <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-medium mb-8 leading-tight">
-              Timeless <span className="italic text-primary/80">Elegance</span> <br />
-              Set in Stone
+            <h1 className="font-serif text-6xl md:text-8xl lg:text-[10rem] font-bold mb-10 leading-[0.9] text-white tracking-tighter">
+              Timeless <br />
+              <span className="italic font-light text-primary/90 opacity-80">Elegance</span>
             </h1>
-            <p className="max-w-xl mx-auto text-muted-foreground text-lg mb-10 leading-relaxed font-light">
-              Experience the future of design with our <span className="text-primary">Visionary Re-Imager</span>. Upload a photo and see exotic stones in your space instantly.
+            <p className="max-w-2xl mx-auto text-slate-400 text-base md:text-lg mb-14 leading-[2] font-medium uppercase tracking-widest">
+              Pioneering the future of masonry with <span className="text-white">Machine Intelligence</span>. Seamlessly visualize exotic slabs in your architecture.
             </p>
-            <div className="flex flex-col md:flex-row gap-4 justify-center">
+            <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
               <Link href="/portfolio">
-                <button className="px-8 py-4 bg-primary text-black hover:bg-white transition-colors uppercase tracking-widest text-sm font-bold">
-                  View Collection
+                <button className="group relative px-12 py-5 bg-primary text-primary-foreground font-black uppercase tracking-[0.3em] text-[11px] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-3xl shadow-primary/20">
+                  <span className="relative z-10">Explore Collection</span>
+                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
                 </button>
               </Link>
               <button
                 onClick={() => document.getElementById('ai-tools')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-4 border border-white/20 hover:border-primary hover:text-primary transition-colors uppercase tracking-widest text-sm font-bold"
+                className="px-12 py-5 border border-white/10 hover:border-primary/50 text-white hover:text-primary backdrop-blur-md bg-white/5 transition-all uppercase tracking-[0.3em] text-[11px] font-black group active:scale-95"
               >
-                Try AI Designer
+                AI Experience
               </button>
             </div>
           </motion.div>

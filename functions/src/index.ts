@@ -20,7 +20,7 @@ export const stoneSurfaceFlow = ai.defineFlow(
   },
   async (input) => {
     const response = await ai.generate({
-      model: 'gemini-1.5-pro-latest',
+      model: 'gemini-2.0-flash',
       system: `
         You are the Lead Visualizer for LJ Stone Surfaces LTD. 
         Your task is to identify markers in the user\'s image and replace those specific surfaces with the chosen ${input.materialType}.
@@ -32,7 +32,7 @@ export const stoneSurfaceFlow = ai.defineFlow(
       prompt: [
         { text: "Reference 1 (Quartz Kitchen):" },
         { media: { url: 'https://i.postimg.cc/R6K2HKqg/Whats-App-Image-2026-01-01-at-23-40-43.jpg', contentType: 'image/jpeg' } },
-        
+
         { text: "Reference 2 (Granite Island):" },
         { media: { url: 'https://i.postimg.cc/34mzvmWc/Whats-App-Image-2026-01-01-at-23-40-43-2.jpg', contentType: 'image/jpeg' } },
 

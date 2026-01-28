@@ -1,0 +1,6 @@
+
+> rest-express@1.0.0 dev
+> set NODE_ENV=development && npx tsx server/index.ts
+
+Starting server...
+Terminate batch job (Y/N)? 

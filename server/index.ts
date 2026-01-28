@@ -66,7 +66,7 @@ app.use((req, res, next) => {
         app.use(express.static(path.resolve(__dirname, "..", "dist", "public")));
     }
 
-    const PORT = 5000;
+    const PORT = 3010;
     server.listen(PORT, "0.0.0.0", () => {
         console.log(`serving on port ${PORT}`);
     });

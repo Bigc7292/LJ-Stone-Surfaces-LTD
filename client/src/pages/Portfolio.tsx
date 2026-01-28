@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SectionHeading } from "@/components/SectionHeading";
 import Masonry from 'react-masonry-css';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PORTFOLIO_DATA } from '@/data/stoneLibrary3D';
+import { PORTFOLIO_DATA } from '@/data/portfolio';
 import { Search, Grid, LayoutGrid } from 'lucide-react';
 
 const breakpointColumnsObj = {

@@ -5,78 +5,135 @@ import { api } from "../shared/routes";
 import { AIService } from "./services/aiService";
 import { z } from "zod";
 import fs from "fs";
+import path from "path";
+
+// Simple persistent logger for background processes
+const fileLog = (msg: string) => {
+  const logPath = path.join(process.cwd(), "server-debug.log");
+  const timestamp = new Date().toISOString();
+  fs.appendFileSync(logPath, `[${timestamp}] ${msg}\n`);
+};
+
+fileLog("Server routes initialized.");
+
+// In-memory job queue for asynchronous AI tasks
+const aiJobQueue = new Map<string, {
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  imageUrl?: string;
+  error?: string;
+  createdAt: number;
+}>();
+
+// Cleanup old jobs every hour
+setInterval(() => {
+  const ONE_HOUR = 60 * 60 * 1000;
+  const now = Date.now();
+  for (const [jobId, job] of aiJobQueue.entries()) {
+    if (now - job.createdAt > ONE_HOUR) {
+      aiJobQueue.delete(jobId);
+    }
+  }
+}, 60 * 60 * 1000);
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Simple logger helper
-  const fileLog = (msg: string) => {
-    fs.appendFileSync("server-errors.txt", `[${new Date().toISOString()}] ${msg}\n`);
-  };
 
   // AI Re-Imager (Visionary) - Generative Inpainting with Markers
-  // UPDATED: Now supports "stoneDescription" for Smart Prompting
+  // UPDATED: Now supports Asynchronous Polling with Job IDs
   app.post("/api/ai/re-imager", async (req, res) => {
-    // 1. Extended Timeout for High-Res Rendering (120s)
-    req.setTimeout(120000);
-
     try {
-      // 2. Destructure inputs - ADDED "stoneDescription"
-      const { image, imagePath2, stoneSlabPath, stoneType, markers, finishType, color, prompt, stoneDescription } = req.body;
+      const {
+        image, primary_room,
+        imagePath2, offset_room,
+        stoneSlabPath, stone_texture,
+        stoneType, markers, finishType, color, prompt, stoneDescription
+      } = req.body;
+
+      // Normalize inputs
+      const finalImage = image || primary_room;
+      const finalImagePath2 = imagePath2 || offset_room;
+      const finalSlab = stoneSlabPath || stone_texture;
 
       // Validation
-      if (!image) return res.status(400).json({ message: "Image data is required" });
-      if (!markers || markers.length === 0) return res.status(400).json({ message: "At least one marker is required" });
+      if (!finalImage) return res.status(400).json({ message: "Image data is required" });
 
-      console.log(`[API] Processing Re-Image: ${stoneType} | ${finishType} | Description Provided: ${!!stoneDescription}`);
+      const jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // 3. CONSTRUCT THE SMART PROMPT
-      // Start with a strong base instruction
-      let finalPrompt = `Apply the stone material "${stoneType}" to the marked areas.`;
-
-      // If we have the scraped description, inject it!
-      if (stoneDescription) {
-        finalPrompt += `\n\nMATERIAL VISUAL DESCRIPTION:\n"${stoneDescription}"\n\n`;
-        finalPrompt += `INSTRUCTIONS:\n- Strictly follow the visual description above for texture, vein pattern, and color.\n- Ensure high-resolution detail matching the description.\n- Render with a ${finishType || 'Polished'} finish.`;
-      } else {
-        // Fallback if no description exists (e.g. for generic stones)
-        finalPrompt += ` Surface finish: ${finishType || 'Polished'}. Color tone: ${color || 'Natural'}.`;
-      }
-
-      // If the user typed something in the chat box, append it as high priority
-      if (prompt) {
-        finalPrompt += `\n\nUSER OVERRIDE:\n${prompt}`;
-      }
-
-      // 4. Call the Advanced AI Service
-      const imageUrl = await AIService.performInpainting({
-        imagePath: image,
-        imagePath2: imagePath2,
-        stoneSlabPath: stoneSlabPath,
-        stoneType: stoneType || "Marble",
-        // Send our new detailed prompt
-        prompt: finalPrompt,
-        markers: markers,
-        finishType: finishType || 'Polished',
-        color: color || 'Natural'
+      // Initialize job in queue
+      aiJobQueue.set(jobId, {
+        status: 'processing',
+        createdAt: Date.now()
       });
 
-      // 5. Success Response
-      if (!res.headersSent) {
-        res.json({ imageUrl });
-      }
+      console.log(`[API] Processing Re-Image (Asynchronous): ${jobId} | ${stoneType}`);
+
+      // Respond immediately with 202 Accepted
+      res.status(202).json({ jobId, message: "Image processing started" });
+
+      // Run AI service in background
+      (async () => {
+        try {
+          // 3. CONSTRUCT THE SMART PROMPT
+          let finalPrompt = `Apply the stone material "${stoneType}" to the marked areas.`;
+          if (stoneDescription) {
+            finalPrompt += `\n\nMATERIAL VISUAL DESCRIPTION:\n"${stoneDescription}"\n\n`;
+            finalPrompt += `INSTRUCTIONS:\n- Strictly follow the visual description above for texture, vein pattern, and color.\n- Ensure high-resolution detail matching the description.\n- Render with a ${finishType || 'Polished'} finish.`;
+          } else {
+            finalPrompt += ` Surface finish: ${finishType || 'Polished'}. Color tone: ${color || 'Natural'}.`;
+          }
+          if (prompt) {
+            finalPrompt += `\n\nUSER OVERRIDE:\n${prompt}`;
+          }
+
+          console.log(`[API] Starting background inpainting for ${jobId}...`);
+          const imageUrl = await AIService.performInpainting({
+            imagePath: finalImage,
+            imagePath2: finalImagePath2,
+            stoneSlabPath: finalSlab,
+            stoneType: stoneType || "Marble",
+            prompt: finalPrompt,
+            markers: markers || [],
+            finishType: finishType || 'Polished',
+            color: color || 'Natural'
+          });
+
+          aiJobQueue.set(jobId, {
+            ...aiJobQueue.get(jobId)!,
+            status: 'completed',
+            imageUrl
+          });
+          console.log(`[API] Job Completed: ${jobId}`);
+        } catch (err: any) {
+          console.error(`[API] Job Failed: ${jobId}`, err.message);
+          fileLog(`Job ${jobId} Failed: ${err.message}\n${err.stack}`);
+          aiJobQueue.set(jobId, {
+            ...aiJobQueue.get(jobId)!,
+            status: 'failed',
+            error: err.message
+          });
+        }
+      })();
 
     } catch (err: any) {
-      console.error("[API] Re-Imager Failed:", err.message);
-
+      console.error("[API] Re-Imager Initialization Failed:", err.message);
       if (!res.headersSent) {
-        res.status(500).json({
-          message: "The AI Architect encountered an error.",
-          details: err.message
-        });
+        res.status(500).json({ message: "Failed to initialize AI process", details: err.message });
       }
     }
+  });
+
+  // GET Job Status
+  app.get("/api/re-imager/status/:jobId", (req, res) => {
+    const { jobId } = req.params;
+    const job = aiJobQueue.get(jobId);
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    res.json(job);
   });
 
   // AI Re-Imager (Visionary) - DEBUG
@@ -230,8 +287,6 @@ export async function registerRoutes(
 
   // Products
   app.get(api.products.list.path, async (req, res) => {
-    // Lazy seed for local dev
-    await storage.seedProducts();
     const category = req.query.category as string | undefined;
     const products = await storage.getProducts(category);
     res.json(products);
@@ -264,9 +319,6 @@ export async function registerRoutes(
       throw err;
     }
   });
-
-  // Seed data on startup
-  await storage.seedProducts();
 
   return httpServer;
 }

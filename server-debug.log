@@ -1,0 +1,232 @@
+[2026-01-26T17:11:29.244Z] Server routes initialized.
+[2026-01-26T17:11:32.882Z] Server routes initialized.
+[2026-01-26T17:11:37.509Z] Server routes initialized.
+[2026-01-26T17:12:09.130Z] Server routes initialized.
+[2026-01-26T17:15:59.538Z] Server routes initialized.
+[2026-01-26T17:31:45.101Z] Server routes initialized.
+[2026-01-26T17:31:45.104Z] Server routes initialized.
+[2026-01-26T17:32:58.940Z] Server routes initialized.
+[2026-01-26T17:35:21.257Z] Server routes initialized.
+[2026-01-26T17:35:21.261Z] Server routes initialized.
+[2026-01-26T17:35:21.283Z] Server routes initialized.
+[2026-01-26T17:35:25.147Z] Server routes initialized.
+[2026-01-26T17:35:29.714Z] Server routes initialized.
+[2026-01-26T17:35:33.191Z] Server routes initialized.
+[2026-01-26T17:36:40.666Z] Server routes initialized.
+[2026-01-26T17:36:43.932Z] Server routes initialized.
+[2026-01-26T17:36:50.581Z] Server routes initialized.
+[2026-01-26T17:36:54.176Z] Server routes initialized.
+[2026-01-26T17:37:01.413Z] Server routes initialized.
+[2026-01-26T17:37:08.823Z] Server routes initialized.
+[2026-01-26T17:37:17.475Z] Server routes initialized.
+[2026-01-26T17:37:53.001Z] Server routes initialized.
+[2026-01-26T17:39:38.119Z] Server routes initialized.
+[2026-01-26T17:40:59.179Z] Job job_1769449257295_r2jt7zige Failed: {"error":{"code":400,"message":"Model does not support the requested response modalities: image","status":"INVALID_ARGUMENT"}}
+ApiError: {"error":{"code":400,"message":"Model does not support the requested response modalities: image","status":"INVALID_ARGUMENT"}}
+    at throwErrorIfNotOK (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\node_modules\@google\genai\src\_api_client.ts:860:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\node_modules\@google\genai\src\_api_client.ts:493:9)
+    at async Models.Models.generateContent (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\node_modules\@google\genai\src\models.ts:69:14)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:244:30)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T17:42:41.290Z] Server routes initialized.
+[2026-01-26T17:43:21.340Z] Job job_1769449399506_ohs96fomj Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [400 Bad Request] Model does not support the requested response modalities: image
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [400 Bad Request] Model does not support the requested response modalities: image
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:148:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T17:43:34.140Z] Server routes initialized.
+[2026-01-26T17:44:12.806Z] Server routes initialized.
+[2026-01-26T17:44:30.579Z] Job job_1769449469325_14i562pnc Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [400 Bad Request] Model does not support the requested response modalities: image
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: [400 Bad Request] Model does not support the requested response modalities: image
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:140:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T17:45:09.975Z] Server routes initialized.
+[2026-01-26T17:45:17.902Z] Job job_1769449516177_wcspza77p Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [400 Bad Request] Model does not support the requested response modalities: image
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [400 Bad Request] Model does not support the requested response modalities: image
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:140:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T17:45:47.037Z] Server routes initialized.
+[2026-01-26T17:45:55.952Z] Job job_1769449554215_pd8ibdw2u Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:114:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T17:46:09.289Z] Server routes initialized.
+[2026-01-26T17:46:17.306Z] Job job_1769449575905_74wwcdxiv Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent: [404 Not Found] models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent: [404 Not Found] models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:114:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T17:46:31.225Z] Server routes initialized.
+[2026-01-26T17:46:41.247Z] Job job_1769449599369_psbkryvk0 Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:114:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T18:08:07.131Z] Job job_1769450885494_g6zevyalb Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:114:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-26T19:40:02.941Z] Server routes initialized.
+[2026-01-26T19:40:05.278Z] Server routes initialized.
+[2026-01-26T19:40:07.477Z] Server routes initialized.
+[2026-01-26T19:40:11.417Z] Server routes initialized.
+[2026-01-26T19:49:29.062Z] Server routes initialized.
+[2026-01-26T23:03:07.927Z] Server routes initialized.
+[2026-01-26T23:03:10.186Z] Server routes initialized.
+[2026-01-26T23:03:12.644Z] Server routes initialized.
+[2026-01-26T23:03:15.594Z] Server routes initialized.
+[2026-01-26T23:03:18.795Z] Server routes initialized.
+[2026-01-27T20:23:32.464Z] Server routes initialized.
+[2026-01-27T20:23:34.749Z] Server routes initialized.
+[2026-01-27T20:23:37.196Z] Server routes initialized.
+[2026-01-27T20:23:41.183Z] Server routes initialized.
+[2026-01-27T20:29:21.218Z] Server routes initialized.
+[2026-01-27T20:46:36.075Z] Server routes initialized.
+[2026-01-27T21:02:20.705Z] Server routes initialized.
+[2026-01-27T21:02:47.227Z] Server routes initialized.
+[2026-01-27T21:02:56.472Z] Server routes initialized.
+[2026-01-27T21:03:10.847Z] Server routes initialized.
+[2026-01-27T21:03:20.730Z] Server routes initialized.
+[2026-01-27T21:04:20.569Z] Server routes initialized.
+[2026-01-27T21:17:59.479Z] Job job_1769548679380_p7ypv6aqt Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: fetch failed
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:395:20)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:141:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-27T21:24:30.149Z] Server routes initialized.
+[2026-01-27T21:24:32.273Z] Server routes initialized.
+[2026-01-27T21:24:32.481Z] Server routes initialized.
+[2026-01-27T21:24:34.536Z] Server routes initialized.
+[2026-01-27T21:24:37.045Z] Server routes initialized.
+[2026-01-27T21:24:38.726Z] Server routes initialized.
+[2026-01-27T21:24:41.676Z] Server routes initialized.
+[2026-01-27T21:53:39.175Z] Server routes initialized.
+[2026-01-27T21:53:39.175Z] Server routes initialized.
+[2026-01-27T21:53:39.188Z] Server routes initialized.
+[2026-01-27T22:13:10.343Z] Server routes initialized.
+[2026-01-27T22:13:10.418Z] Server routes initialized.
+[2026-01-27T22:13:10.464Z] Server routes initialized.
+[2026-01-27T22:13:16.125Z] Server routes initialized.
+[2026-01-27T22:13:21.181Z] Server routes initialized.
+[2026-01-27T22:22:29.885Z] Server routes initialized.
+[2026-01-27T22:22:37.663Z] Server routes initialized.
+[2026-01-27T22:23:52.636Z] Server routes initialized.
+[2026-01-27T22:28:28.805Z] Server routes initialized.
+[2026-01-27T22:28:30.344Z] Server routes initialized.
+[2026-01-27T22:28:30.401Z] Server routes initialized.
+[2026-01-27T22:28:30.408Z] Server routes initialized.
+[2026-01-27T23:07:06.379Z] Server routes initialized.
+[2026-01-27T23:07:06.378Z] Server routes initialized.
+[2026-01-27T23:07:06.574Z] Server routes initialized.
+[2026-01-27T23:29:38.538Z] Server routes initialized.
+[2026-01-27T23:29:38.646Z] Server routes initialized.
+[2026-01-27T23:29:39.260Z] Server routes initialized.
+[2026-01-27T23:29:47.320Z] Server routes initialized.
+[2026-01-27T23:29:47.377Z] Server routes initialized.
+[2026-01-27T23:32:16.293Z] Server routes initialized.
+[2026-01-27T23:32:19.528Z] Server routes initialized.
+[2026-01-27T23:32:23.498Z] Server routes initialized.
+[2026-01-27T23:32:28.288Z] Server routes initialized.
+[2026-01-27T23:32:55.409Z] Server routes initialized.
+[2026-01-27T23:33:03.867Z] Server routes initialized.
+[2026-01-27T23:33:14.534Z] Server routes initialized.
+[2026-01-27T23:33:19.537Z] Server routes initialized.
+[2026-01-27T23:33:28.350Z] Server routes initialized.
+[2026-01-28T00:14:24.426Z] Server routes initialized.
+[2026-01-28T00:14:24.426Z] Server routes initialized.
+[2026-01-28T00:14:24.426Z] Server routes initialized.
+[2026-01-28T00:14:24.430Z] Server routes initialized.
+[2026-01-28T00:45:34.287Z] Server routes initialized.
+[2026-01-28T00:55:14.400Z] Job job_1769561714294_5ug78r5pj Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: fetch failed
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:395:20)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:141:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-28T01:10:07.575Z] Server routes initialized.
+[2026-01-28T01:11:54.948Z] Server routes initialized.
+[2026-01-28T01:14:48.305Z] Server routes initialized.
+[2026-01-28T01:14:48.311Z] Server routes initialized.
+[2026-01-28T01:23:55.372Z] Server routes initialized.
+[2026-01-28T01:27:58.746Z] Job job_1769563676928_8zo5wxh5t Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [404 Not Found] models/gemini-2.0-flash-exp is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [404 Not Found] models/gemini-2.0-flash-exp is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:141:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-28T01:28:54.041Z] Job job_1769563732810_1cc0oaqdp Failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [404 Not Found] models/gemini-2.0-flash-exp is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent: [404 Not Found] models/gemini-2.0-flash-exp is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:141:28)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\aiService.ts:18:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:91:28)
+[2026-01-28T01:36:13.246Z] Server routes initialized.
+[2026-01-28T01:36:13.246Z] Server routes initialized.
+[2026-01-28T01:36:13.249Z] Server routes initialized.
+[2026-01-28T01:36:40.329Z] Server routes initialized.
+[2026-01-28T01:42:07.753Z] Server routes initialized.
+[2026-01-28T01:42:08.503Z] Server routes initialized.
+[2026-01-28T01:42:08.529Z] Server routes initialized.
+[2026-01-28T01:42:08.543Z] Server routes initialized.
+[2026-01-28T01:44:16.679Z] Server routes initialized.
+[2026-01-28T01:44:17.227Z] Server routes initialized.
+[2026-01-28T01:44:38.460Z] Server routes initialized.
+[2026-01-28T01:44:39.795Z] Server routes initialized.
+[2026-01-28T01:44:39.921Z] Server routes initialized.
+[2026-01-28T01:44:41.236Z] Server routes initialized.
+[2026-01-28T01:44:41.424Z] Server routes initialized.
+[2026-01-28T01:44:41.569Z] Server routes initialized.
+[2026-01-28T01:44:41.598Z] Server routes initialized.
+[2026-01-28T01:44:42.224Z] Server routes initialized.
+[2026-01-28T01:44:46.142Z] Server routes initialized.
+[2026-01-28T01:44:47.584Z] Server routes initialized.
+[2026-01-28T01:44:51.020Z] Server routes initialized.
+[2026-01-28T01:44:52.692Z] Server routes initialized.
+[2026-01-28T01:44:55.652Z] Server routes initialized.
