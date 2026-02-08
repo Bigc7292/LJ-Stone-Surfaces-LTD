@@ -1,0 +1,81 @@
+{
+    "version": "1.0",
+    "lastUpdated": "2026-02-09",
+    "grokConfig": {
+        "imageModel": "grok-2-image-1212",
+        "consistency": {
+            "seed": 42,
+            "imageToImageStrength": 0.6,
+            "resolution": "1024x1024",
+            "style": "photorealistic, high detail, matching original lighting and perspective"
+        }
+    },
+    "prompts": {
+        "countertopsReplacement": {
+            "id": "countertops_only",
+            "description": "Replace only countertop surfaces",
+            "template": "Recognize and replace all countertop surfaces in the base kitchen image with photorealistic {stoneName} featuring {stoneDescription}. Keep cabinets, appliances, walls, floor, window, and all other elements unchanged. Maintain original lighting, perspective, and high detail."
+        },
+        "backsplashReplacement": {
+            "id": "backsplash_only",
+            "description": "Replace backsplash with matching slab (not tiles)",
+            "template": "Replace the backsplash in the base kitchen image with a seamless slab of matching {stoneName} with {stoneDescription}, extending from counter to cabinets. Avoid tiled look; make it a continuous polished surface. Preserve all other details, lighting, and perspective exactly as in the base image."
+        },
+        "combinedReplacement": {
+            "id": "countertops_and_backsplash",
+            "description": "Replace both countertops and backsplash in one edit",
+            "template": "In the base kitchen image, replace all countertops and the backsplash with matching {stoneName} featuring {stoneDescription}. Use a slab style for the backsplash, not tiles. Ensure seamless integration, photorealistic texture, and unchanged elements like cabinets, island base, appliances, window, and floor."
+        },
+        "walkAroundVideo": {
+            "id": "walkaround_video",
+            "description": "Generate 8-second orbiting video at human eye level",
+            "template": "Generate a smooth 8-second orbiting video at human eye level (about 5.5 ft high) of this edited kitchen. Slowly circle around the central island, showing the {stoneName} countertops and matching slab backsplash from multiple angles. Keep photorealistic style, natural window light, cabinets, appliances and all other details exactly as in the attached image. Smooth camera motion, no text or HUD."
+        },
+        "staticAngles": {
+            "left": {
+                "id": "static_left",
+                "template": "The same modified kitchen as the base image (with {stoneName} countertops and backsplash), viewed from the left side at human eye level. Photorealistic, matching original style."
+            },
+            "right": {
+                "id": "static_right",
+                "template": "The same modified kitchen as the base image, viewed from the right side at human eye level. Include the full island and cabinets, with {stoneName} changes applied consistently."
+            },
+            "back": {
+                "id": "static_back",
+                "template": "The same modified kitchen as the base image, viewed from behind the island at human eye level, showing the window and {stoneName} counters."
+            }
+        },
+        "backsplashVariations": [
+            {
+                "id": "variation_1",
+                "template": "Update the kitchen backsplash in the base image to a full-height slab of {stoneName} with prominent {stoneDescription}, matching the countertops. Ensure veining patterns align seamlessly across surfaces. Photorealistic render, preserve all other room elements and lighting."
+            },
+            {
+                "id": "variation_2",
+                "template": "Replace the backsplash in the provided kitchen photo with elegant {stoneName} featuring {stoneDescription} in a non-tiled, continuous slab design. Blend edges naturally with counters and cabinets. High-resolution, realistic textures, unchanged perspective and details."
+            },
+            {
+                "id": "variation_3",
+                "template": "Transform the backsplash area of the base kitchen image into polished {stoneName} with {stoneDescription}, extending fully and matching countertop material. Avoid any tile patterns; focus on a luxurious slab appearance. Keep the rest of the scene identical, including appliances and colors."
+            }
+        ]
+    },
+    "consistencyBoosters": [
+        "photorealistic interior photography",
+        "identical camera angle and lighting to the reference",
+        "high detail",
+        "no artistic stylization",
+        "using the previous/attached/last generated image as exact reference",
+        "do not change the layout, perspective, lighting, cabinets, appliances or colors—only modify the specified surfaces"
+    ],
+    "surfaceTypes": [
+        "countertops",
+        "backsplash",
+        "flooring",
+        "island"
+    ],
+    "editModes": {
+        "sequential": "Apply changes one at a time (countertops first, then backsplash)",
+        "combined": "Apply all changes in a single prompt for simplicity"
+    }
+}

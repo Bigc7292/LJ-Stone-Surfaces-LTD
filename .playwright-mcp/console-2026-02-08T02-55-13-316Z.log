@@ -1,0 +1,73 @@
+[    6593ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/api/products:0
+[  175745ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/other/stones/grey-ice-marble.jpg:0
+[  175746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/Marble024.png:0
+[  175746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/quartz/BQ8915-Alessandria-or-Alessandriar-US-Polished-001-REFLECTION-2K/Color.jpg:0
+[  175746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/granite/Granite005A/Granite005A_2K-JPG_Color.jpg:0
+[  175746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/other/stones/dekton-trilium.png:0
+[  175746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/granite/Granite005B/Granite005B_2K-JPG_Color.jpg:0
+[  178075ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/Marble007.png:0
+[  178079ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/quartz/VICOSTONE-CANADA_BQ2605-DENALI-or-DENALI-(US)_POLISHED/Color.jpg:0
+[  178080ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/other/stones/titanium-gold-granite.jpg:0
+[  178080ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/Granite001A.png:0
+[  178091ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/Granite002B_2K-JPG_Color.jpg:0
+[  178092ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/other/stones/blue-dunes-granite.jpg:0
+[  180422ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/marble/Marble009_2K-JPG_Color/Color.jpg:0
+[  180423ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/granite/Granite002A_2K-JPG_Color/Color.jpg:0
+[  180423ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/quartz/VICOSTONE-CANADA_BQ8915-ALESSANDRIA-or-ALESSANDRIA(r)-(US)_POLISHED/Color.jpg:0
+[  180423ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/granite/Granite005B_2K-JPG_Color/Color.jpg:0
+[  180451ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/marble/Marble007/Marble007_2K-JPG_Color.jpg:0
+[  180451ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/quartz/VICOSTONE-CANADA_BQ8786-THUNDER-BLUE-or-AZUR-DE-MAR(r)-(US)_POLISHED/BQ8786-Thunder-Blue-or-Azur-De-Marr-US-Polished-001-DISPLACEMENT16-2K.png:0
+[  206437ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/favicon.png:0
+[  208405ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.54.jpeg:0
+[  208406ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.44.jpeg:0
+[  208406ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.49.jpeg:0
+[  208406ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.58.jpeg:0
+[  208406ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.46.jpeg:0
+[  208796ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.52.jpeg:0
+[  210745ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.48.jpeg:0
+[  210746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.53.jpeg:0
+[  210746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.45.jpeg:0
+[  210746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.57.jpeg:0
+[  210746ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.50.jpeg:0
+[  211129ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.56.jpeg:0
+[  213079ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/api/products:0
+[  213079ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/other/stones/taj-mahal-quartzite.png:0
+[  213079ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/attached_assets/Screenshot_20251226_103451_WhatsAppBusiness_1766730996434.jpg:0
+[  213080ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.43.jpeg:0
+[  213080ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/favicon.png:0
+[  213459ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.47.jpeg:0
+[  215409ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.51.jpeg:0
+[  215409ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.55.jpeg:0
+[  215409ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.59.jpeg:0
+[  453136ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/api/ai/re-imager:0
+[  453137ms] [ERROR] TypeError: Failed to fetch
+    at startAutoAnalysis (http://localhost:3011/src/components/LuxeStoneVisualizer.tsx:112:30)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:3705:24)
+    at invokeGuardedCallback (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:3739:39)
+    at invokeGuardedCallbackAndCatchFirstError (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:3742:33)
+    at executeDispatch (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:7046:11)
+    at processDispatchQueueItemsInOrder (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:7066:15)
+    at processDispatchQueue (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:7075:13)
+    at dispatchEventsForPlugins (http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:7083:11)
+    at http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=f5b74576:7206:20 @ http://localhost:3011/src/components/LuxeStoneVisualizer.tsx:136
+[  453383ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/textures/other/stones/taj-mahal-quartzite.png:0
+[  487082ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/favicon.png:0
+[  487082ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.52.jpeg:0
+[  487097ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.58.jpeg:0
+[  487097ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.54.jpeg:0
+[  487099ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.46.jpeg:0
+[  487099ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.45.jpeg:0
+[  489421ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.48.jpeg:0
+[  489421ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.53.jpeg:0
+[  489422ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.44.jpeg:0
+[  489422ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.50.jpeg:0
+[  489422ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.56.jpeg:0
+[  489422ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.49.jpeg:0
+[  491755ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.57.jpeg:0
+[  491756ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/attached_assets/Screenshot_20251226_103451_WhatsAppBusiness_1766730996434.jpg:0
+[  491756ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.43.jpeg:0
+[  491757ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.47.jpeg:0
+[  491757ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.51.jpeg:0
+[  491757ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.55.jpeg:0
+[  494081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3011/data_science/processed_training_set/whatsapp-image-2026-01-01-at-23.40.59.jpeg:0

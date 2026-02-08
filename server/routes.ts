@@ -3,9 +3,11 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "../shared/routes";
 import { AIService } from "./services/aiService";
+import { GrokService } from "./services/grokService";
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
+
 
 // Simple persistent logger for background processes
 const fileLog = (msg: string) => {
@@ -31,6 +33,26 @@ setInterval(() => {
   for (const [jobId, job] of aiJobQueue.entries()) {
     if (now - job.createdAt > ONE_HOUR) {
       aiJobQueue.delete(jobId);
+    }
+  }
+}, 60 * 60 * 1000);
+
+// Grok video job queue for async video generation
+const grokVideoJobQueue = new Map<string, {
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  grokRequestId?: string;
+  videoUrl?: string;
+  error?: string;
+  createdAt: number;
+}>();
+
+// Cleanup old Grok video jobs every hour
+setInterval(() => {
+  const ONE_HOUR = 60 * 60 * 1000;
+  const now = Date.now();
+  for (const [jobId, job] of grokVideoJobQueue.entries()) {
+    if (now - job.createdAt > ONE_HOUR) {
+      grokVideoJobQueue.delete(jobId);
     }
   }
 }, 60 * 60 * 1000);
@@ -320,5 +342,184 @@ export async function registerRoutes(
     }
   });
 
+  // ============================================================================
+  // GROK AI ENDPOINTS
+  // ============================================================================
+
+  // Grok Image Generation - Automatic Surface Detection
+  app.post("/api/grok/generate-image", async (req, res) => {
+    try {
+      const {
+        roomImage,
+        stoneName,
+        stoneCategory,
+        stoneTexture,
+        finishType = 'Polished',
+        ambience = 'Natural'
+      } = req.body;
+
+      if (!roomImage) {
+        return res.status(400).json({ message: "Room image is required" });
+      }
+
+      if (!stoneName) {
+        return res.status(400).json({ message: "Stone name is required" });
+      }
+
+      console.log(`[Grok API] Generating image: ${stoneName} (${stoneCategory})`);
+
+      const imageUrl = await GrokService.generateStoneVisualization({
+        roomImageBase64: roomImage,
+        stoneTexturePath: stoneTexture,
+        stoneName,
+        stoneCategory: stoneCategory || 'Stone',
+        finishType,
+        ambience
+      });
+
+      res.json({
+        success: true,
+        imageUrl,
+        message: "Image generated successfully"
+      });
+
+    } catch (err: any) {
+      console.error("[Grok API] Image generation failed:", err.message);
+      fileLog(`Grok Image Error: ${err.message}\n${err.stack}`);
+      res.status(500).json({
+        success: false,
+        message: err.message || "Failed to generate image"
+      });
+    }
+  });
+
+  // Grok Video Generation - Walkthrough Animation (Async)
+  app.post("/api/grok/generate-video", async (req, res) => {
+    try {
+      const {
+        transformedImage,
+        duration = 10,
+        resolution = '720p'
+      } = req.body;
+
+      if (!transformedImage) {
+        return res.status(400).json({ message: "Transformed image is required" });
+      }
+
+      const jobId = `grok_video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Initialize job in queue
+      grokVideoJobQueue.set(jobId, {
+        status: 'processing',
+        createdAt: Date.now()
+      });
+
+      console.log(`[Grok API] Starting video generation: ${jobId}`);
+
+      // Respond immediately with job ID
+      res.status(202).json({
+        jobId,
+        message: "Video generation started. Poll for status."
+      });
+
+      // Process in background
+      (async () => {
+        try {
+          const { requestId } = await GrokService.generateWalkthroughVideo({
+            transformedImageBase64: transformedImage,
+            duration,
+            resolution
+          });
+
+          grokVideoJobQueue.set(jobId, {
+            ...grokVideoJobQueue.get(jobId)!,
+            grokRequestId: requestId
+          });
+
+          // Poll Grok API for completion
+          const pollInterval = 5000; // 5 seconds
+          const maxAttempts = 60; // 5 minutes max
+          let attempts = 0;
+
+          const pollGrok = async () => {
+            try {
+              const status = await GrokService.checkVideoStatus(requestId);
+
+              if (status.status === 'completed' && status.videoUrl) {
+                grokVideoJobQueue.set(jobId, {
+                  ...grokVideoJobQueue.get(jobId)!,
+                  status: 'completed',
+                  videoUrl: status.videoUrl
+                });
+                console.log(`[Grok API] Video completed: ${jobId}`);
+              } else if (status.status === 'failed') {
+                grokVideoJobQueue.set(jobId, {
+                  ...grokVideoJobQueue.get(jobId)!,
+                  status: 'failed',
+                  error: status.error || 'Video generation failed'
+                });
+                console.error(`[Grok API] Video failed: ${jobId}`);
+              } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(pollGrok, pollInterval);
+              } else {
+                grokVideoJobQueue.set(jobId, {
+                  ...grokVideoJobQueue.get(jobId)!,
+                  status: 'failed',
+                  error: 'Video generation timeout'
+                });
+              }
+            } catch (pollErr: any) {
+              console.error(`[Grok API] Poll error: ${pollErr.message}`);
+              grokVideoJobQueue.set(jobId, {
+                ...grokVideoJobQueue.get(jobId)!,
+                status: 'failed',
+                error: pollErr.message
+              });
+            }
+          };
+
+          // Start polling
+          setTimeout(pollGrok, pollInterval);
+
+        } catch (err: any) {
+          console.error(`[Grok API] Video job ${jobId} failed:`, err.message);
+          fileLog(`Grok Video Error: ${err.message}\n${err.stack}`);
+          grokVideoJobQueue.set(jobId, {
+            ...grokVideoJobQueue.get(jobId)!,
+            status: 'failed',
+            error: err.message
+          });
+        }
+      })();
+
+    } catch (err: any) {
+      console.error("[Grok API] Video initialization failed:", err.message);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: "Failed to start video generation"
+        });
+      }
+    }
+  });
+
+  // Grok Video Status Polling
+  app.get("/api/grok/video-status/:jobId", (req, res) => {
+    const { jobId } = req.params;
+    const job = grokVideoJobQueue.get(jobId);
+
+    if (!job) {
+      return res.status(404).json({ message: "Video job not found" });
+    }
+
+    res.json({
+      status: job.status,
+      videoUrl: job.videoUrl,
+      error: job.error
+    });
+  });
+
   return httpServer;
+
 }

@@ -230,3 +230,41 @@ Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguag
 [2026-01-28T01:44:51.020Z] Server routes initialized.
 [2026-01-28T01:44:52.692Z] Server routes initialized.
 [2026-01-28T01:44:55.652Z] Server routes initialized.
+[2026-02-08T02:38:12.875Z] Server routes initialized.
+[2026-02-08T02:38:15.290Z] Server routes initialized.
+[2026-02-08T02:38:18.720Z] Server routes initialized.
+[2026-02-08T02:54:23.598Z] Server routes initialized.
+[2026-02-08T02:54:56.250Z] Server routes initialized.
+[2026-02-08T20:28:22.317Z] Server routes initialized.
+[2026-02-08T20:28:24.499Z] Server routes initialized.
+[2026-02-08T20:28:26.864Z] Server routes initialized.
+[2026-02-08T20:28:30.507Z] Server routes initialized.
+[2026-02-08T20:31:33.229Z] Server routes initialized.
+[2026-02-08T20:33:45.842Z] Server routes initialized.
+[2026-02-08T20:35:03.909Z] Server routes initialized.
+[2026-02-08T21:07:51.092Z] Server routes initialized.
+[2026-02-08T21:08:36.905Z] Server routes initialized.
+[2026-02-08T21:08:42.344Z] Server routes initialized.
+[2026-02-08T21:18:20.730Z] Server routes initialized.
+[2026-02-08T21:18:30.828Z] Server routes initialized.
+[2026-02-08T21:18:54.514Z] Server routes initialized.
+[2026-02-08T22:22:53.497Z] Server routes initialized.
+[2026-02-08T22:22:55.684Z] Server routes initialized.
+[2026-02-08T22:22:58.872Z] Server routes initialized.
+[2026-02-08T22:27:27.803Z] Server routes initialized.
+[2026-02-08T22:27:31.089Z] Server routes initialized.
+[2026-02-08T22:32:08.664Z] Server routes initialized.
+[2026-02-08T23:01:22.154Z] Server routes initialized.
+[2026-02-08T23:01:27.397Z] Grok Image Error: Image edit failed with status 422
+GrokServiceError: Image edit failed with status 422
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:163:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:371:24)
+[2026-02-08T23:03:13.223Z] Server routes initialized.
+[2026-02-08T23:03:17.821Z] Grok Image Error: {}
+GrokServiceError: {}
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:165:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:371:24)

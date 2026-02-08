@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./env"; // Ensure .env.local is loaded
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite } from "./vite"; // Removed serveStatic/log as they caused errors
@@ -59,14 +60,19 @@ app.use((req, res, next) => {
     });
 
     if (app.get("env") === "development") {
+        // Serve data_science and attached_assets in development as well
+        app.use("/data_science", express.static(path.resolve(__dirname, "..", "data_science")));
+        app.use("/attached_assets", express.static(path.resolve(__dirname, "..", "attached_assets")));
         await setupVite(server, app);
     } else {
         // Note: If serveStatic is missing from vite.ts, 
         // we use standard express.static instead.
+        app.use("/data_science", express.static(path.resolve(__dirname, "..", "data_science")));
+        app.use("/attached_assets", express.static(path.resolve(__dirname, "..", "attached_assets")));
         app.use(express.static(path.resolve(__dirname, "..", "dist", "public")));
     }
 
-    const PORT = 3010;
+    const PORT = Number(process.env.PORT) || 3010;
     server.listen(PORT, "0.0.0.0", () => {
         console.log(`serving on port ${PORT}`);
     });

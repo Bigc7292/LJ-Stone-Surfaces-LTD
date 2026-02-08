@@ -1,0 +1,192 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "LJ Stone Surfaces LJ STONE Surfaces" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]:
+            - img "LJ Stone Surfaces" [ref=e9]
+            - generic [ref=e10]:
+              - generic [ref=e11]: LJ STONE
+              - generic [ref=e12]: Surfaces
+        - generic [ref=e13]:
+          - link "Home" [ref=e14] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e15]: Home
+          - link "Portfolio" [ref=e16] [cursor=pointer]:
+            - /url: /portfolio
+            - generic [ref=e17]: Portfolio
+          - link "Our Team" [ref=e18] [cursor=pointer]:
+            - /url: /team
+            - generic [ref=e19]: Our Team
+          - link "About" [ref=e20] [cursor=pointer]:
+            - /url: /about
+            - generic [ref=e21]: About
+          - link "Contact" [ref=e22] [cursor=pointer]:
+            - /url: /contact
+            - generic [ref=e23]: Contact
+    - generic [ref=e24]:
+      - img "Dark Marble Background" [ref=e26]
+      - generic [ref=e29]:
+        - generic [ref=e30]: Artisan Natural Stone
+        - heading "Timeless Elegance" [level=1] [ref=e31]:
+          - text: Timeless
+          - text: Elegance
+        - paragraph [ref=e32]: Pioneering the future of masonry with Machine Intelligence. Seamlessly visualize exotic slabs in your architecture.
+        - generic [ref=e33]:
+          - link "Explore Collection" [ref=e34] [cursor=pointer]:
+            - /url: /portfolio
+            - button "Explore Collection" [ref=e35]: Explore Collection
+          - button "AI Experience" [ref=e37] [cursor=pointer]
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]: AI Innovations
+        - heading "Design with Machine Intelligence" [level=2] [ref=e42]
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e47]:
+            - img [ref=e49]
+            - generic [ref=e52]:
+              - heading "Stone Visualizer" [level=2] [ref=e53]
+              - paragraph [ref=e54]: Professional AI Render Engine
+          - main [ref=e55]:
+            - generic [ref=e58]:
+              - generic [ref=e60]:
+                - img "Primary" [ref=e227] [cursor=pointer]
+                - generic [ref=e67]:
+                  - heading "Room View" [level=4] [ref=e68]
+                  - paragraph [ref=e69]: Upload your space
+              - button "Initiate AI Render" [ref=e228] [cursor=pointer]
+            - complementary [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]:
+                  - generic [ref=e74]: "01"
+                  - heading "Curate Foundation" [level=3] [ref=e75]
+                - generic [ref=e76]:
+                  - generic [ref=e77]:
+                    - generic [ref=e78]:
+                      - heading "Select Surface Texture" [level=4] [ref=e79]
+                      - generic [ref=e80] [cursor=pointer]: Browse Full Library
+                    - button "Taj Mahal Quartzite Quartz • HD Texture" [ref=e81] [cursor=pointer]:
+                      - generic [ref=e83]:
+                        - generic [ref=e86]: Taj Mahal Quartzite
+                        - generic [ref=e87]: Quartz • HD Texture
+                  - generic [ref=e90]:
+                    - heading "Ambience Palette" [level=4] [ref=e91]
+                    - generic [ref=e92]:
+                      - button "Natural" [ref=e93] [cursor=pointer]:
+                        - generic [ref=e95]: Natural
+                      - button "Cool" [ref=e96] [cursor=pointer]:
+                        - generic [ref=e98]: Cool
+                      - button "Warm" [ref=e99] [cursor=pointer]:
+                        - generic [ref=e101]: Warm
+                      - button "Dramatic" [ref=e102] [cursor=pointer]:
+                        - generic [ref=e104]: Dramatic
+                  - generic [ref=e105]:
+                    - heading "Artisan Finish" [level=4] [ref=e106]
+                    - generic [ref=e107]:
+                      - button "Polished" [ref=e108] [cursor=pointer]
+                      - button "Honed" [ref=e109] [cursor=pointer]
+                      - button "Leathered" [ref=e110] [cursor=pointer]
+          - paragraph [ref=e114]:
+            - text: Luxe Stone Architects
+            - text: Engine v4.0.5
+            - text: Static Render Mode
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - img [ref=e120]
+              - text: AI Stone Concierge
+            - generic [ref=e122]: Get expert architectural stone advice. Describe your project or upload a photo for a detailed project brief.
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - textbox "Describe your vision (e.g., 'I want a dramatic kitchen island that becomes the focal point of a modern, minimalist home.')" [ref=e126]
+              - generic [ref=e127]:
+                - button "Upload Reference Photo" [ref=e128] [cursor=pointer]:
+                  - img
+                  - text: Upload Reference Photo
+                - button "Choose File" [ref=e129] [cursor=pointer]
+              - button "Get Expert Consultation" [disabled]:
+                - img
+                - text: Get Expert Consultation
+            - generic [ref=e131]:
+              - heading "Concierge Intelligence" [level=4] [ref=e132]
+              - paragraph [ref=e133]: "Our AI analyzes global market trends, quarry availability, and architectural compatibility to provide:"
+              - list [ref=e134]:
+                - listitem [ref=e135]: Slab matching based on color palette
+                - listitem [ref=e137]: Edge profile recommendations
+                - listitem [ref=e139]: Maintenance & durability assessment
+    - generic [ref=e143]:
+      - img "White Marble Slab" [ref=e146]
+      - generic [ref=e147]:
+        - generic [ref=e148]:
+          - generic [ref=e149]: The Art of Stone
+          - heading "Crafting Legacy Through Nature's Finest" [level=2] [ref=e150]
+        - paragraph [ref=e152]: At LJ Stone Surfaces, we believe that every slab tells a story. From the dramatic veining of Italian marbles to the crystalline depth of Brazilian quartzites, our selection represents the pinnacle of natural beauty. We don't just sell stone; we provide the canvas for your architectural masterpiece.
+        - link "Our Philosophy" [ref=e153] [cursor=pointer]:
+          - /url: /about
+          - generic [ref=e154]:
+            - text: Our Philosophy
+            - img [ref=e155]
+    - generic [ref=e158]:
+      - generic [ref=e159]:
+        - generic [ref=e160]: Curated Selection
+        - heading "Featured Materials" [level=2] [ref=e161]
+      - link "Explore Full Inventory" [ref=e168] [cursor=pointer]:
+        - /url: /portfolio
+        - button "Explore Full Inventory" [ref=e169]
+    - generic [ref=e172]:
+      - generic [ref=e173]:
+        - img [ref=e174]
+        - heading "Sourcing" [level=3] [ref=e176]
+        - paragraph [ref=e177]: Direct relationships with elite quarries worldwide.
+      - generic [ref=e178]:
+        - img [ref=e179]
+        - heading "Selection" [level=3] [ref=e181]
+        - paragraph [ref=e182]: Hand-picked slabs ensuring consistent quality and pattern.
+      - generic [ref=e183]:
+        - img [ref=e184]
+        - heading "Consultation" [level=3] [ref=e186]
+        - paragraph [ref=e187]: Expert guidance to match the perfect stone to your vision.
+    - contentinfo [ref=e188]:
+      - generic [ref=e190]:
+        - generic [ref=e191]:
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - img "LJ Stone Surfaces" [ref=e195]
+              - generic [ref=e196]:
+                - generic [ref=e197]: LJ STONE
+                - generic [ref=e198]: Architects
+            - paragraph [ref=e199]: Defining architectural landscapes with the world's most exquisite natural stone. Bespoke installations for the discerning aesthetic.
+          - generic [ref=e200]:
+            - heading "Explore" [level=4] [ref=e201]
+            - generic [ref=e202]:
+              - link "Material Portfolio" [ref=e203] [cursor=pointer]:
+                - /url: /portfolio
+              - link "Our Story" [ref=e204] [cursor=pointer]:
+                - /url: /about
+              - link "Contact Us" [ref=e205] [cursor=pointer]:
+                - /url: /contact
+          - generic [ref=e206]:
+            - heading "Visit Us" [level=4] [ref=e207]
+            - generic [ref=e208]:
+              - paragraph [ref=e209]:
+                - text: 123 Luxury Avenue
+                - text: Design District, NY 10012
+              - paragraph [ref=e210]:
+                - link "+1 (555) 123-4567" [ref=e211] [cursor=pointer]:
+                  - /url: tel:+15551234567
+                - link "info@ljstonesurfaces.com" [ref=e212] [cursor=pointer]:
+                  - /url: mailto:info@ljstonesurfaces.com
+        - generic [ref=e213]:
+          - paragraph [ref=e214]: © 2026 LJ Stone Surfaces. All rights reserved.
+          - paragraph [ref=e215]: Designed with elegance.
+  - link "Chat on WhatsApp" [ref=e221] [cursor=pointer]:
+    - /url: https://wa.me/447727310537?text=Hi%20Jack,%20I'm%20interested%20in%20your%20stone%20surfaces!
+    - img [ref=e225]
+    - generic:
+      - generic: Chat with Jack on WhatsApp
+  - button [ref=e217] [cursor=pointer]:
+    - img

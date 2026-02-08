@@ -32,10 +32,15 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getProducts(category?: string): Promise<Product[]> {
-    if (category) {
-      return await db.select().from(products).where(eq(products.category, category));
+    try {
+      if (category) {
+        return await db.select().from(products).where(eq(products.category, category));
+      }
+      return await db.select().from(products);
+    } catch (err) {
+      console.error("Storage Error: getProducts failed (DB likely down). Returning empty list.", err);
+      return [];
     }
-    return await db.select().from(products);
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -50,14 +55,24 @@ export class DatabaseStorage implements IStorage {
 
   // New implementations
   async createVisualizerGeneration(gen: InsertVisualizerGeneration): Promise<VisualizerGeneration> {
-    const [newGen] = await db.insert(visualizerGenerations).values(gen).returning();
-    return newGen;
+    try {
+      const [newGen] = await db.insert(visualizerGenerations).values(gen).returning();
+      return newGen;
+    } catch (err) {
+      console.error("Storage Error: createVisualizerGeneration failed. Returning mock.", err);
+      // Return a mock object so the route doesn't crash
+      return { ...gen, id: 0, generatedImageUrl: null, createdAt: new Date().toISOString() } as VisualizerGeneration;
+    }
   }
 
   async updateVisualizerGeneration(id: number, generatedUrl: string): Promise<void> {
-    await db.update(visualizerGenerations)
-      .set({ generatedImageUrl: generatedUrl })
-      .where(eq(visualizerGenerations.id, id));
+    try {
+      await db.update(visualizerGenerations)
+        .set({ generatedImageUrl: generatedUrl })
+        .where(eq(visualizerGenerations.id, id));
+    } catch (err) {
+      console.error("Storage Error: updateVisualizerGeneration failed.", err);
+    }
   }
 
   async createChatLog(log: InsertChatLog): Promise<ChatLog> {
