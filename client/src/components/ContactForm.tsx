@@ -1,8 +1,16 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertInquirySchema, type InsertInquiry } from "@shared/schema";
+import { type InsertInquiry } from "@shared/schema";
 import { useCreateInquiry } from "@/hooks/use-inquiries";
 import { Loader2 } from "lucide-react";
+import { z } from 'zod';
+
+const insertInquirySchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  message: z.string(),
+});
 
 export function ContactForm() {
   const { mutate, isPending } = useCreateInquiry();

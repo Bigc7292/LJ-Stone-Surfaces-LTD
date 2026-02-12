@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import pg from 'pg';
+import { Pool } from 'pg';
 import * as schema from "../shared/schema";
 import "dotenv/config"; // Ensures env vars are loaded
 
@@ -8,7 +8,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 // We use the Pool configuration to handle connection drops
-export const pool = new pg.Pool({
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false // Required for Supabase/Neon connections

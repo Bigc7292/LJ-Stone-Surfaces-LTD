@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertInquirySchema, insertProductSchema, products } from './schema';
+import { products } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -39,9 +39,22 @@ export const api = {
     create: {
       method: 'POST' as const,
       path: '/api/inquiries',
-      input: insertInquirySchema,
+      input: z.object({
+        name: z.string(),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        message: z.string(),
+        source: z.string().optional(),
+      }),
       responses: {
-        201: z.custom<typeof insertInquirySchema>(),
+        201: z.object({
+          id: z.number(),
+          name: z.string(),
+          email: z.string(),
+          phone: z.string().optional(),
+          message: z.string(),
+          source: z.string().optional(),
+        }),
         400: errorSchemas.validation,
       },
     },
