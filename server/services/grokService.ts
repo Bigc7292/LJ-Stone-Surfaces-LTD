@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 // ============================================================================
 export class GrokServiceError extends Error {
     constructor(
-        public code: 'API_KEY_MISSING' | 'RATE_LIMIT' | 'GENERATION_FAILED' | 'NETWORK' | 'UNKNOWN',
+        public code: 'API_KEY_MISSING' | 'RATE_LIMIT' | 'GENERATION_FAILED' | 'NETWORK' | 'TIMEOUT' | 'UNKNOWN',
         message: string
     ) {
         super(message);
@@ -126,46 +126,65 @@ export class GrokService {
         const prompt = `Edit this kitchen/room image: Replace all countertop surfaces and the backsplash with ${stoneName} ${stoneCategory} featuring a ${finishDescription}. Use a seamless, continuous slab style for the backsplash (no visible tile grout lines). Keep everything else exactly the same—cabinets, appliances, sink, window, walls, floor, lighting, and perspective. Photorealistic, high detail, matching original lighting and perspective. ${ambience} lighting tone.`;
 
         return fetchWithRetry(async () => {
-            // Extract base64 data
-            let imageBase64 = roomImageBase64;
-            if (imageBase64.startsWith('data:')) {
-                imageBase64 = imageBase64.split(',')[1];
-            }
+            // Ensure proper data URI format for xAI
+            const dataUri = roomImageBase64.startsWith('data:')
+                ? roomImageBase64
+                : `data:image/jpeg;base64,${roomImageBase64}`;
 
             // Use /v1/images/edits for proper image editing
             const requestBody = {
-                model: 'grok-2-image-1212',
+                model: 'grok-imagine-image',
                 prompt: prompt,
-                image: imageBase64,
+                image: {
+                    url: dataUri
+                },
                 n: 1,
                 response_format: 'b64_json',
                 // Consistency parameters
                 strength: 0.6 // Medium strength to retain base structure
             };
 
-            const response = await fetch(`${XAI_BASE_URL}/images/edits`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${XAI_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            });
+            console.log(`[Grok Service] Sending request to xAI: ${XAI_BASE_URL}/images/edits`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('[Grok Service] Image edit failed:', errorData);
+            let response: Response;
+            try {
+                response = await fetch(`${XAI_BASE_URL}/images/edits`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${XAI_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody),
+                    signal: controller.signal
+                });
 
-                if (response.status === 429) {
-                    throw new GrokServiceError('RATE_LIMIT', 'Rate limit exceeded. Please try again later.');
+                clearTimeout(timeoutId);
+                console.log(`[Grok Service] xAI responded with status: ${response.status}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('[Grok Service] xAI API ERROR DETAILS:', JSON.stringify(errorData, null, 2));
+
+                    if (response.status === 429) {
+                        throw new GrokServiceError('RATE_LIMIT', 'Rate limit exceeded. Please try again later.');
+                    }
+
+                    const errorMsg = errorData.error?.message || JSON.stringify(errorData) || `Image edit failed with status ${response.status}`;
+
+                    throw new GrokServiceError(
+                        'GENERATION_FAILED',
+                        errorMsg
+                    );
                 }
-
-                const errorMsg = errorData.error?.message || JSON.stringify(errorData) || `Image edit failed with status ${response.status}`;
-
-                throw new GrokServiceError(
-                    'GENERATION_FAILED',
-                    errorMsg
-                );
+            } catch (err: any) {
+                clearTimeout(timeoutId);
+                if (err.name === 'AbortError') {
+                    console.error('[Grok Service] Request timed out after 60s');
+                    throw new GrokServiceError('TIMEOUT', 'Grok API request timed out');
+                }
+                throw err;
             }
 
             const data: GrokImageResponse = await response.json();
@@ -211,11 +230,10 @@ export class GrokService {
         // Optimized video prompt for walk-around at human eye level
         const videoPrompt = `Generate a smooth walk-around video at human eye level (about 5.5 feet) of this room, slowly orbiting around the central island to show the stone countertops and backsplash from all angles. Maintain photorealistic details, preserve all original room elements including cabinets, appliances, window, and lighting. Natural lighting, no distortions. Smooth camera motion, no text or HUD.`;
 
-        // Extract base64 data
-        let imageBase64 = transformedImageBase64;
-        if (imageBase64.startsWith('data:')) {
-            imageBase64 = imageBase64.split(',')[1];
-        }
+        // Ensure proper data URI format for xAI
+        const dataUri = transformedImageBase64.startsWith('data:')
+            ? transformedImageBase64
+            : `data:image/jpeg;base64,${transformedImageBase64}`;
 
         // Use /v1/videos/generations endpoint per xAI docs
         const response = await fetch(`${XAI_BASE_URL}/videos/generations`, {
@@ -227,7 +245,9 @@ export class GrokService {
             body: JSON.stringify({
                 model: 'grok-imagine-video',
                 prompt: videoPrompt,
-                image: imageBase64,
+                image: {
+                    url: dataUri
+                },
                 duration: duration,
                 resolution: resolution
             })

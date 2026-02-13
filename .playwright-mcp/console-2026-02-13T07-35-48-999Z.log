@@ -1,0 +1,21 @@
+[   60526ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://127.0.0.1:3010/api/grok/generate-image:0
+[   60526ms] [ERROR] TypeError: Failed to fetch
+    at startGrokImageGeneration (http://127.0.0.1:3010/src/components/LuxeStoneVisualizer.tsx:81:30)
+    at HTMLUnknownElement.callCallback2 (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:3680:22)
+    at Object.invokeGuardedCallbackDev (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:3705:24)
+    at invokeGuardedCallback (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:3739:39)
+    at invokeGuardedCallbackAndCatchFirstError (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:3742:33)
+    at executeDispatch (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:7046:11)
+    at processDispatchQueueItemsInOrder (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:7066:15)
+    at processDispatchQueue (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:7075:13)
+    at dispatchEventsForPlugins (http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:7083:11)
+    at http://127.0.0.1:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/chunk-2KK7HFU5.js?v=aa81e255:7206:20 @ http://127.0.0.1:3010/src/components/LuxeStoneVisualizer.tsx:101
+[  146889ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://127.0.0.1:3010/src/pages/Home.tsx:0
+[  146893ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://127.0.0.1:3010/src/pages/not-found.tsx:0
+[  146895ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_RESET @ http://127.0.0.1:3010/src/components/ui/tooltip.tsx:0
+[  148939ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3010/src/pages/Portfolio.tsx:0
+[  148939ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3010/src/pages/ProductDetail.tsx:0
+[  148940ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3010/src/pages/About.tsx:0
+[  148940ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3010/src/pages/Contact.tsx:0
+[  148940ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3010/src/pages/Team.tsx:0
+[  148940ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:3010/src/components/ChatBot.tsx:0

@@ -1,0 +1,2 @@
+[    4539ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3010/src/main.tsx?v=I-Xcr7WR-ng7cBxDI6W15:0
+[    4602ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/vite/dist/client/env.mjs:0

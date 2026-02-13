@@ -2,7 +2,6 @@ import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "../shared/routes";
-import { AIService } from "./services/aiService";
 import { GrokService } from "./services/grokService";
 import { z } from "zod";
 import fs from "fs";
@@ -94,31 +93,17 @@ export async function registerRoutes(
       // Respond immediately with 202 Accepted
       res.status(202).json({ jobId, message: "Image processing started" });
 
-      // Run AI service in background
+      // Run Grok AI service in background
       (async () => {
         try {
-          // 3. CONSTRUCT THE SMART PROMPT
-          let finalPrompt = `Apply the stone material "${stoneType}" to the marked areas.`;
-          if (stoneDescription) {
-            finalPrompt += `\n\nMATERIAL VISUAL DESCRIPTION:\n"${stoneDescription}"\n\n`;
-            finalPrompt += `INSTRUCTIONS:\n- Strictly follow the visual description above for texture, vein pattern, and color.\n- Ensure high-resolution detail matching the description.\n- Render with a ${finishType || 'Polished'} finish.`;
-          } else {
-            finalPrompt += ` Surface finish: ${finishType || 'Polished'}. Color tone: ${color || 'Natural'}.`;
-          }
-          if (prompt) {
-            finalPrompt += `\n\nUSER OVERRIDE:\n${prompt}`;
-          }
-
-          console.log(`[API] Starting background inpainting for ${jobId}...`);
-          const imageUrl = await AIService.performInpainting({
-            imagePath: finalImage,
-            imagePath2: finalImagePath2,
-            stoneSlabPath: finalSlab,
-            stoneType: stoneType || "Marble",
-            prompt: finalPrompt,
-            markers: markers || [],
-            finishType: finishType || 'Polished',
-            color: color || 'Natural'
+          console.log(`[API] Starting Grok image generation for ${jobId}...`);
+          const imageUrl = await GrokService.generateStoneVisualization({
+            roomImageBase64: finalImage,
+            stoneTexturePath: finalSlab,
+            stoneName: stoneType || "Marble",
+            stoneCategory: stoneDescription || 'Stone',
+            finishType: (finishType || 'Polished') as 'Polished' | 'Honed' | 'Leathered',
+            ambience: color || 'Natural'
           });
 
           aiJobQueue.set(jobId, {
@@ -175,39 +160,32 @@ export async function registerRoutes(
   });
 
 
-  // AI Stone Concierge (Voice & Text)
+  // AI Stone Concierge (Voice & Text) — Placeholder (Gemini removed)
   app.post(api.ai.consultant.path, async (req, res) => {
     try {
-      const { text, image } = api.ai.consultant.input.parse(req.body);
-      const prompt = "As an expert stone surface consultant, analyze this room and recommend stone types, edge profiles, and color palettes. Provide a structured project brief.";
-      const fullPrompt = text ? `${prompt}\nRoom description: ${text}` : prompt;
-
-      const recommendation = await AIService.generateRecommendation(fullPrompt, image);
-      res.json({ recommendation, brief: recommendation });
+      const { text } = api.ai.consultant.input.parse(req.body);
+      res.json({ recommendation: "Stone consultation coming soon via Grok.", brief: "Stone consultation coming soon via Grok." });
     } catch (err: any) {
       console.error("AI Consultant Error:", err);
-      fileLog(`AI Consultant Error: ${err.message}\n${err.stack}`);
       res.status(500).json({ message: "AI Consultant failed", error: err.message });
     }
   });
 
-  // AI Visualize (Imagen)
+  // AI Visualize — Placeholder (Gemini removed)
   app.post(api.ai.visualize.path, async (req, res) => {
     try {
       const { description } = api.ai.visualize.input.parse(req.body);
-      const imageUrl = await AIService.generateImage(description);
-      res.json({ imageUrl });
+      res.json({ imageUrl: null, message: "Use /api/grok/generate-image instead" });
     } catch (err) {
       console.error("AI Visualize Error:", err);
       res.status(500).json({ message: "Visualization failed" });
     }
   });
 
-  // AI TTS
+  // AI TTS — Placeholder (Gemini removed)
   app.post(api.ai.tts.path, async (req, res) => {
     try {
       const { text } = api.ai.tts.input.parse(req.body);
-      await AIService.generateRecommendation(text, undefined);
       res.json({ audioBase64: "" });
     } catch (err) {
       console.error("AI TTS Error:", err);
@@ -215,18 +193,16 @@ export async function registerRoutes(
     }
   });
 
-  // AI Chat Bot
+  // AI Chat Bot — Placeholder (Gemini removed)
   app.post("/api/ai/chat", async (req, res) => {
     try {
-      const { message, history } = req.body;
+      const { message } = req.body;
       if (!message) {
         return res.status(400).json({ message: "Message is required" });
       }
 
-      const response = await AIService.chat(message, history || []);
+      const response = "I'm the LJ Stone assistant. Chat powered by Grok coming soon!";
 
-      // Log the conversation to the database
-      // Generate a simple session ID if not provided (could be improved with robust session handling)
       const sessionId = req.headers['x-session-id'] as string || `session_${Date.now()}`;
 
       await storage.createChatLog({
@@ -267,7 +243,7 @@ export async function registerRoutes(
     }
   });
 
-  // Secure Backend Generation Endpoint
+  // Secure Backend Generation Endpoint (now uses Grok)
   app.post(api.ai.generateImage.path, async (req, res) => {
     // 90s timeout for generation
     req.setTimeout(90000);
@@ -283,14 +259,13 @@ export async function registerRoutes(
         markers: input.markers
       });
 
-      // 2. Generate Image via Backend Service
-      const generatedImageUrl = await AIService.performInpainting({
-        imagePath: input.originalImageUrl,
-        imagePath2: undefined,
-        stoneSlabPath: undefined,
-        stoneType: input.stoneSelected,
-        markers: input.markers || [],
-        prompt: input.promptUsed
+      // 2. Generate Image via Grok
+      const generatedImageUrl = await GrokService.generateStoneVisualization({
+        roomImageBase64: input.originalImageUrl,
+        stoneName: input.stoneSelected,
+        stoneCategory: 'Stone',
+        finishType: 'Polished',
+        ambience: 'Natural'
       });
 
       // 3. Log Update

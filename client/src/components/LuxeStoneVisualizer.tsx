@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Box, Play, Download, RefreshCw, Check, Video, ChevronRight, Upload } from 'lucide-react';
+import { Box, Play, Download, RefreshCw, Check, Video, ChevronRight, Upload, Maximize } from 'lucide-react';
 import type { AppStep } from '@/types/visualizer';
 import { STONE_LIBRARY_3D } from '@/data/stoneLibrary3D';
 import { shuffleStones } from '@/data/stoneLibrary3D_utils';
@@ -47,6 +47,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorInfo, setErrorInfo] = useState<{ message: string } | null>(null);
     const [loadingMessage, setLoadingMessage] = useState('');
+    const [showFullScreen, setShowFullScreen] = useState(false);
 
     const [showLibraryModal, setShowLibraryModal] = useState(false);
 
@@ -340,14 +341,23 @@ export const LuxeStoneVisualizer: React.FC = () => {
                             )}
 
                             {/* CONTROLS BAR (Bottom of results) */}
-                            {resultImage && step === 'RESULT' && (
-                                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 animate-in slide-in-from-bottom duration-500">
+                            {resultImage && (step === 'RESULT' || step === 'VIDEO_DONE') && (
+                                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 animate-in slide-in-from-bottom duration-500">
+                                    {step === 'RESULT' && (
+                                        <button
+                                            onClick={startVideoGeneration}
+                                            className="bg-primary hover:bg-white text-black px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] flex items-center gap-4 transition-all shadow-[0_20px_40px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95 group"
+                                        >
+                                            <Play className="w-5 h-5 fill-black group-hover:scale-110 transition-transform" />
+                                            Walk Around the Room
+                                        </button>
+                                    )}
                                     <button
-                                        onClick={startVideoGeneration}
-                                        className="bg-primary hover:bg-white text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] flex items-center gap-4 transition-all shadow-[0_20px_40px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95 group"
+                                        onClick={() => setShowFullScreen(true)}
+                                        className="bg-white/10 hover:bg-white/20 backdrop-blur-2xl border border-white/10 text-white px-8 py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] transition-all flex items-center gap-3"
                                     >
-                                        <Play className="w-5 h-5 fill-black group-hover:scale-110 transition-transform" />
-                                        Walk Around the Room
+                                        <Maximize className="w-4 h-4" />
+                                        Full Screen
                                     </button>
                                     <button
                                         onClick={async () => {
@@ -358,13 +368,23 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                             a.download = `LJStone-Design.png`;
                                             a.click();
                                         }}
-                                        className="bg-white/10 hover:bg-white/20 backdrop-blur-2xl border border-white/10 text-white px-10 py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] transition-all"
+                                        className="bg-white/10 hover:bg-white/20 backdrop-blur-2xl border border-white/10 text-white px-8 py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] transition-all flex items-center gap-3"
                                     >
+                                        <Download className="w-4 h-4" />
                                         Save Design
                                     </button>
                                 </div>
                             )}
                         </div>
+                    )}
+
+                    {/* FULLSCREEN MODAL */}
+                    {showFullScreen && originalImage && resultImage && (
+                        <FullScreenResultModal
+                            original={originalImage}
+                            modified={resultImage}
+                            onClose={() => setShowFullScreen(false)}
+                        />
                     )}
                 </section>
             </main>

@@ -10,6 +10,9 @@ if (!process.env.DATABASE_URL) {
 // We use the Pool configuration to handle connection drops
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  max: 5, // Limit pool size to prevent exhaustion on local env
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
   ssl: {
     rejectUnauthorized: false // Required for Supabase/Neon connections
   }

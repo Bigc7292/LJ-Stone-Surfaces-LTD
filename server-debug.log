@@ -315,3 +315,45 @@ GrokServiceError: {}
 [2026-02-12T02:47:47.704Z] Server routes initialized.
 [2026-02-12T02:47:50.897Z] Server routes initialized.
 [2026-02-12T02:49:22.714Z] Server routes initialized.
+[2026-02-13T06:07:20.419Z] Server routes initialized.
+[2026-02-13T06:07:23.914Z] Server routes initialized.
+[2026-02-13T06:07:29.606Z] Server routes initialized.
+[2026-02-13T06:28:46.624Z] Server routes initialized.
+[2026-02-13T06:28:50.011Z] Server routes initialized.
+[2026-02-13T06:28:50.085Z] Server routes initialized.
+[2026-02-13T06:29:27.986Z] Server routes initialized.
+[2026-02-13T07:31:35.301Z] Server routes initialized.
+[2026-02-13T07:31:35.482Z] Server routes initialized.
+[2026-02-13T07:31:38.127Z] Server routes initialized.
+[2026-02-13T07:31:39.189Z] Server routes initialized.
+[2026-02-13T07:31:41.571Z] Server routes initialized.
+[2026-02-13T07:31:43.160Z] Server routes initialized.
+[2026-02-13T07:35:10.245Z] Server routes initialized.
+[2026-02-13T07:35:16.397Z] Server routes initialized.
+[2026-02-13T07:36:51.990Z] Server routes initialized.
+[2026-02-13T07:38:01.325Z] Server routes initialized.
+[2026-02-13T07:38:01.359Z] Server routes initialized.
+[2026-02-13T07:38:10.849Z] Server routes initialized.
+[2026-02-13T07:38:10.990Z] Server routes initialized.
+[2026-02-13T07:38:18.338Z] Server routes initialized.
+[2026-02-13T07:38:18.408Z] Server routes initialized.
+[2026-02-13T07:38:46.952Z] Grok Image Error: {}
+GrokServiceError: {}
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:175:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:346:24)
+[2026-02-13T07:39:11.419Z] Server routes initialized.
+[2026-02-13T07:39:11.491Z] Server routes initialized.
+[2026-02-13T07:41:10.981Z] Server routes initialized.
+[2026-02-13T07:43:31.630Z] Server routes initialized.
+[2026-02-13T08:32:26.069Z] Server routes initialized.
+[2026-02-13T08:32:27.243Z] Server routes initialized.
+[2026-02-13T08:32:28.361Z] Server routes initialized.
+[2026-02-13T08:32:29.699Z] Server routes initialized.
+[2026-02-13T08:32:31.372Z] Server routes initialized.
+[2026-02-13T08:32:33.340Z] Server routes initialized.
+[2026-02-13T08:37:21.823Z] Server routes initialized.
+[2026-02-13T08:37:21.888Z] Server routes initialized.
+[2026-02-13T08:38:50.758Z] Server routes initialized.
+[2026-02-13T08:38:50.782Z] Server routes initialized.

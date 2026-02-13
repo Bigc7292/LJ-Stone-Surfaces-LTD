@@ -3,7 +3,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import serverless from "serverless-http";
 import { storage } from "../../server/storage";
 import { api } from "../../shared/routes";
-import { AIService } from "../../server/services/aiService";
+import { GrokService } from "../../server/services/grokService";
 import { z } from "zod";
 
 const app = express();
@@ -20,34 +20,30 @@ app.use((req, res, next) => {
 
 // ============ AI Routes ============
 
-// AI Re-Imager (Visionary) - Generative Inpainting with Markers
+// AI Re-Imager (Visionary) - Now uses Grok
 app.post("/api/ai/re-imager", async (req, res) => {
     try {
-        const { image, stoneType, markers } = req.body;
+        const { image, stoneType } = req.body;
         if (!image) {
             return res.status(400).json({ message: "Image is required" });
         }
 
-        if (markers && markers.length > 0) {
-            console.log(`Re-Imager: Processing ${markers.length} marked surfaces`);
-        }
-
-        if (!process.env.GEMINI_API_KEY) {
-            console.error("CRITICAL: GEMINI_API_KEY is missing/undefined in Netlify environment.");
+        if (!process.env.XAI_API_KEY) {
+            console.error("CRITICAL: XAI_API_KEY is missing in Netlify environment.");
             throw new Error("Server Misconfiguration: API Key missing.");
         }
 
-        const imageUrl = await AIService.performInpainting({
-            imagePath: image,
-            stoneType: stoneType || "Premium Marble",
-            prompt: `Replace existing surfaces with ${stoneType}`,
-            markers: markers || []
+        const imageUrl = await GrokService.generateStoneVisualization({
+            roomImageBase64: image,
+            stoneName: stoneType || "Premium Marble",
+            stoneCategory: 'Stone',
+            finishType: 'Polished',
+            ambience: 'Natural'
         });
 
         res.json({ imageUrl });
     } catch (err: any) {
         console.error("AI Re-Imager Error:", err);
-        // Return 'details' to match client's expectation
         res.status(500).json({
             message: "Re-imaging failed",
             details: err.message || JSON.stringify(err)
@@ -55,38 +51,29 @@ app.post("/api/ai/re-imager", async (req, res) => {
     }
 });
 
-// AI Stone Concierge (Voice & Text)
+// AI Stone Concierge — Placeholder (Gemini removed)
 app.post(api.ai.consultant.path, async (req, res) => {
     try {
-        const { text, image } = api.ai.consultant.input.parse(req.body);
-        const prompt = "As an expert stone surface consultant, analyze this room and recommend stone types, edge profiles, and color palettes. Provide a structured project brief.";
-        const fullPrompt = text ? `${prompt}\nRoom description: ${text}` : prompt;
-
-        const recommendation = await AIService.generateRecommendation(fullPrompt, image);
-        res.json({ recommendation, brief: recommendation });
+        res.json({ recommendation: "Stone consultation coming soon via Grok.", brief: "Stone consultation coming soon via Grok." });
     } catch (err: any) {
         console.error("AI Consultant Error:", err);
         res.status(500).json({ message: "AI Consultant failed", error: err.message });
     }
 });
 
-// AI Visualize (Imagen)
+// AI Visualize — Placeholder (Gemini removed)
 app.post(api.ai.visualize.path, async (req, res) => {
     try {
-        const { description } = api.ai.visualize.input.parse(req.body);
-        const imageUrl = await AIService.generateImage(description);
-        res.json({ imageUrl });
+        res.json({ imageUrl: null, message: "Use /api/grok/generate-image instead" });
     } catch (err: any) {
         console.error("AI Visualize Error:", err);
         res.status(500).json({ message: "Visualization failed", error: err.message });
     }
 });
 
-// AI TTS
+// AI TTS — Placeholder (Gemini removed)
 app.post(api.ai.tts.path, async (req, res) => {
     try {
-        const { text } = api.ai.tts.input.parse(req.body);
-        await AIService.generateRecommendation(text);
         res.json({ audioBase64: "" });
     } catch (err: any) {
         console.error("AI TTS Error:", err);
@@ -94,17 +81,16 @@ app.post(api.ai.tts.path, async (req, res) => {
     }
 });
 
-// AI Chat Bot
+// AI Chat Bot — Placeholder (Gemini removed)
 app.post("/api/ai/chat", async (req, res) => {
     try {
-        const { message, history } = req.body;
+        const { message } = req.body;
         if (!message) {
             return res.status(400).json({ message: "Message is required" });
         }
 
-        const response = await AIService.chat(message, history || []);
+        const response = "I'm the LJ Stone assistant. Chat powered by Grok coming soon!";
 
-        // Log the conversation to the database
         const sessionId = req.headers['x-session-id'] as string || `session_${Date.now()}`;
 
         await storage.createChatLog({
@@ -144,7 +130,7 @@ app.patch(api.ai.updateGeneration.path, async (req, res) => {
 });
 
 
-// Secure Backend Generation Endpoint
+// Secure Backend Generation Endpoint (now uses Grok)
 app.post(api.ai.generateImage.path, async (req, res) => {
     try {
         const input = api.ai.generateImage.input.parse(req.body);
@@ -157,12 +143,13 @@ app.post(api.ai.generateImage.path, async (req, res) => {
             markers: input.markers
         });
 
-        // 2. Generate Image via Backend Service
-        const generatedImageUrl = await AIService.generateGeminiImage({
-            imageWithMime: input.originalImageUrl,
-            stoneType: input.stoneSelected,
-            markers: input.markers || [],
-            prompt: input.promptUsed
+        // 2. Generate Image via Grok
+        const generatedImageUrl = await GrokService.generateStoneVisualization({
+            roomImageBase64: input.originalImageUrl,
+            stoneName: input.stoneSelected,
+            stoneCategory: 'Stone',
+            finishType: 'Polished',
+            ambience: 'Natural'
         });
 
         // 3. Log Update
@@ -185,9 +172,6 @@ app.post(api.ai.generateImage.path, async (req, res) => {
 // Get all products
 app.get(api.products.list.path, async (req, res) => {
     try {
-        // Ensure data exists (Lazy seeding)
-        await storage.seedProducts();
-
         const category = req.query.category as string | undefined;
         const products = await storage.getProducts(category);
         res.json(products);
@@ -230,19 +214,7 @@ app.post(api.inquiries.create.path, async (req, res) => {
     }
 });
 
-// Initialize products on cold start
-let initialized = false;
-app.use(async (req, res, next) => {
-    if (!initialized) {
-        try {
-            await storage.seedProducts();
-            initialized = true;
-        } catch (e) {
-            console.error("Seed error:", e);
-        }
-    }
-    next();
-});
+
 
 // Error handler
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
