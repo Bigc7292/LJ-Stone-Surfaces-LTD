@@ -115,15 +115,29 @@ export class GrokService {
 
         console.log(`[Grok Service] Editing image with: ${stoneName} (${stoneCategory})`);
 
-        // Build consistency-focused prompt per xAI best practices
+        // Build stone description based on finish type
         const finishDescription = finishType === 'Polished'
             ? 'polished mirror-like reflective surface'
             : finishType === 'Honed'
                 ? 'smooth matte honed surface'
                 : 'textured leathered natural surface';
 
-        // Prompt optimized for consistent, photorealistic results
-        const prompt = `Edit this kitchen/room image: Replace all countertop surfaces and the backsplash with ${stoneName} ${stoneCategory}, characterized by its unique natural patterns, intricate veining, and realistic texture. Ensure the final result features a ${finishDescription}. Use a seamless, continuous slab style for the backsplash (no visible tile grout lines). Keep everything else exactly the same—cabinets, appliances, sink, window, walls, floor, lighting, and perspective. Photorealistic, high detail, matching original lighting and perspective. ${ambience} lighting tone. This is a premium ${stoneCategory} variety, so emphasize the high-end natural aesthetic.`;
+        // Use prompts from config if available
+        let prompt: string;
+        if (AI_PROMPTS?.prompts?.combinedReplacement) {
+            const template = AI_PROMPTS.prompts.combinedReplacement.template;
+            prompt = template
+                .replace('{stoneName}', stoneName)
+                .replace('{stoneDescription}', `${stoneCategory} with ${finishDescription}`);
+            console.log('[Grok Service] Using prompt from config');
+        } else {
+            // Fallback to hardcoded prompt
+            prompt = `Edit this kitchen/room image: Replace all countertop surfaces and the backsplash with ${stoneName} ${stoneCategory}, characterized by its unique natural patterns, intricate veining, and realistic texture. Ensure the final result features a ${finishDescription}. Use a seamless, continuous slab style for the backsplash (no visible tile grout lines). Keep everything else exactly the same—cabinets, appliances, sink, window, walls, floor, lighting, and perspective. Photorealistic, high detail, matching original lighting and perspective. ${ambience} lighting tone. This is a premium ${stoneCategory} variety, so emphasize the high-end natural aesthetic.`;
+        }
+
+        // Get model - ALWAYS use grok-imagine-image for image editing (config model doesn't support edits)
+        const model = 'grok-imagine-image';
+        const strength = 0.7;
 
         return fetchWithRetry(async () => {
             // Ensure proper data URI format for xAI
@@ -133,7 +147,7 @@ export class GrokService {
 
             // Use /v1/images/edits for proper image editing
             const requestBody = {
-                model: 'grok-imagine-image',
+                model: model,
                 prompt: prompt,
                 image: {
                     url: dataUri
@@ -141,10 +155,11 @@ export class GrokService {
                 n: 1,
                 response_format: 'b64_json',
                 // Consistency parameters
-                strength: 0.6 // Medium strength to retain base structure
+                strength: strength
             };
 
             console.log(`[Grok Service] Sending request to xAI: ${XAI_BASE_URL}/images/edits`);
+            console.log(`[Grok Service] Using model: ${model}, strength: ${strength}`);
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
 

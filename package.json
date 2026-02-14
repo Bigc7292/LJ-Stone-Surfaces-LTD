@@ -118,6 +118,7 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/pg": "^8.16.0"
+    "@types/pg": "^8.16.0",
+    "playwright": "^1.58.2"
   }
 }
