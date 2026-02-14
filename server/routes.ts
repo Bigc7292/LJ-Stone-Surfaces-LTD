@@ -413,7 +413,7 @@ export async function registerRoutes(
 
           // Poll Grok API for completion
           const pollInterval = 5000; // 5 seconds
-          const maxAttempts = 60; // 5 minutes max
+          const maxAttempts = 120; // 10 minutes max (extended from 5 mins)
           let attempts = 0;
 
           const pollGrok = async () => {

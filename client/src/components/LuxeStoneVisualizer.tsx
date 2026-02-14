@@ -158,7 +158,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                     throw new Error(data.error || "Video generation failed.");
                 } else {
                     attempts++;
-                    const progress = Math.min(Math.round((attempts / 15) * 100), 98);
+                    const progress = Math.min(Math.round((attempts / 60) * 100), 98);
                     setLoadingMessage(`Rendering walkthrough... ${progress}%`);
                     setTimeout(poll, pollInterval);
                 }

@@ -123,7 +123,7 @@ export class GrokService {
                 : 'textured leathered natural surface';
 
         // Prompt optimized for consistent, photorealistic results
-        const prompt = `Edit this kitchen/room image: Replace all countertop surfaces and the backsplash with ${stoneName} ${stoneCategory} featuring a ${finishDescription}. Use a seamless, continuous slab style for the backsplash (no visible tile grout lines). Keep everything else exactly the same—cabinets, appliances, sink, window, walls, floor, lighting, and perspective. Photorealistic, high detail, matching original lighting and perspective. ${ambience} lighting tone.`;
+        const prompt = `Edit this kitchen/room image: Replace all countertop surfaces and the backsplash with ${stoneName} ${stoneCategory}, characterized by its unique natural patterns, intricate veining, and realistic texture. Ensure the final result features a ${finishDescription}. Use a seamless, continuous slab style for the backsplash (no visible tile grout lines). Keep everything else exactly the same—cabinets, appliances, sink, window, walls, floor, lighting, and perspective. Photorealistic, high detail, matching original lighting and perspective. ${ambience} lighting tone. This is a premium ${stoneCategory} variety, so emphasize the high-end natural aesthetic.`;
 
         return fetchWithRetry(async () => {
             // Ensure proper data URI format for xAI
