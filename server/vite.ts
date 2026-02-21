@@ -14,9 +14,9 @@ export async function setupVite(server: Server, app: Express) {
     hmr: {
       server,
       path: "/vite-hmr",
-      clientPort: 3010, // Force browser to use Express port for WS
+      clientPort: 3010,
       port: 3010,
-      host: "0.0.0.0"
+      host: "localhost"
     },
     allowedHosts: true as const,
   };

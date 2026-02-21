@@ -54,14 +54,37 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const baseInputRef = useRef<HTMLInputElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
 
+    // Compress image to prevent massive payloads causing connection resets
+    const compressImage = (dataUrl: string, maxDim = 1920, quality = 0.85): Promise<string> => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                let { width, height } = img;
+                if (width > maxDim || height > maxDim) {
+                    const ratio = Math.min(maxDim / width, maxDim / height);
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d')!;
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.src = dataUrl;
+        });
+    };
+
     // Handlers
     const handleBaseUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 const dataUrl = event.target?.result as string;
-                setBaseImage(dataUrl);
+                const compressed = await compressImage(dataUrl);
+                setBaseImage(compressed);
             };
             reader.readAsDataURL(file);
         }
@@ -69,15 +92,49 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
     const allUploadsComplete = !!baseImage && !!selectedMaterial;
 
+    const fetchImageAsBase64 = async (url: string): Promise<string | null> => {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) return null;
+            const blob = await response.blob();
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(blob);
+            });
+        } catch {
+            console.warn('[Visualizer] Could not fetch stone swatch for reference');
+            return null;
+        }
+    };
+
     const startGrokImageGeneration = async () => {
         if (!allUploadsComplete) return;
 
         setOriginalImage(baseImage);
         setIsLoading(true);
         setErrorInfo(null);
-        setLoadingMessage('Grok AI analyzing surfaces...');
+        setLoadingMessage('Loading stone reference...');
 
         try {
+            // Fetch the stone swatch image and convert to base64 for Grok reference
+            let stoneTextureBase64: string | null = null;
+            if (selectedMaterial.swatchUrl) {
+                setLoadingMessage('Preparing stone texture reference...');
+                const rawSwatch = await fetchImageAsBase64(selectedMaterial.swatchUrl);
+                if (rawSwatch) {
+                    // Compress swatch to keep payload manageable (512px max, 80% quality)
+                    stoneTextureBase64 = await compressImage(rawSwatch, 512, 0.80);
+                    console.log('[Visualizer] Stone swatch loaded as reference image');
+                }
+            }
+
+            setLoadingMessage('Grok AI analyzing surfaces...');
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
+
             const response = await fetch('/api/grok/generate-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -86,10 +143,14 @@ export const LuxeStoneVisualizer: React.FC = () => {
                     stoneName: selectedMaterial.name,
                     stoneCategory: selectedMaterial.category,
                     stoneTexture: selectedMaterial.swatchUrl,
+                    stoneTextureBase64: stoneTextureBase64,
                     finishType: selectedFinish,
                     ambience: selectedTone.name,
-                })
+                }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 

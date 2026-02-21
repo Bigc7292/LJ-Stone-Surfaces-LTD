@@ -12,7 +12,11 @@ import path from "path";
 const fileLog = (msg: string) => {
   const logPath = path.join(process.cwd(), "server-debug.log");
   const timestamp = new Date().toISOString();
-  fs.appendFileSync(logPath, `[${timestamp}] ${msg}\n`);
+  try {
+    fs.appendFileSync(logPath, `[${timestamp}] ${msg}\n`);
+  } catch (err) {
+    console.error(`[fileLog Error] Could not write to ${logPath}:`, err);
+  }
 };
 
 fileLog("Server routes initialized.");
@@ -329,6 +333,7 @@ export async function registerRoutes(
         stoneName,
         stoneCategory,
         stoneTexture,
+        stoneTextureBase64,
         finishType = 'Polished',
         ambience = 'Natural'
       } = req.body;
@@ -341,11 +346,12 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Stone name is required" });
       }
 
-      console.log(`[Grok API] Generating image: ${stoneName} (${stoneCategory})`);
+      console.log(`[Grok API] Generating image: ${stoneName} (${stoneCategory}), has texture ref: ${!!stoneTextureBase64}`);
 
       const imageUrl = await GrokService.generateStoneVisualization({
         roomImageBase64: roomImage,
         stoneTexturePath: stoneTexture,
+        stoneTextureBase64,
         stoneName,
         stoneCategory: stoneCategory || 'Stone',
         finishType,

@@ -442,3 +442,55 @@ GrokServiceError: Video generation failed with status 429
 [2026-02-15T10:07:46.799Z] Server routes initialized.
 [2026-02-15T10:15:45.912Z] Server routes initialized.
 [2026-02-15T10:19:59.750Z] Server routes initialized.
+[2026-02-21T16:39:22.716Z] Server routes initialized.
+[2026-02-21T16:39:26.159Z] Server routes initialized.
+[2026-02-21T16:39:29.504Z] Server routes initialized.
+[2026-02-21T16:39:34.409Z] Server routes initialized.
+[2026-02-21T17:33:20.654Z] Server routes initialized.
+[2026-02-21T17:33:36.605Z] Server routes initialized.
+[2026-02-21T17:33:54.454Z] Server routes initialized.
+[2026-02-21T17:34:51.612Z] Server routes initialized.
+[2026-02-21T17:39:57.218Z] Server routes initialized.
+[2026-02-21T17:39:59.545Z] Server routes initialized.
+[2026-02-21T17:40:03.464Z] Server routes initialized.
+[2026-02-21T17:40:19.683Z] Server routes initialized.
+[2026-02-21T17:40:24.495Z] Server routes initialized.
+[2026-02-21T17:41:06.537Z] Server routes initialized.
+[2026-02-21T17:44:46.114Z] Server routes initialized.
+[2026-02-21T17:52:20.540Z] Server routes initialized.
+[2026-02-21T17:52:27.539Z] Server routes initialized.
+[2026-02-21T17:53:55.628Z] Grok Image Error: {}
+GrokServiceError: {}
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:212:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:347:24)
+[2026-02-21T17:54:00.156Z] Grok Image Error: {}
+GrokServiceError: {}
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:212:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:347:24)
+[2026-02-21T17:55:55.190Z] Server routes initialized.
+[2026-02-21T17:56:18.229Z] Server routes initialized.
+[2026-02-21T18:02:09.081Z] Grok Image Error: {}
+GrokServiceError: {}
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:215:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:347:24)
+[2026-02-21T18:07:54.300Z] Server routes initialized.
+[2026-02-21T18:08:28.467Z] Server routes initialized.
+[2026-02-21T18:08:43.535Z] [GrokService] Sending multi-image request. Prompt chars: 589
+[2026-02-21T18:09:29.751Z] Server routes initialized.
+[2026-02-21T18:09:36.995Z] Server routes initialized.
+[2026-02-21T18:12:56.443Z] Server routes initialized.
+[2026-02-21T18:14:04.275Z] [GrokService] Sending multi-image request. Prompt chars: 586
+[2026-02-21T18:16:23.978Z] Server routes initialized.
+[2026-02-21T18:16:33.417Z] Server routes initialized.
+[2026-02-21T18:16:42.005Z] Server routes initialized.
+[2026-02-21T18:44:20.076Z] [GrokService] Sending multi-image request. Prompt chars: 582
+[2026-02-21T18:48:59.396Z] Server routes initialized.
+[2026-02-21T18:49:04.250Z] Server routes initialized.
+[2026-02-21T18:49:08.730Z] Server routes initialized.
+[2026-02-21T19:09:44.492Z] Server routes initialized.
