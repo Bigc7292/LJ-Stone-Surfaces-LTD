@@ -382,3 +382,63 @@ GrokServiceError: {}
 [2026-02-13T10:17:06.040Z] Server routes initialized.
 [2026-02-13T10:19:46.858Z] Server routes initialized.
 [2026-02-13T10:40:58.890Z] Server routes initialized.
+[2026-02-14T04:29:28.198Z] Server routes initialized.
+[2026-02-14T04:29:31.098Z] Server routes initialized.
+[2026-02-14T04:29:33.930Z] Server routes initialized.
+[2026-02-14T04:29:38.757Z] Server routes initialized.
+[2026-02-14T04:30:52.913Z] Server routes initialized.
+[2026-02-14T04:30:59.621Z] Server routes initialized.
+[2026-02-14T04:32:38.602Z] Server routes initialized.
+[2026-02-14T04:35:02.678Z] Server routes initialized.
+[2026-02-14T04:35:05.583Z] Server routes initialized.
+[2026-02-14T04:35:08.349Z] Server routes initialized.
+[2026-02-14T04:35:11.748Z] Server routes initialized.
+[2026-02-14T04:35:15.172Z] Server routes initialized.
+[2026-02-14T04:35:18.647Z] Server routes initialized.
+[2026-02-14T04:43:54.946Z] Server routes initialized.
+[2026-02-14T04:45:48.971Z] Grok Image Error: {"code":"Client specified an invalid argument","error":"Downloaded response does not contain a valid JPG, PNG, or WebP image."}
+GrokServiceError: {"code":"Client specified an invalid argument","error":"Downloaded response does not contain a valid JPG, PNG, or WebP image."}
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:176:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:346:24)
+[2026-02-14T10:12:15.880Z] Server routes initialized.
+[2026-02-14T10:12:17.893Z] Server routes initialized.
+[2026-02-14T10:12:20.894Z] Server routes initialized.
+[2026-02-14T10:16:04.742Z] Server routes initialized.
+[2026-02-14T16:30:53.237Z] Server routes initialized.
+[2026-02-14T16:30:55.944Z] Server routes initialized.
+[2026-02-14T16:30:59.315Z] Server routes initialized.
+[2026-02-14T16:40:39.924Z] Server routes initialized.
+[2026-02-14T17:43:08.277Z] Server routes initialized.
+[2026-02-14T17:43:10.847Z] Server routes initialized.
+[2026-02-14T17:47:02.273Z] Server routes initialized.
+[2026-02-14T17:54:21.886Z] Server routes initialized.
+[2026-02-14T17:55:20.719Z] Server routes initialized.
+[2026-02-14T17:56:33.763Z] Grok Image Error: {"code":"Client specified an invalid argument","error":"This model does not support image edition."}
+GrokServiceError: {"code":"Client specified an invalid argument","error":"This model does not support image edition."}
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:191:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:50:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:346:24)
+[2026-02-14T17:58:58.698Z] Server routes initialized.
+[2026-02-14T18:08:40.993Z] Server routes initialized.
+[2026-02-15T09:30:21.439Z] Server routes initialized.
+[2026-02-15T09:30:24.452Z] Server routes initialized.
+[2026-02-15T09:30:27.321Z] Server routes initialized.
+[2026-02-15T09:30:31.403Z] Server routes initialized.
+[2026-02-15T09:31:01.486Z] Server routes initialized.
+[2026-02-15T09:31:06.987Z] Server routes initialized.
+[2026-02-15T09:31:53.095Z] Server routes initialized.
+[2026-02-15T09:33:24.246Z] Server routes initialized.
+[2026-02-15T09:36:02.103Z] Server routes initialized.
+[2026-02-15T09:45:44.264Z] Grok Video Error: Video generation failed with status 429
+GrokServiceError: Video generation failed with status 429
+    at GrokService.generateWalkthroughVideo (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:275:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:403:33)
+[2026-02-15T09:48:23.314Z] Server routes initialized.
+[2026-02-15T09:55:27.656Z] Server routes initialized.
+[2026-02-15T10:07:46.799Z] Server routes initialized.
+[2026-02-15T10:15:45.912Z] Server routes initialized.
+[2026-02-15T10:19:59.750Z] Server routes initialized.
