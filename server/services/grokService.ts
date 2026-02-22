@@ -135,10 +135,12 @@ export class GrokService {
         const sCategory = sanitize(stoneCategory);
         const sDescription = stoneDescription ? sanitize(stoneDescription) : `${sCategory} with ${sFinish.toLowerCase()}`;
 
-        // Strictly surgical prompt. Remove any verbose explanation that might be misinterpreted as content to generate.
-        const prompt = `SURGICAL EDIT: Replace ONLY the surfaces of all countertops and the backsplash area with ${sName} (${sDescription}). 
-STRICT REQUIREMENT: Every other pixel in the room (cabinets, island base, floor, lighting, appliances, walls, windows, decor) MUST remain 100% IDENTICAL to the original image. 
-DO NOT move objects. DO NOT change the perspective. DO NOT reimagine the room. Purely a texture replacement on the specified surfaces.`;
+        // Strictly surgical prompt. PRIORITIZE material fidelity and texture matching.
+        const prompt = `Surgical edit: ONLY replace the countertops and visible stone surfaces with ${sName} (${sDescription}). 
+STRICT MATERIAL FIDELITY: The new stone surface must perfectly match the visual characteristics of ${sName}. 
+Replicate the specific veining patterns, base color tint, and ${sFinish.toLowerCase()} finish exactly. 
+Keep EVERYTHING ELSE EXACTLY IDENTICAL: Room layout, cabinets, appliances, lighting, shadows, reflections, and even floor objects (boxes/tape) MUST remain unchanged. 
+Photorealistic 8k, match original image structure 100%.`;
 
         const model = 'grok-imagine-image';
 
@@ -148,16 +150,13 @@ DO NOT move objects. DO NOT change the perspective. DO NOT reimagine the room. P
                 : `data:image/jpeg;base64,${roomImageBase64}`;
 
             // Payload structure for /v1/images/edits
-            // Reverting to single-image mode for stability as 422 errors persists with multi-image arrays.
-            // Using the enriched stone descriptions for accuracy.
-            // Multi-image support (e.g., for texture reference) will be a future enhancement once API documentation
-            // for xAI matches the SDK capabilities better and is stable.
-            // Payload structure for /v1/images/edits
-            // xAI specifically requires 'image_url' for the input image when sending surgical edits.
+            // xAI requires a nested 'image' object with a 'url' property for the input image.
             const payload: any = {
                 model: model,
                 prompt: prompt,
-                image_url: dataUri,
+                image: {
+                    url: dataUri
+                },
                 response_format: "b64_json"
             };
 

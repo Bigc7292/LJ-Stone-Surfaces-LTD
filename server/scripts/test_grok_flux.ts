@@ -13,9 +13,9 @@ async function runTest() {
     // Dynamic import to ensure dotenv.config() has run first
     const { GrokService } = await import('../services/grokService.js');
 
-    // Path to the test image provided by the user
-    // Use the latest user-provided image from the prompt
-    const systemProvidedPath = 'c:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/.gemini/input_file_0.png';
+    // Path to the permanent primary test image provided by the user.
+    // This is the source of truth for all surgical edit tests.
+    const systemProvidedPath = 'c:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/tests/assets/primary-test-kitchen.png';
     let inputImagePath = systemProvidedPath;
 
     if (!fs.existsSync(inputImagePath)) {
@@ -34,10 +34,11 @@ async function runTest() {
     // Sample stone details: Luxury Black Marble with Dramatic Gold Veins
     const testParams = {
         roomImageBase64: roomBase64,
-        stoneName: "Black Portoro",
-        stoneCategory: "Marble with dramatic gold veins, photorealistic, high detail, preserve room structure identical",
-        finishType: "Polished" as const,
-        ambience: "Natural Daylight"
+        stoneName: 'Aura',
+        stoneCategory: 'Dekton - Dk Natural',
+        stoneDescription: 'Luxurious white base with soft, subtle grey veining and marble-like depth.',
+        finishType: 'Honed' as const,
+        ambience: 'Luxury Kitchen'
     };
 
     let resultBase64 = "";

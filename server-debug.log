@@ -587,3 +587,24 @@ GrokServiceError: EDITS FAILED with status 422
 [2026-02-22T00:53:23.175Z] Server routes initialized.
 [2026-02-22T00:53:25.382Z] Server routes initialized.
 [2026-02-22T00:53:28.549Z] Server routes initialized.
+[2026-02-22T06:00:06.296Z] Server routes initialized.
+[2026-02-22T06:00:08.374Z] Server routes initialized.
+[2026-02-22T06:00:10.555Z] Server routes initialized.
+[2026-02-22T06:00:14.351Z] Server routes initialized.
+[2026-02-22T06:00:23.544Z] Server routes initialized.
+[2026-02-22T06:00:28.074Z] Server routes initialized.
+[2026-02-22T06:00:59.720Z] Server routes initialized.
+[2026-02-22T06:01:55.089Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T06:01:55.091Z] Grok Video Error: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+GrokServiceError: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+    at GrokService.generateWalkthroughVideo (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:235:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:411:33)
+[2026-02-22T06:07:26.439Z] Server routes initialized.
+[2026-02-22T06:15:47.151Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T06:15:47.164Z] Grok Video Error: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+GrokServiceError: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+    at GrokService.generateWalkthroughVideo (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:232:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:411:33)
+[2026-02-22T06:23:22.198Z] Server routes initialized.
