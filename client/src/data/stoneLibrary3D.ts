@@ -13,7 +13,8 @@ export const STONE_LIBRARY_3D = [
     "category": "Dekton",
     "swatchUrl": "/textures/other/stones/dekton-entzo.png",
     "texturePath": "/textures/other/stones",
-    "tone": "Light"
+    "tone": "Light",
+    "description": "creamy white base with delicate golden and grey veining, inspired by natural Calacatta gold"
   },
   {
     "id": "dekton-laurent.png",
@@ -21,7 +22,8 @@ export const STONE_LIBRARY_3D = [
     "category": "Dekton",
     "swatchUrl": "/textures/other/stones/dekton-laurent.png",
     "texturePath": "/textures/other/stones",
-    "tone": "Light"
+    "tone": "Light",
+    "description": "dramatic dark brown background with intersecting gold veins, high-contrast luxury look"
   },
   {
     "id": "dekton-trilium.png",
@@ -29,7 +31,8 @@ export const STONE_LIBRARY_3D = [
     "category": "Dekton",
     "swatchUrl": "/textures/other/stones/dekton-trilium.png",
     "texturePath": "/textures/other/stones",
-    "tone": "Light"
+    "tone": "Light",
+    "description": "industrial weathered look with an mix of volcanic greys, browns, and black deep textures"
   },
   {
     "id": "blue-dunes-granite.jpg",
@@ -37,7 +40,8 @@ export const STONE_LIBRARY_3D = [
     "category": "Granite",
     "swatchUrl": "/textures/other/stones/blue-dunes-granite.jpg",
     "texturePath": "/textures/other/stones",
-    "tone": "Warm"
+    "tone": "Warm",
+    "description": "earthy tones with flowy waves of charcoal, cream, and subtle hints of blue and grey"
   },
   {
     "id": "colonial-white-granite.png",
@@ -45,7 +49,8 @@ export const STONE_LIBRARY_3D = [
     "category": "Granite",
     "swatchUrl": "/textures/other/stones/colonial-white-granite.png",
     "texturePath": "/textures/other/stones",
-    "tone": "Light"
+    "tone": "Light",
+    "description": "classic off-white background with evenly distributed black pepper-like speckles and silver garnets"
   },
   {
     "id": "granite_tile_2k.blend",

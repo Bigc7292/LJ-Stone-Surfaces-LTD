@@ -81,6 +81,7 @@ export interface GenerateImageParams {
     stoneTextureBase64?: string;
     stoneName: string;
     stoneCategory: string;
+    stoneDescription?: string;
     finishType: 'Polished' | 'Honed' | 'Leathered';
     ambience: string;
 }
@@ -96,8 +97,6 @@ interface GrokImageResponse {
         url?: string;
         b64_json?: string;
     }>;
-    url?: string;
-    b64_json?: string;
 }
 
 interface GrokVideoResponse {
@@ -114,15 +113,15 @@ interface GrokVideoResponse {
 export class GrokService {
 
     /**
-     * Edit a room image using Grok's image editing API
-     * Uses /v1/images/edits endpoint for image-to-image transformation
-     * Automatically detects and replaces stone surfaces
+     * Edit a room image using Grok's image generation API for image-guided editing
+     * Uses /v1/images/generations endpoint with the 'images' payload
      */
     static async generateStoneVisualization({
         roomImageBase64,
         stoneTextureBase64,
         stoneName,
         stoneCategory,
+        stoneDescription,
         finishType,
         ambience
     }: GenerateImageParams): Promise<string> {
@@ -130,193 +129,113 @@ export class GrokService {
             throw new GrokServiceError('API_KEY_MISSING', 'xAI API key is not configured');
         }
 
-        const finishDescription = finishType.toLowerCase();
-        const hasTextureRef = !!stoneTextureBase64;
+        const sanitize = (str: string) => str.replace(/[{}]/g, '').trim();
+        const sName = sanitize(stoneName);
+        const sFinish = sanitize(finishType);
+        const sCategory = sanitize(stoneCategory);
+        const sDescription = stoneDescription ? sanitize(stoneDescription) : `${sCategory} with ${sFinish.toLowerCase()}`;
 
-        const textureRefInstruction = hasTextureRef
-            ? 'The SECOND attached image is the exact stone sample you MUST reproduce. Clone its exact color palette, veining pattern, grain direction, and surface texture onto all replaced surfaces. Do NOT invent or guess the stone appearance — match the reference image precisely.'
-            : '';
+        // Strictly surgical prompt. Remove any verbose explanation that might be misinterpreted as content to generate.
+        const prompt = `SURGICAL EDIT: Replace ONLY the surfaces of all countertops and the backsplash area with ${sName} (${sDescription}). 
+STRICT REQUIREMENT: Every other pixel in the room (cabinets, island base, floor, lighting, appliances, walls, windows, decor) MUST remain 100% IDENTICAL to the original image. 
+DO NOT move objects. DO NOT change the perspective. DO NOT reimagine the room. Purely a texture replacement on the specified surfaces.`;
 
-        let prompt: string;
-        if (AI_PROMPTS?.prompts?.combinedReplacement) {
-            const template = AI_PROMPTS.prompts.combinedReplacement.template;
-            prompt = template
-                .replace('{stoneName}', stoneName)
-                .replace('{stoneDescription}', `${stoneCategory} with ${finishDescription}`)
-                .replace('{textureReference}', textureRefInstruction);
-            console.log('[Grok Service] Using prompt from config');
-        } else {
-            prompt = `SURGICAL EDIT: Replace ONLY all countertops and the backsplash with ${stoneName} ${stoneCategory}. ${textureRefInstruction} Ensure a photorealistic ${finishDescription} finish. Every other pixel in the room (cabinets, island, appliances, floor, walls, lighting) MUST remain identical to the original image. DO NOT REIMAGINE THE ROOM.`;
-        }
-
-        const model = AI_PROMPTS?.grokConfig?.imageModel || 'grok-imagine-image';
-        const strength = AI_PROMPTS?.grokConfig?.consistency?.imageToImageStrength || 0.25;
+        const model = 'grok-imagine-image';
 
         return fetchWithRetry(async () => {
             const dataUri = roomImageBase64.startsWith('data:')
                 ? roomImageBase64
                 : `data:image/jpeg;base64,${roomImageBase64}`;
 
-            const requestBody: Record<string, any> = {
+            // Payload structure for /v1/images/edits
+            // Reverting to single-image mode for stability as 422 errors persists with multi-image arrays.
+            // Using the enriched stone descriptions for accuracy.
+            // Multi-image support (e.g., for texture reference) will be a future enhancement once API documentation
+            // for xAI matches the SDK capabilities better and is stable.
+            // Payload structure for /v1/images/edits
+            // xAI specifically requires 'image_url' for the input image when sending surgical edits.
+            const payload: any = {
                 model: model,
                 prompt: prompt,
-                n: 1,
-                response_format: 'b64_json',
-                strength: strength
+                image_url: dataUri,
+                response_format: "b64_json"
             };
 
-            // Multiplex image fields to be extremely robust for xAI REST API
-            if (stoneTextureBase64) {
-                const textureUri = stoneTextureBase64.startsWith('data:')
-                    ? stoneTextureBase64
-                    : `data:image/jpeg;base64,${stoneTextureBase64}`;
+            console.log(`[Grok Service] Sending surgical edit request to: ${XAI_BASE_URL}/images/edits`);
 
-                console.log('[Grok Service] Using multi-image surgical format');
-                fileLog(`Sending multi-image surgical request (strength: ${strength}). Prompt chars: ${prompt.length}`);
+            const response = await fetch(`${XAI_BASE_URL}/images/edits`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${XAI_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
 
-                // Standard modern vision API format: array of objects in 'image' field
-                requestBody.image = [
-                    { url: dataUri },
-                    { url: textureUri }
-                ];
-            } else {
-                console.log('[Grok Service] Using single-image surgical format');
-                requestBody.image = { url: dataUri };
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('[Grok Service] xAI API ERROR (EDITS):', JSON.stringify(errorData));
+                fileLog(`xAI API ERROR (EDITS) (${response.status}): ${JSON.stringify(errorData)}`);
+                throw new GrokServiceError('GENERATION_FAILED', errorData.error?.message || `EDITS FAILED with status ${response.status}`);
             }
 
-            console.log(`[Grok Service] Sending request to xAI: ${XAI_BASE_URL}/images/edits`);
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
-
-            try {
-                const response = await fetch(`${XAI_BASE_URL}/images/edits`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${XAI_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-                console.log(`[Grok Service] xAI responded with status: ${response.status}`);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    let errorData: any;
-                    try {
-                        errorData = JSON.parse(errorText);
-                    } catch {
-                        errorData = { error: errorText };
-                    }
-
-                    console.error('[Grok Service] xAI API ERROR DETAILS:', JSON.stringify(errorData, null, 2));
-                    fileLog(`xAI API ERROR (${response.status}): ${JSON.stringify(errorData)}`);
-
-                    // CRITICAL FALLBACK: If multi-image failed, try text-only (using just the room image)
-                    if (stoneTextureBase64 && response.status !== 401 && response.status !== 429) {
-                        console.log('[Grok Service] Multi-image failed. Falling back to single-image mode...');
-                        fileLog('Falling back to single-image mode after xAI error');
-                        const fallbackBody = {
-                            ...requestBody,
-                            image: { url: dataUri }
-                        };
-                        delete (fallbackBody as any).image_urls;
-
-                        const fallbackResponse = await fetch(`${XAI_BASE_URL}/images/edits`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${XAI_API_KEY}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(fallbackBody)
-                        });
-
-                        if (fallbackResponse.ok) {
-                            const fallbackData = await fallbackResponse.json();
-                            return `data:image/png;base64,${fallbackData.data[0].b64_json}`;
-                        }
-                    }
-
-                    if (response.status === 429) {
-                        throw new GrokServiceError('RATE_LIMIT', 'Rate limit exceeded. Please try again later.');
-                    }
-
-                    const errorMsg = errorData.error?.message || errorData.error || JSON.stringify(errorData) || `Image edit failed with status ${response.status}`;
-                    throw new GrokServiceError('GENERATION_FAILED', errorMsg);
-                }
-
-                const data: GrokImageResponse = await response.json();
-                if (!data.data || data.data.length === 0) {
-                    throw new GrokServiceError('GENERATION_FAILED', 'No image returned from Grok API');
-                }
-
-                const imageData = data.data[0];
-                if (imageData.b64_json) {
-                    return `data:image/png;base64,${imageData.b64_json}`;
-                } else if (imageData.url) {
-                    const imgResponse = await fetch(imageData.url);
-                    const imgBuffer = await imgResponse.arrayBuffer();
-                    const base64 = Buffer.from(imgBuffer).toString('base64');
-                    return `data:image/png;base64,${base64}`;
-                }
-
-                throw new GrokServiceError('GENERATION_FAILED', 'Invalid response format from Grok API');
-
-            } catch (err: any) {
-                clearTimeout(timeoutId);
-                if (err.name === 'AbortError') {
-                    throw new GrokServiceError('TIMEOUT', 'Grok API request timed out');
-                }
-                throw err;
+            const data: any = await response.json();
+            // Edits endpoint typically returns the same structure as generations
+            if (data.data?.[0]?.b64_json) {
+                return `data:image/png;base64,${data.data[0].b64_json}`;
+            } else if (data.data?.[0]?.url) {
+                return data.data[0].url;
             }
+
+            throw new GrokServiceError('GENERATION_FAILED', 'No image data in response from edits endpoint');
         });
     }
 
     /**
      * Generate a walkthrough video from the transformed image
      */
-    static async generateWalkthroughVideo({
-        transformedImageBase64,
-        duration = 10,
-        resolution = '720p'
-    }: GenerateVideoParams): Promise<{ requestId: string }> {
+    static async generateWalkthroughVideo(params: GenerateVideoParams): Promise<{ requestId: string }> {
         if (!XAI_API_KEY) {
             throw new GrokServiceError('API_KEY_MISSING', 'xAI API key is not configured');
         }
 
+        const { transformedImageBase64, duration = 10, resolution = '720p' } = params;
+
         console.log(`[Grok Service] Starting video generation (${duration}s, ${resolution})`);
 
-        const videoPrompt = `Generate a smooth walk-around video at human eye level of this room, slowly orbiting around the central island to show the stone countertops and backsplash from all angles. Maintain photorealistic details, preserve all original room elements. Smooth camera motion, no text.`;
+        const videoModel = 'grok-imagine-video';
+        const motionBucketId = AI_PROMPTS?.grokConfig?.videoConfig?.motionBucketId || 127;
+        const videoPrompt = AI_PROMPTS?.prompts?.walkAroundVideo?.template || `Generate a smooth walk-around video at human eye level of this room, slowly orbiting around the central island. Preserve all details.`;
 
         const dataUri = transformedImageBase64.startsWith('data:')
             ? transformedImageBase64
             : `data:image/jpeg;base64,${transformedImageBase64}`;
 
-        const response = await fetch(`${XAI_BASE_URL}/videos/generations`, {
+        const response = await fetch(`${XAI_BASE_URL}/video/generations`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${XAI_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'grok-imagine-video',
+                model: videoModel,
                 prompt: videoPrompt,
                 image: { url: dataUri },
                 duration: duration,
-                resolution: resolution
+                fps: 24,
+                motion_bucket_id: motionBucketId,
+                resolution: resolution === '1080p' ? '1920x1080' : '1280x720'
             })
         });
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('[Grok Service] Video generation request failed:', errorData);
-            throw new GrokServiceError('GENERATION_FAILED', errorData.error?.message || `Video generation failed with status ${response.status}`);
+            console.error('[Grok Service] Video generation request failed:', JSON.stringify(errorData));
+            fileLog(`Video generation ERROR (${response.status}): ${JSON.stringify(errorData)}`);
+            throw new GrokServiceError('GENERATION_FAILED', errorData.error?.message || `FAILED status ${response.status}`);
         }
 
         const data: GrokVideoResponse = await response.json();
-        console.log(`[Grok Service] Video job started: ${data.request_id}`);
         return { requestId: data.request_id };
     }
 
@@ -332,7 +251,7 @@ export class GrokService {
             throw new GrokServiceError('API_KEY_MISSING', 'xAI API key is not configured');
         }
 
-        const response = await fetch(`${XAI_BASE_URL}/videos/${requestId}`, {
+        const response = await fetch(`${XAI_BASE_URL}/video/${requestId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${XAI_API_KEY}`,
@@ -342,8 +261,9 @@ export class GrokService {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('[Grok Service] Video status check failed:', errorData);
-            throw new GrokServiceError('NETWORK', errorData.error?.message || `Status check failed with status ${response.status}`);
+            console.error('[Grok Service] Video status check failed:', JSON.stringify(errorData));
+            fileLog(`Video status ERROR (${response.status}): ${JSON.stringify(errorData)}`);
+            throw new GrokServiceError('NETWORK', errorData.error?.message || `FAILED status ${response.status}`);
         }
 
         const data: GrokVideoResponse = await response.json();

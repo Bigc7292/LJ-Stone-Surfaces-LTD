@@ -79,15 +79,37 @@ export const LuxeStoneVisualizer: React.FC = () => {
     // Handlers
     const handleBaseUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const dataUrl = event.target?.result as string;
-                const compressed = await compressImage(dataUrl);
-                setBaseImage(compressed);
-            };
-            reader.readAsDataURL(file);
+        if (!file) {
+            console.log('[Visualizer] No file selected');
+            return;
         }
+
+        console.log(`[Visualizer] Uploading: ${file.name} (${Math.round(file.size / 1024)}KB)`);
+        setErrorInfo(null);
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const dataUrl = event.target?.result as string;
+                console.log('[Visualizer] File read complete. Starting compression...');
+
+                const compressed = await compressImage(dataUrl);
+                console.log('[Visualizer] Compression success. Updating state...');
+
+                setBaseImage(compressed);
+                console.log('[Visualizer] Base image state updated.');
+            } catch (err: any) {
+                console.error('[Visualizer] Upload error:', err);
+                setErrorInfo({ message: `Upload failed: ${err.message || "Unknown error during processing"}` });
+            }
+        };
+
+        reader.onerror = (err) => {
+            console.error('[Visualizer] FileReader error:', err);
+            setErrorInfo({ message: "Failed to read file from disk." });
+        };
+
+        reader.readAsDataURL(file);
     };
 
     const allUploadsComplete = !!baseImage && !!selectedMaterial;
@@ -142,6 +164,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                     roomImage: baseImage,
                     stoneName: selectedMaterial.name,
                     stoneCategory: selectedMaterial.category,
+                    stoneDescription: (selectedMaterial as any).description,
                     stoneTexture: selectedMaterial.swatchUrl,
                     stoneTextureBase64: stoneTextureBase64,
                     finishType: selectedFinish,

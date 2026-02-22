@@ -2,12 +2,20 @@
     "version": "1.0",
     "lastUpdated": "2026-02-09",
     "grokConfig": {
-        "imageModel": "grok-2-image-1212",
+        "imageModel": "grok-imagine-image",
+        "videoModel": "grok-imagine-video",
         "consistency": {
             "seed": 42,
             "imageToImageStrength": 0.25,
             "resolution": "1024x1024",
-            "style": "photorealistic, high detail"
+            "style": "photorealistic, high detail, 8k"
+        },
+        "videoConfig": {
+            "motionBucketId": 127,
+            "fps": 24,
+            "duration": "10s",
+            "resolution": "1280x720",
+            "pacing": "slow-paced, cinematic"
         }
     },
     "prompts": {
@@ -24,12 +32,12 @@
         "combinedReplacement": {
             "id": "countertops_and_backsplash",
             "description": "Replace both countertops and backsplash in one edit",
-            "template": "SURGICAL EDIT: Replace ONLY all countertops and the backsplash with {stoneName} {stoneCategory}. {textureReference} Every other pixel (cabinets, island base, appliances, walls, floor) MUST remain identical to the original image."
+            "template": "SURGICAL EDIT: Replace ONLY the surfaces of all countertops and the backsplash with {stoneName} ({stoneDescription}). {textureReference} Every other pixel (cabinets, island base, floor, lighting, appliances, walls) MUST remain 100% identical to the original image. DO NOT move objects or change the room structure. Purely a texture replacement."
         },
         "walkAroundVideo": {
             "id": "walkaround_video",
-            "description": "Generate 8-second orbiting video at human eye level",
-            "template": "Generate a smooth 8-second orbiting video at human eye level (about 5.5 ft high) of this edited kitchen. Slowly circle around the central island, showing the {stoneName} countertops and matching slab backsplash from multiple angles. Keep photorealistic style, natural window light, cabinets, appliances and all other details exactly as in the attached image. Smooth camera motion, no text or HUD."
+            "description": "Generate 10-15 second eye-level walking tour via Grok Imagine API",
+            "template": "ACTIVATE GROK IMAGINE: Generate a slow-paced, first-person eye-level cinematic walking tour (5.5ft height) around the central island. Focus on the {stoneName} stone veining and reflections. FLUX.1 pro quality, 10-15s loop, cinematic smooth panning, no humans, natural lighting. Scene must remain identical to the base image."
         },
         "staticAngles": {
             "left": {

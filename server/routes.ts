@@ -332,6 +332,7 @@ export async function registerRoutes(
         roomImage,
         stoneName,
         stoneCategory,
+        stoneDescription,
         stoneTexture,
         stoneTextureBase64,
         finishType = 'Polished',
@@ -354,6 +355,7 @@ export async function registerRoutes(
         stoneTextureBase64,
         stoneName,
         stoneCategory: stoneCategory || 'Stone',
+        stoneDescription,
         finishType,
         ambience
       });

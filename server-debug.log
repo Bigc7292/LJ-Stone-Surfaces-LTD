@@ -494,3 +494,96 @@ GrokServiceError: {}
 [2026-02-21T18:49:04.250Z] Server routes initialized.
 [2026-02-21T18:49:08.730Z] Server routes initialized.
 [2026-02-21T19:09:44.492Z] Server routes initialized.
+[2026-02-21T23:39:43.512Z] [GrokService] xAI API ERROR (422): {"error":"Failed to deserialize the JSON body into the target type: quality: unknown variant `hd`, expected one of `low`, `medium`, `high` at line 1 column 367"}
+[2026-02-21T23:39:45.770Z] [GrokService] xAI API ERROR (422): {"error":"Failed to deserialize the JSON body into the target type: quality: unknown variant `hd`, expected one of `low`, `medium`, `high` at line 1 column 367"}
+[2026-02-21T23:39:49.018Z] [GrokService] xAI API ERROR (422): {"error":"Failed to deserialize the JSON body into the target type: quality: unknown variant `hd`, expected one of `low`, `medium`, `high` at line 1 column 367"}
+[2026-02-21T23:40:21.288Z] [GrokService] xAI API ERROR (400): {"code":"Client specified an invalid argument","error":"This model does not support image edition."}
+[2026-02-21T23:40:23.504Z] [GrokService] xAI API ERROR (400): {"code":"Client specified an invalid argument","error":"This model does not support image edition."}
+[2026-02-21T23:40:26.718Z] [GrokService] xAI API ERROR (400): {"code":"Client specified an invalid argument","error":"This model does not support image edition."}
+[2026-02-21T23:41:41.281Z] [GrokService] xAI API ERROR (400): {"code":"Client specified an invalid argument","error":"Invalid arguments passed to the model."}
+[2026-02-21T23:41:48.594Z] [GrokService] xAI API ERROR (400): {"code":"Client specified an invalid argument","error":"Invalid arguments passed to the model."}
+[2026-02-21T23:41:57.251Z] [GrokService] xAI API ERROR (400): {"code":"Client specified an invalid argument","error":"Invalid arguments passed to the model."}
+[2026-02-21T23:45:12.125Z] [GrokService] xAI API ERROR (503): {"code":"The service is currently unavailable","error":"The model is temporarily unavailable."}
+[2026-02-21T23:45:14.796Z] [GrokService] xAI API ERROR (503): {"code":"The service is currently unavailable","error":"The model is temporarily unavailable."}
+[2026-02-21T23:45:18.784Z] [GrokService] xAI API ERROR (503): {"code":"The service is currently unavailable","error":"The model is temporarily unavailable."}
+[2026-02-21T23:52:09.769Z] Server routes initialized.
+[2026-02-21T23:52:11.826Z] Server routes initialized.
+[2026-02-21T23:52:14.895Z] Server routes initialized.
+[2026-02-21T23:52:50.165Z] Server routes initialized.
+[2026-02-21T23:52:54.060Z] Server routes initialized.
+[2026-02-21T23:53:22.379Z] Server routes initialized.
+[2026-02-21T23:57:54.810Z] Server routes initialized.
+[2026-02-22T00:02:06.838Z] Grok Video Error: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+GrokServiceError: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+    at GrokService.generateWalkthroughVideo (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:239:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:409:33)
+[2026-02-22T00:02:15.106Z] Server routes initialized.
+[2026-02-22T00:02:37.712Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:05:02.166Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:05:02.181Z] Grok Video Error: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+GrokServiceError: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+    at GrokService.generateWalkthroughVideo (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:241:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:409:33)
+[2026-02-22T00:05:18.290Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:10:02.284Z] Server routes initialized.
+[2026-02-22T00:11:09.380Z] Server routes initialized.
+[2026-02-22T00:11:14.543Z] Server routes initialized.
+[2026-02-22T00:11:28.997Z] Server routes initialized.
+[2026-02-22T00:12:38.901Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:13:17.365Z] Server routes initialized.
+[2026-02-22T00:13:35.073Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:13:37.280Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:13:40.497Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:14:21.209Z] Server routes initialized.
+[2026-02-22T00:14:32.653Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:14:34.910Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:14:38.230Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:14:59.129Z] Server routes initialized.
+[2026-02-22T00:15:18.260Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:15:40.265Z] Server routes initialized.
+[2026-02-22T00:15:55.689Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:16:23.773Z] Server routes initialized.
+[2026-02-22T00:16:44.110Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:19:00.174Z] Server routes initialized.
+[2026-02-22T00:19:38.509Z] Server routes initialized.
+[2026-02-22T00:21:09.082Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:24:12.903Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:24:12.904Z] Grok Video Error: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+GrokServiceError: The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/
+    at GrokService.generateWalkthroughVideo (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:242:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:411:33)
+[2026-02-22T00:24:19.076Z] Server routes initialized.
+[2026-02-22T00:24:21.090Z] Server routes initialized.
+[2026-02-22T00:24:29.221Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:24:31.448Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:24:34.672Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:25:01.414Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:25:04.354Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:25:08.261Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:25:08.263Z] Grok Image Error: EDITS FAILED with status 422
+GrokServiceError: EDITS FAILED with status 422
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:190:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:63:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:352:24)
+[2026-02-22T00:25:12.830Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:25:16.698Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:25:20.363Z] [GrokService] xAI API ERROR (EDITS) (422): {}
+[2026-02-22T00:25:20.364Z] Grok Image Error: EDITS FAILED with status 422
+GrokServiceError: EDITS FAILED with status 422
+    at <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:190:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async fetchWithRetry (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\services\grokService.ts:63:16)
+    at async <anonymous> (C:\Users\toplo\Desktop\ai_stuff\clients\jack_davis_big_jack\LJ-Stone-Surfaces-LTD\server\routes.ts:352:24)
+[2026-02-22T00:26:10.775Z] Server routes initialized.
+[2026-02-22T00:26:30.183Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:33:04.166Z] Server routes initialized.
+[2026-02-22T00:33:42.363Z] [GrokService] Video generation ERROR (404): {"error":{"code":404,"message":"The requested resource was not found. Please check the URL and try again. Documentation is available at https://docs.x.ai/"}}
+[2026-02-22T00:49:34.041Z] Server routes initialized.
+[2026-02-22T00:50:08.470Z] Server routes initialized.
+[2026-02-22T00:53:23.175Z] Server routes initialized.
+[2026-02-22T00:53:25.382Z] Server routes initialized.
+[2026-02-22T00:53:28.549Z] Server routes initialized.
