@@ -146,12 +146,26 @@ export class GrokService {
         const sCategory = sanitize(stoneCategory);
         const sDescription = stoneDescription ? sanitize(stoneDescription) : `${sCategory} with ${sFinish.toLowerCase()}`;
 
-        // Surgical prompt with texture matching emphasis.
-        // When a stone swatch is provided, we emphasize exact visual replication.
+        // CRITICAL: Surgical/inpainting prompt - room structure MUST remain identical
+        // This is IMAGE EDITING, not image generation. Only stone surfaces are replaced.
         const hasTexture = !!stoneTextureBase64;
         const prompt = hasTexture
-            ? `SURGICAL EDIT INSTRUCTION: Replace ONLY the countertops and visible stone surfaces with the exact ${sName} sample provided. The new stone must be visually identical to the reference swatch - same veining patterns, color gradations, reflective properties, and ${sFinish.toLowerCase()} finish. PRESERVE EVERYTHING ELSE: room layout, cabinets, floor, appliances, lighting, shadows. Photorealistic 8k.`
-            : `Surgical edit: ONLY replace the countertops and visible stone surfaces with ${sName} (${sDescription}). STRICT MATERIAL FIDELITY: Replicate the specific veining patterns, base color tint, and ${sFinish.toLowerCase()} finish exactly. Keep EVERYTHING ELSE IDENTICAL: Room layout, cabinets, appliances, lighting, shadows, reflections, and floor objects MUST remain unchanged. Photorealistic 8k.`;
+            ? `INPAINT ONLY: You must edit this image, not generate a new one. Replace ONLY the countertop stone surfaces with the exact ${sName} material shown in the reference swatch. 
+CRITICAL INSTRUCTIONS:
+- Match the reference swatch exactly: same veining, color tones, reflectivity, ${sFinish.toLowerCase()} finish
+- Keep every other pixel IDENTICAL to the original image - this is material replacement only
+- Do NOT change: room walls, cabinets, appliances, island base, floor, ceiling, lighting, shadows, reflections, or any objects
+- Do NOT regenerate the room, reposition furniture, or alter any spatial layout
+- Only the stone surface texture changes on the existing countertop geometry
+Photorealistic. Match original lighting and shadows exactly.`
+            : `INPAINT ONLY: You must edit this image, not generate a new one. Replace ONLY the countertop stone surfaces with ${sName} (${sDescription}). 
+CRITICAL INSTRUCTIONS:
+- Replicate the specific veining patterns, color, and ${sFinish.toLowerCase()} finish of ${sName} exactly
+- Keep every other pixel IDENTICAL to the original image - this is material replacement only
+- Do NOT change: room walls, cabinets, appliances, island base, floor, ceiling, lighting, shadows, reflections, or any objects
+- Do NOT regenerate the room, reposition furniture, or alter layout
+- Only the stone surface texture changes on the existing countertop geometry  
+Photorealistic. Match original image lighting and shadows perfectly.`;
 
         const model = 'grok-imagine-image';
 
