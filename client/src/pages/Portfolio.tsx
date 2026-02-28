@@ -35,8 +35,10 @@ export default function Portfolio() {
           </p>
 
           <div className="mt-12 max-w-xl mx-auto relative group">
+            <label htmlFor="portfolio-search" className="sr-only">Filter portfolio by name or style</label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
             <input
+              id="portfolio-search"
               type="text"
               placeholder="Filter by name or style..."
               className="w-full bg-slate-900/50 border border-white/10 rounded-full py-4 pl-12 pr-6 text-sm focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all backdrop-blur-sm"

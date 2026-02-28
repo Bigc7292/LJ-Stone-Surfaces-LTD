@@ -45,8 +45,10 @@ export default function MaterialCatalogue() {
 
                     {/* Search */}
                     <div className="relative w-full md:w-96">
+                        <label htmlFor="material-search" className="sr-only">Search materials by name</label>
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input
+                            id="material-search"
                             type="text"
                             placeholder="Search 'Calacatta', 'Black', etc..."
                             className="w-full bg-slate-900 border border-slate-800 rounded-full py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-amber-500 transition-all"

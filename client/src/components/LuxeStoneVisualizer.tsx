@@ -323,7 +323,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                         <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-600">Select Image</span>
                                     </div>
                                 )}
-                                <input type="file" ref={baseInputRef} onChange={handleBaseUpload} className="hidden" accept="image/*" />
+                                <input type="file" id="base-room-upload" ref={baseInputRef} onChange={handleBaseUpload} className="hidden" accept="image/*" aria-label="Upload base room image" />
                             </div>
                         </section>
 

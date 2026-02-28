@@ -337,7 +337,7 @@ const App: React.FC = () => {
                   <h2 className="text-3xl font-black mb-3 uppercase tracking-tight">Architectural Mapping</h2>
                   <p className="text-slate-500 mb-10 max-w-sm mx-auto text-[10px] font-bold uppercase tracking-widest leading-relaxed">Provide high-resolution imagery for photorealistic stone refitting.</p>
                   <button onClick={() => fileInputRef.current?.click()} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-12 py-5 rounded-2xl shadow-xl shadow-amber-500/20 text-[11px] uppercase tracking-[0.2em] transition-all">Upload Portfolio Photo</button>
-                  <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
+                  <input id="portfolio-file-upload" type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" aria-label="Upload portfolio photo for architectural mapping" />
                 </div>
               )}
 
@@ -356,9 +356,10 @@ const App: React.FC = () => {
                     >
                       <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                        <label className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Identify Surface Type</label>
+                        <label htmlFor="surface-type-input" className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Identify Surface Type</label>
                       </div>
                       <input 
+                        id="surface-type-input"
                         ref={labelInputRef} 
                         type="text" 
                         value={markerInput} 

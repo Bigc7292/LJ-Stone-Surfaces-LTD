@@ -53,7 +53,9 @@ export function StoneConcierge() {
       <CardContent className="space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
+            <label htmlFor="concierge-description" className="text-sm font-medium text-foreground">Project Description</label>
             <Textarea
+              id="concierge-description"
               placeholder="Describe your vision (e.g., 'I want a dramatic kitchen island that becomes the focal point of a modern, minimalist home.')"
               className="min-h-[150px] bg-secondary/20"
               value={text}
@@ -70,10 +72,12 @@ export function StoneConcierge() {
                 )}
               </Button>
               <input
+                id="concierge-image"
                 type="file"
                 className="absolute inset-0 opacity-0 cursor-pointer"
                 onChange={handleFileUpload}
                 accept="image/*"
+                aria-label="Upload reference photo for stone consultation"
               />
             </div>
 
