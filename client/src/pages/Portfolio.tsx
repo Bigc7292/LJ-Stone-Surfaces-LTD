@@ -94,7 +94,7 @@ export default function Portfolio() {
             className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-8 cursor-zoom-out"
             onClick={() => setSelectedImage(null)}
           >
-            <button className="absolute top-8 right-8 text-white p-2 hover:bg-white/10 rounded-full transition-colors">
+            <button aria-label="Close image" className="absolute top-8 right-8 text-white p-2 hover:bg-white/10 rounded-full transition-colors">
               <Grid className="w-6 h-6 rotate-45" />
             </button>
             <motion.img

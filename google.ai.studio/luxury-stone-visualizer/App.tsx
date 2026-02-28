@@ -137,6 +137,7 @@ const WorkspaceMarker: React.FC<{
       className="absolute group/marker z-20 pointer-events-auto transition-all duration-300"
     >
       <button 
+        aria-label={`Remove marker at position ${index}`}
         onClick={(e) => { e.stopPropagation(); onRemove(index); }}
         className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover/marker:opacity-100 transition-all hover:bg-red-600 z-30"
       >
@@ -405,7 +406,7 @@ const App: React.FC = () => {
                       >
                         Toggle View
                       </button>
-                      <button onClick={() => setIsFullscreen(true)} className="p-3 text-slate-400 hover:text-white transition-all bg-slate-800/40 rounded-xl ml-2 hover:bg-slate-800">
+                      <button aria-label="Toggle fullscreen view" onClick={() => setIsFullscreen(true)} className="p-3 text-slate-400 hover:text-white transition-all bg-slate-800/40 rounded-xl ml-2 hover:bg-slate-800">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                         </svg>
@@ -480,7 +481,7 @@ const App: React.FC = () => {
                       <div className="flex flex-col space-y-1">
                         <label className="text-[10px] uppercase font-black text-amber-500 tracking-[0.2em] block">Tone Palette</label>
                       </div>
-                      <div className="flex flex-wrap gap-4">{COLORS.map(c => <button key={c.id} onClick={() => setSelectedColor(c)} className={`w-11 h-11 rounded-2xl border-2 transition-all p-1.5 ${selectedColor.id === c.id ? 'border-amber-500 ring-4 ring-amber-500/10 shadow-lg' : 'border-slate-800 hover:border-slate-600'}`}><div className="w-full h-full rounded-xl" style={{ backgroundColor: c.hex }} /></button>)}</div>
+                      <div className="flex flex-wrap gap-4">{COLORS.map(c => <button key={c.id} aria-label={`Select ${c.name} color`} onClick={() => setSelectedColor(c)} className={`w-11 h-11 rounded-2xl border-2 transition-all p-1.5 ${selectedColor.id === c.id ? 'border-amber-500 ring-4 ring-amber-500/10 shadow-lg' : 'border-slate-800 hover:border-slate-600'}`}><div className="w-full h-full rounded-xl" style={{ backgroundColor: c.hex }} /></button>)}</div>
                     </div>
                     <button onClick={startVisualization} disabled={isLoading} className="w-full mt-10 bg-amber-500 hover:bg-amber-400 text-slate-950 py-7 rounded-2xl font-black text-[12px] uppercase tracking-[0.4em] shadow-xl shadow-amber-500/20 active:scale-95">{isLoading ? 'Processing...' : 'Initiate Installation'}</button>
                   </div>
