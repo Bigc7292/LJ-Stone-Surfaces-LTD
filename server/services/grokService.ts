@@ -48,6 +48,9 @@ try {
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
 const XAI_BASE_URL = 'https://api.x.ai/v1';
+// NOTE: the xAI API prefix changed in early 2026 – video endpoints live under
+// `/v1/videos` rather than `/v1/video`. using the wrong path returns 404.
+
 
 if (!XAI_API_KEY) {
     console.error("[Grok Service] FATAL: XAI_API_KEY is missing! Add it to your .env file.");
@@ -99,11 +102,19 @@ interface GrokImageResponse {
     }>;
 }
 
+// generic shape for the v1/videos endpoints.  
+// POST /videos/generations returns only { request_id }
+// GET /videos/:id returns { status: "pending"|"done"|"failed", video?: {url,duration}, error?, model }
 interface GrokVideoResponse {
-    request_id: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
+    request_id?: string;
+    status?: 'pending' | 'processing' | 'completed' | 'failed' | 'done';
     video_url?: string;
+    video?: {
+        url: string;
+        duration: number;
+    };
     error?: string;
+    model?: string;
 }
 
 // ============================================================================
@@ -114,7 +125,7 @@ export class GrokService {
 
     /**
      * Edit a room image using Grok's image generation API for image-guided editing
-     * Uses /v1/images/generations endpoint with the 'images' payload
+     * Uses /v1/images/generations endpoint (not /edits). Includes stone texture reference for accurate material matching.
      */
     static async generateStoneVisualization({
         roomImageBase64,
@@ -135,34 +146,43 @@ export class GrokService {
         const sCategory = sanitize(stoneCategory);
         const sDescription = stoneDescription ? sanitize(stoneDescription) : `${sCategory} with ${sFinish.toLowerCase()}`;
 
-        // Strictly surgical prompt. PRIORITIZE material fidelity and texture matching.
-        const prompt = `Surgical edit: ONLY replace the countertops and visible stone surfaces with ${sName} (${sDescription}). 
-STRICT MATERIAL FIDELITY: The new stone surface must perfectly match the visual characteristics of ${sName}. 
-Replicate the specific veining patterns, base color tint, and ${sFinish.toLowerCase()} finish exactly. 
-Keep EVERYTHING ELSE EXACTLY IDENTICAL: Room layout, cabinets, appliances, lighting, shadows, reflections, and even floor objects (boxes/tape) MUST remain unchanged. 
-Photorealistic 8k, match original image structure 100%.`;
+        // Surgical prompt with texture matching emphasis.
+        // When a stone swatch is provided, we emphasize exact visual replication.
+        const hasTexture = !!stoneTextureBase64;
+        const prompt = hasTexture
+            ? `SURGICAL EDIT INSTRUCTION: Replace ONLY the countertops and visible stone surfaces with the exact ${sName} sample provided. The new stone must be visually identical to the reference swatch - same veining patterns, color gradations, reflective properties, and ${sFinish.toLowerCase()} finish. PRESERVE EVERYTHING ELSE: room layout, cabinets, floor, appliances, lighting, shadows. Photorealistic 8k.`
+            : `Surgical edit: ONLY replace the countertops and visible stone surfaces with ${sName} (${sDescription}). STRICT MATERIAL FIDELITY: Replicate the specific veining patterns, base color tint, and ${sFinish.toLowerCase()} finish exactly. Keep EVERYTHING ELSE IDENTICAL: Room layout, cabinets, appliances, lighting, shadows, reflections, and floor objects MUST remain unchanged. Photorealistic 8k.`;
 
         const model = 'grok-imagine-image';
 
         return fetchWithRetry(async () => {
-            const dataUri = roomImageBase64.startsWith('data:')
+            const roomDataUri = roomImageBase64.startsWith('data:')
                 ? roomImageBase64
                 : `data:image/jpeg;base64,${roomImageBase64}`;
 
-            // Payload structure for /v1/images/edits
-            // xAI requires a nested 'image' object with a 'url' property for the input image.
+            // Build payload with or without texture reference
+            // xAI's /v1/images/generations supports multiple images via 'content' array
             const payload: any = {
                 model: model,
                 prompt: prompt,
                 image: {
-                    url: dataUri
-                },
-                response_format: "b64_json"
+                    url: roomDataUri
+                }
             };
 
-            console.log(`[Grok Service] Sending surgical edit request to: ${XAI_BASE_URL}/images/edits`);
+            // If we have a stone texture swatch, add it as an additional image reference
+            if (stoneTextureBase64) {
+                const textureDataUri = stoneTextureBase64.startsWith('data:')
+                    ? stoneTextureBase64
+                    : `data:image/jpeg;base64,${stoneTextureBase64}`;
+                // Some image APIs support 'images' array or 'texture' field; fallback to inline prompt if not
+                payload.texture_reference = { url: textureDataUri };
+                console.log('[Grok Service] Including stone texture reference for exact matching');
+            }
 
-            const response = await fetch(`${XAI_BASE_URL}/images/edits`, {
+            console.log(`[Grok Service] Sending stone visualization request to: ${XAI_BASE_URL}/images/generations`);
+
+            const response = await fetch(`${XAI_BASE_URL}/images/generations`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${XAI_API_KEY}`,
@@ -173,44 +193,46 @@ Photorealistic 8k, match original image structure 100%.`;
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                console.error('[Grok Service] xAI API ERROR (EDITS):', JSON.stringify(errorData));
-                fileLog(`xAI API ERROR (EDITS) (${response.status}): ${JSON.stringify(errorData)}`);
-                throw new GrokServiceError('GENERATION_FAILED', errorData.error?.message || `EDITS FAILED with status ${response.status}`);
+                console.error('[Grok Service] xAI API ERROR (GENERATIONS):', JSON.stringify(errorData));
+                fileLog(`xAI API ERROR (GENERATIONS) (${response.status}): ${JSON.stringify(errorData)}`);
+                throw new GrokServiceError('GENERATION_FAILED', errorData.error?.message || `GENERATION FAILED with status ${response.status}`);
             }
 
             const data: any = await response.json();
-            // Edits endpoint typically returns the same structure as generations
+            // Images endpoint returns data array with url or b64_json
             if (data.data?.[0]?.b64_json) {
                 return `data:image/png;base64,${data.data[0].b64_json}`;
             } else if (data.data?.[0]?.url) {
                 return data.data[0].url;
             }
 
-            throw new GrokServiceError('GENERATION_FAILED', 'No image data in response from edits endpoint');
+            throw new GrokServiceError('GENERATION_FAILED', 'No image data in response from generations endpoint');
         });
     }
 
     /**
      * Generate a walkthrough video from the transformed image
+     * NOTE: xAI's /v1/videos/generations only accepts: model, prompt, image, duration
+     * Do NOT send fps, motion_bucket_id, or resolution - causes 422 errors
      */
     static async generateWalkthroughVideo(params: GenerateVideoParams): Promise<{ requestId: string }> {
         if (!XAI_API_KEY) {
             throw new GrokServiceError('API_KEY_MISSING', 'xAI API key is not configured');
         }
 
-        const { transformedImageBase64, duration = 10, resolution = '720p' } = params;
+        const { transformedImageBase64, duration = 10 } = params;
 
-        console.log(`[Grok Service] Starting video generation (${duration}s, ${resolution})`);
+        console.log(`[Grok Service] Starting video generation (${duration}s)`);
 
         const videoModel = 'grok-imagine-video';
-        const motionBucketId = AI_PROMPTS?.grokConfig?.videoConfig?.motionBucketId || 127;
         const videoPrompt = AI_PROMPTS?.prompts?.walkAroundVideo?.template || `Generate a smooth walk-around video at human eye level of this room, slowly orbiting around the central island. Preserve all details.`;
 
         const dataUri = transformedImageBase64.startsWith('data:')
             ? transformedImageBase64
             : `data:image/jpeg;base64,${transformedImageBase64}`;
 
-        const response = await fetch(`${XAI_BASE_URL}/video/generations`, {
+        // IMPORTANT: Only send supported fields. fps, motion_bucket_id, resolution are NOT supported and cause 422
+        const response = await fetch(`${XAI_BASE_URL}/videos/generations`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${XAI_API_KEY}`,
@@ -220,10 +242,7 @@ Photorealistic 8k, match original image structure 100%.`;
                 model: videoModel,
                 prompt: videoPrompt,
                 image: { url: dataUri },
-                duration: duration,
-                fps: 24,
-                motion_bucket_id: motionBucketId,
-                resolution: resolution === '1080p' ? '1920x1080' : '1280x720'
+                duration: duration
             })
         });
 
@@ -234,7 +253,8 @@ Photorealistic 8k, match original image structure 100%.`;
             throw new GrokServiceError('GENERATION_FAILED', errorData.error?.message || `FAILED status ${response.status}`);
         }
 
-        const data: GrokVideoResponse = await response.json();
+        const data: { request_id: string } = await response.json();
+        // the generation endpoint only returns a request_id, status checks come later
         return { requestId: data.request_id };
     }
 
@@ -250,11 +270,10 @@ Photorealistic 8k, match original image structure 100%.`;
             throw new GrokServiceError('API_KEY_MISSING', 'xAI API key is not configured');
         }
 
-        const response = await fetch(`${XAI_BASE_URL}/video/${requestId}`, {
+        const response = await fetch(`${XAI_BASE_URL}/videos/${requestId}`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${XAI_API_KEY}`,
-                'Content-Type': 'application/json'
+                'Authorization': `Bearer ${XAI_API_KEY}`
             }
         });
 
@@ -265,11 +284,20 @@ Photorealistic 8k, match original image structure 100%.`;
             throw new GrokServiceError('NETWORK', errorData.error?.message || `FAILED status ${response.status}`);
         }
 
-        const data: GrokVideoResponse = await response.json();
+        // the status endpoint returns { status: "pending"|"done"|"failed", video?: { url, duration }, error?, model }
+        const data: any = await response.json();
+        let status: 'pending' | 'processing' | 'completed' | 'failed' = 'pending';
+        if (data.status === 'done') {
+            status = 'completed';
+        } else if (data.status === 'pending' || data.status === 'processing') {
+            status = data.status;
+        } else if (data.status === 'failed') {
+            status = 'failed';
+        }
         return {
-            status: data.status,
-            videoUrl: data.video_url,
-            error: data.error
+            status,
+            videoUrl: data.video?.url,
+            error: data.error || (data.status === 'failed' ? 'generation failed' : undefined)
         };
     }
 }

@@ -36,8 +36,8 @@
         },
         "walkAroundVideo": {
             "id": "walkaround_video",
-            "description": "Generate 10-15 second eye-level walking tour via Grok Imagine API",
-            "template": "ACTIVATE GROK IMAGINE: Generate a slow-paced, first-person eye-level cinematic walking tour (5.5ft height) around the central island. Focus on the {stoneName} stone veining and reflections. FLUX.1 pro quality, 10-15s loop, cinematic smooth panning, no humans, natural lighting. Scene must remain identical to the base image."
+            "description": "Generate video walkthrough via Grok Imagine API",
+            "template": "Generate a smooth cinematic walkthrough video at eye level, slowly moving around and orbiting the central island. Focus on the stone surfaces - capture veining patterns, reflections, and finish details from multiple angles. Maintain all architectural details, lighting, and layout exactly as shown. Natural lighting. Smooth camera movement."
         },
         "staticAngles": {
             "left": {
