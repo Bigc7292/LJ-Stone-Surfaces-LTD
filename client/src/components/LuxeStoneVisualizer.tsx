@@ -38,7 +38,8 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const [step, setStep] = useState<GrokAppStep>('UPLOAD');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [resultImage, setResultImage] = useState<string | null>(null);
-    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const [clockwiseVideoUrl, setClockwiseVideoUrl] = useState<string | null>(null);
+    const [counterClockwiseVideoUrl, setCounterClockwiseVideoUrl] = useState<string | null>(null);
     const [selectedMaterial, setSelectedMaterial] = useState(
         SAFE_LIBRARY.find(m => m.name === 'Taj Mahal Quartzite') || SAFE_LIBRARY[0]
     );
@@ -52,7 +53,6 @@ export const LuxeStoneVisualizer: React.FC = () => {
     const [showLibraryModal, setShowLibraryModal] = useState(false);
 
     const baseInputRef = useRef<HTMLInputElement>(null);
-    const videoRef = useRef<HTMLVideoElement>(null);
 
     // Compress image to prevent massive payloads causing connection resets
     const compressImage = (dataUrl: string, maxDim = 1920, quality = 0.85): Promise<string> => {
@@ -197,16 +197,15 @@ export const LuxeStoneVisualizer: React.FC = () => {
         setStep('VIDEO_GEN');
         setIsLoading(true);
         setErrorInfo(null);
-        setLoadingMessage('Creating walkthrough video...');
+        setLoadingMessage('Creating dual walkthrough videos...');
 
         try {
-            const response = await fetch('/api/grok/generate-video', {
+            const response = await fetch('/api/grok/generate-videos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     transformedImage: resultImage,
-                    duration: 10,
-                    resolution: '720p'
+                    stoneName: selectedMaterial.name
                 })
             });
 
@@ -226,7 +225,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
     };
 
     const pollVideoStatus = async (jobId: string) => {
-        const pollInterval = 3000;
+        const pollInterval = 4000;
         let attempts = 0;
 
         const poll = async () => {
@@ -234,16 +233,17 @@ export const LuxeStoneVisualizer: React.FC = () => {
                 const response = await fetch(`/api/grok/video-status/${jobId}`);
                 const data = await response.json();
 
-                if (data.status === 'completed' && data.videoUrl) {
-                    setVideoUrl(data.videoUrl);
+                if (data.status === 'completed' && data.clockwiseVideoUrl && data.counterClockwiseVideoUrl) {
+                    setClockwiseVideoUrl(data.clockwiseVideoUrl);
+                    setCounterClockwiseVideoUrl(data.counterClockwiseVideoUrl);
                     setStep('VIDEO_DONE');
                     setIsLoading(false);
                 } else if (data.status === 'failed') {
                     throw new Error(data.error || "Video generation failed.");
                 } else {
                     attempts++;
-                    const progress = Math.min(Math.round((attempts / 60) * 100), 98);
-                    setLoadingMessage(`Rendering walkthrough... ${progress}%`);
+                    const progress = Math.min(Math.round((attempts / 80) * 100), 98);
+                    setLoadingMessage(`Rendering dual walkthroughs... ${progress}%`);
                     setTimeout(poll, pollInterval);
                 }
             } catch (err: any) {
@@ -259,7 +259,8 @@ export const LuxeStoneVisualizer: React.FC = () => {
         setStep('UPLOAD');
         setOriginalImage(null);
         setResultImage(null);
-        setVideoUrl(null);
+        setClockwiseVideoUrl(null);
+        setCounterClockwiseVideoUrl(null);
         setBaseImage(null);
         setErrorInfo(null);
     };
@@ -399,27 +400,51 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                 ) : null}
                             </div>
 
-                            {/* VIDEO VIEWPORT (Only show if gen started or done) */}
+                            {/* DUAL VIDEO VIEWPORT (Only show if gen started or done) */}
                             {(step === 'VIDEO_GEN' || step === 'VIDEO_DONE') && (
-                                <div className="h-[300px] relative rounded-[3rem] border border-primary/20 bg-black overflow-hidden shadow-4xl animate-in slide-in-from-bottom-20 duration-1000">
+                                <div className="relative rounded-[2rem] border border-primary/20 bg-black overflow-hidden shadow-4xl animate-in slide-in-from-bottom-20 duration-1000">
                                     {step === 'VIDEO_GEN' ? (
-                                        <div className="absolute inset-0 bg-black/60 backdrop-blur-3xl z-40 flex flex-col items-center justify-center">
+                                        <div className="h-[280px] bg-black/60 backdrop-blur-3xl flex flex-col items-center justify-center">
                                             <Video className="w-12 h-12 text-primary animate-pulse mb-6" />
                                             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">{loadingMessage}</p>
+                                            <p className="text-[9px] text-slate-500 uppercase tracking-[0.3em] mt-3">Generating clockwise + counter-clockwise walks</p>
                                         </div>
-                                    ) : videoUrl ? (
-                                        <video
-                                            src={videoUrl}
-                                            autoPlay
-                                            loop
-                                            muted
-                                            className="w-full h-full object-contain"
-                                        />
+                                    ) : (clockwiseVideoUrl && counterClockwiseVideoUrl) ? (
+                                        <div className="flex gap-2 p-2">
+                                            {/* Clockwise Video */}
+                                            <div className="flex-1 relative rounded-2xl overflow-hidden">
+                                                <video
+                                                    src={clockwiseVideoUrl}
+                                                    autoPlay
+                                                    loop
+                                                    muted
+                                                    playsInline
+                                                    className="w-full h-[260px] object-cover rounded-2xl"
+                                                />
+                                                <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/10">
+                                                    <span className="text-[8px] font-black uppercase tracking-widest text-primary">↻ Clockwise Walk</span>
+                                                </div>
+                                            </div>
+                                            {/* Counter-Clockwise Video */}
+                                            <div className="flex-1 relative rounded-2xl overflow-hidden">
+                                                <video
+                                                    src={counterClockwiseVideoUrl}
+                                                    autoPlay
+                                                    loop
+                                                    muted
+                                                    playsInline
+                                                    className="w-full h-[260px] object-cover rounded-2xl"
+                                                />
+                                                <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-xl px-3 py-1.5 rounded-full border border-white/10">
+                                                    <span className="text-[8px] font-black uppercase tracking-widest text-primary">↺ Counter-Clockwise Walk</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     ) : null}
 
-                                    <div className="absolute top-6 left-10 z-50 bg-black/60 backdrop-blur-xl px-5 py-2 rounded-full border border-white/10 flex items-center gap-3">
+                                    <div className="absolute top-4 left-8 z-50 bg-black/60 backdrop-blur-xl px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
                                         <div className="w-2 h-2 bg-primary rounded-full animate-ping" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-white">Live 3D Walkthrough View</span>
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-white">Dual 3D Walkthrough</span>
                                     </div>
                                 </div>
                             )}
@@ -433,7 +458,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                             className="bg-primary hover:bg-white text-black px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] flex items-center gap-4 transition-all shadow-[0_20px_40px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95 group"
                                         >
                                             <Play className="w-5 h-5 fill-black group-hover:scale-110 transition-transform" />
-                                            Walk Around the Room
+                                            Generate Walkthrough Videos
                                         </button>
                                     )}
                                     <button

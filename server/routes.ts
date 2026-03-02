@@ -60,6 +60,28 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000);
 
+// Dual video job queue (clockwise + counter-clockwise)
+const dualVideoJobQueue = new Map<string, {
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  cwGrokRequestId?: string;
+  ccwGrokRequestId?: string;
+  clockwiseVideoUrl?: string;
+  counterClockwiseVideoUrl?: string;
+  error?: string;
+  createdAt: number;
+}>();
+
+// Cleanup old dual video jobs every hour
+setInterval(() => {
+  const ONE_HOUR = 60 * 60 * 1000;
+  const now = Date.now();
+  for (const [jobId, job] of dualVideoJobQueue.entries()) {
+    if (now - job.createdAt > ONE_HOUR) {
+      dualVideoJobQueue.delete(jobId);
+    }
+  }
+}, 60 * 60 * 1000);
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -490,8 +512,20 @@ export async function registerRoutes(
   // Grok Video Status Polling
   app.get("/api/grok/video-status/:jobId", (req, res) => {
     const { jobId } = req.params;
-    const job = grokVideoJobQueue.get(jobId);
 
+    // Check dual-video queue first
+    const dualJob = dualVideoJobQueue.get(jobId);
+    if (dualJob) {
+      return res.json({
+        status: dualJob.status,
+        clockwiseVideoUrl: dualJob.clockwiseVideoUrl,
+        counterClockwiseVideoUrl: dualJob.counterClockwiseVideoUrl,
+        error: dualJob.error
+      });
+    }
+
+    // Fallback to single-video queue (backward compat)
+    const job = grokVideoJobQueue.get(jobId);
     if (!job) {
       return res.status(404).json({ message: "Video job not found" });
     }
@@ -501,6 +535,167 @@ export async function registerRoutes(
       videoUrl: job.videoUrl,
       error: job.error
     });
+  });
+
+  // ============================================================================
+  // DUAL VIDEO GENERATION (Clockwise + Counter-Clockwise)
+  // ============================================================================
+
+  app.post("/api/grok/generate-videos", async (req, res) => {
+    try {
+      const {
+        transformedImage,
+        stoneName = 'Stone'
+      } = req.body;
+
+      if (!transformedImage) {
+        return res.status(400).json({ message: "Transformed image is required" });
+      }
+
+      const jobId = `grok_dual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Initialize dual job
+      dualVideoJobQueue.set(jobId, {
+        status: 'processing',
+        createdAt: Date.now()
+      });
+
+      console.log(`[Grok API] Starting DUAL video generation: ${jobId} (${stoneName})`);
+
+      // Respond immediately with 202
+      res.status(202).json({
+        jobId,
+        message: "Dual video generation started (clockwise + counter-clockwise). Poll for status."
+      });
+
+      // Background processing
+      (async () => {
+        try {
+          // Step 1: Submit both video generation requests
+          const { clockwiseRequestId, counterClockwiseRequestId } =
+            await GrokService.generateKitchenWalkVideos(transformedImage, stoneName);
+
+          dualVideoJobQueue.set(jobId, {
+            ...dualVideoJobQueue.get(jobId)!,
+            cwGrokRequestId: clockwiseRequestId,
+            ccwGrokRequestId: counterClockwiseRequestId
+          });
+
+          // Step 2: Poll both videos to completion
+          const pollInterval = 5000;
+          const maxAttempts = 150; // ~12.5 minutes max
+          let attempts = 0;
+          let cwDone = false;
+          let ccwDone = false;
+          let cwVideoUrl: string | undefined;
+          let ccwVideoUrl: string | undefined;
+
+          const pollBoth = async () => {
+            try {
+              // Poll clockwise
+              if (!cwDone) {
+                const cwStatus = await GrokService.checkVideoStatus(clockwiseRequestId);
+                if (cwStatus.status === 'completed' && cwStatus.videoUrl) {
+                  cwDone = true;
+                  console.log(`[Grok API] Clockwise video completed for ${jobId}`);
+                  fileLog(`CW video completed: ${cwStatus.videoUrl}`);
+                  // Upload to Cloudinary
+                  try {
+                    const { uploadVideoFromUrl } = await import('./services/cloudinaryService');
+                    cwVideoUrl = await uploadVideoFromUrl(cwStatus.videoUrl, 'lj-stone/videos/clockwise');
+                  } catch (uploadErr: any) {
+                    console.error(`[Grok API] CW Cloudinary upload failed, using temp URL:`, uploadErr.message);
+                    cwVideoUrl = cwStatus.videoUrl; // fallback to temp URL
+                  }
+                } else if (cwStatus.status === 'failed') {
+                  cwDone = true;
+                  console.error(`[Grok API] Clockwise video failed for ${jobId}: ${cwStatus.error}`);
+                }
+              }
+
+              // Poll counter-clockwise
+              if (!ccwDone) {
+                const ccwStatus = await GrokService.checkVideoStatus(counterClockwiseRequestId);
+                if (ccwStatus.status === 'completed' && ccwStatus.videoUrl) {
+                  ccwDone = true;
+                  console.log(`[Grok API] Counter-clockwise video completed for ${jobId}`);
+                  fileLog(`CCW video completed: ${ccwStatus.videoUrl}`);
+                  // Upload to Cloudinary
+                  try {
+                    const { uploadVideoFromUrl } = await import('./services/cloudinaryService');
+                    ccwVideoUrl = await uploadVideoFromUrl(ccwStatus.videoUrl, 'lj-stone/videos/counter-clockwise');
+                  } catch (uploadErr: any) {
+                    console.error(`[Grok API] CCW Cloudinary upload failed, using temp URL:`, uploadErr.message);
+                    ccwVideoUrl = ccwStatus.videoUrl; // fallback to temp URL
+                  }
+                } else if (ccwStatus.status === 'failed') {
+                  ccwDone = true;
+                  console.error(`[Grok API] Counter-clockwise video failed for ${jobId}: ${ccwStatus.error}`);
+                }
+              }
+
+              // Both done?
+              if (cwDone && ccwDone) {
+                if (cwVideoUrl && ccwVideoUrl) {
+                  dualVideoJobQueue.set(jobId, {
+                    ...dualVideoJobQueue.get(jobId)!,
+                    status: 'completed',
+                    clockwiseVideoUrl: cwVideoUrl,
+                    counterClockwiseVideoUrl: ccwVideoUrl
+                  });
+                  console.log(`[Grok API] DUAL video completed: ${jobId}`);
+                  fileLog(`Dual video COMPLETED: CW=${cwVideoUrl}, CCW=${ccwVideoUrl}`);
+                } else {
+                  dualVideoJobQueue.set(jobId, {
+                    ...dualVideoJobQueue.get(jobId)!,
+                    status: 'failed',
+                    error: `Video generation partially failed. CW: ${cwVideoUrl ? 'OK' : 'FAILED'}, CCW: ${ccwVideoUrl ? 'OK' : 'FAILED'}`
+                  });
+                }
+              } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(pollBoth, pollInterval);
+              } else {
+                dualVideoJobQueue.set(jobId, {
+                  ...dualVideoJobQueue.get(jobId)!,
+                  status: 'failed',
+                  error: 'Dual video generation timeout (12+ minutes)'
+                });
+              }
+            } catch (pollErr: any) {
+              console.error(`[Grok API] Dual poll error:`, pollErr.message);
+              fileLog(`Dual poll error: ${pollErr.message}`);
+              dualVideoJobQueue.set(jobId, {
+                ...dualVideoJobQueue.get(jobId)!,
+                status: 'failed',
+                error: pollErr.message
+              });
+            }
+          };
+
+          // Start polling after initial delay
+          setTimeout(pollBoth, pollInterval);
+
+        } catch (err: any) {
+          console.error(`[Grok API] Dual video job ${jobId} failed:`, err.message);
+          fileLog(`Dual video ERROR: ${err.message}\n${err.stack}`);
+          dualVideoJobQueue.set(jobId, {
+            ...dualVideoJobQueue.get(jobId)!,
+            status: 'failed',
+            error: err.message
+          });
+        }
+      })();
+
+    } catch (err: any) {
+      console.error("[Grok API] Dual video initialization failed:", err.message);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: "Failed to start dual video generation"
+        });
+      }
+    }
   });
 
   return httpServer;

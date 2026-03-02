@@ -25,6 +25,7 @@ export interface IStorage {
   // New methods
   createVisualizerGeneration(gen: InsertVisualizerGeneration): Promise<VisualizerGeneration>;
   updateVisualizerGeneration(id: number, generatedUrl: string): Promise<void>;
+  updateVisualizerVideoUrls(id: number, clockwiseUrl: string, counterClockwiseUrl: string): Promise<void>;
   createChatLog(log: InsertChatLog): Promise<ChatLog>;
   getKnowledgeBase(): Promise<KnowledgeBaseItem[]>;
   createKnowledgeBaseItem(item: InsertKnowledgeBaseItem): Promise<KnowledgeBaseItem>;
@@ -61,7 +62,7 @@ export class DatabaseStorage implements IStorage {
     } catch (err) {
       console.error("Storage Error: createVisualizerGeneration failed. Returning mock.", err);
       // Return a mock object so the route doesn't crash
-      return { ...gen, id: 0, generatedImageUrl: null, createdAt: new Date().toISOString() } as VisualizerGeneration;
+      return { ...gen, id: 0, generatedImageUrl: null, clockwiseVideoUrl: null, counterClockwiseVideoUrl: null, createdAt: new Date().toISOString() } as VisualizerGeneration;
     }
   }
 
@@ -72,6 +73,20 @@ export class DatabaseStorage implements IStorage {
         .where(eq(visualizerGenerations.id, id));
     } catch (err) {
       console.error("Storage Error: updateVisualizerGeneration failed.", err);
+    }
+  }
+
+  async updateVisualizerVideoUrls(id: number, clockwiseUrl: string, counterClockwiseUrl: string): Promise<void> {
+    try {
+      await db.update(visualizerGenerations)
+        .set({
+          clockwiseVideoUrl: clockwiseUrl,
+          counterClockwiseVideoUrl: counterClockwiseUrl
+        })
+        .where(eq(visualizerGenerations.id, id));
+      console.log(`[Storage] Video URLs saved for generation ${id}`);
+    } catch (err) {
+      console.error("Storage Error: updateVisualizerVideoUrls failed.", err);
     }
   }
 
@@ -91,3 +106,4 @@ export class DatabaseStorage implements IStorage {
 }
 
 export const storage = new DatabaseStorage();
+

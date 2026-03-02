@@ -314,6 +314,88 @@ Photorealistic. Match original image lighting and shadows perfectly.`;
             error: data.error || (data.status === 'failed' ? 'generation failed' : undefined)
         };
     }
+
+    /**
+     * Generate two kitchen walkthrough videos (clockwise + counter-clockwise)
+     * Each video is 11 seconds, human eye-level, slow cinematic walk
+     * Returns both request IDs for independent polling
+     */
+    static async generateKitchenWalkVideos(
+        editedImageUrlOrBase64: string,
+        stoneName: string
+    ): Promise<{ clockwiseRequestId: string; counterClockwiseRequestId: string }> {
+        if (!XAI_API_KEY) {
+            throw new GrokServiceError('API_KEY_MISSING', 'xAI API key is not configured');
+        }
+
+        const basePrompt = `Cinematic first-person human eye-level walkthrough of this exact kitchen. Camera height 5ft 8in, slow natural walking speed. Focus on the beautiful new ${stoneName} countertops. Photorealistic, match the static image 100%, serene lighting, no humans, no text, no changes to layout or objects.`;
+
+        const clockwisePrompt = `${basePrompt} Camera slowly walks around the island clockwise, gently panning left and right to admire the stone surfaces from all angles.`;
+        const counterClockwisePrompt = `${basePrompt} Camera slowly walks around the island counter-clockwise, gently panning left and right to admire the stone surfaces from all angles.`;
+
+        const dataUri = editedImageUrlOrBase64.startsWith('data:')
+            ? editedImageUrlOrBase64
+            : editedImageUrlOrBase64.startsWith('http')
+                ? editedImageUrlOrBase64
+                : `data:image/png;base64,${editedImageUrlOrBase64}`;
+
+        // Build common payload – only supported fields (model, prompt, image, duration)
+        const buildPayload = (prompt: string) => ({
+            model: 'grok-imagine-video',
+            prompt,
+            image: { url: dataUri },
+            duration: 11
+        });
+
+        console.log(`[Grok Service] Starting dual video generation for ${stoneName}`);
+        fileLog(`Dual video generation started for ${stoneName}`);
+
+        // Fire both video generation requests in parallel
+        const [clockwiseRes, counterClockwiseRes] = await Promise.all([
+            fetchWithRetry(async () => {
+                const res = await fetch(`${XAI_BASE_URL}/videos/generations`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${XAI_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(buildPayload(clockwisePrompt))
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    console.error('[Grok Service] Clockwise video request failed:', JSON.stringify(err));
+                    fileLog(`Clockwise video ERROR (${res.status}): ${JSON.stringify(err)}`);
+                    throw new GrokServiceError('GENERATION_FAILED', err.error?.message || `CW video failed ${res.status}`);
+                }
+                return res.json() as Promise<{ request_id: string }>;
+            }),
+            fetchWithRetry(async () => {
+                const res = await fetch(`${XAI_BASE_URL}/videos/generations`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${XAI_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(buildPayload(counterClockwisePrompt))
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    console.error('[Grok Service] Counter-clockwise video request failed:', JSON.stringify(err));
+                    fileLog(`Counter-clockwise video ERROR (${res.status}): ${JSON.stringify(err)}`);
+                    throw new GrokServiceError('GENERATION_FAILED', err.error?.message || `CCW video failed ${res.status}`);
+                }
+                return res.json() as Promise<{ request_id: string }>;
+            })
+        ]);
+
+        console.log(`[Grok Service] Dual video jobs submitted: CW=${clockwiseRes.request_id}, CCW=${counterClockwiseRes.request_id}`);
+        fileLog(`Dual video jobs: CW=${clockwiseRes.request_id}, CCW=${counterClockwiseRes.request_id}`);
+
+        return {
+            clockwiseRequestId: clockwiseRes.request_id,
+            counterClockwiseRequestId: counterClockwiseRes.request_id
+        };
+    }
 }
 
 export default GrokService;

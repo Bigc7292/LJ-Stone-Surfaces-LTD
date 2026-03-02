@@ -39,6 +39,16 @@
             "description": "Generate video walkthrough via Grok Imagine API",
             "template": "Generate a smooth cinematic walkthrough video at eye level, slowly moving around and orbiting the central island. Focus on the stone surfaces - capture veining patterns, reflections, and finish details from multiple angles. Maintain all architectural details, lighting, and layout exactly as shown. Natural lighting. Smooth camera movement."
         },
+        "walkAroundClockwise": {
+            "id": "walkaround_clockwise",
+            "description": "Clockwise kitchen walk-around video at human eye level",
+            "template": "Cinematic first-person human eye-level walkthrough of this exact kitchen. Camera height 5ft 8in, slow natural walking speed. Focus on the beautiful new {stoneName} countertops. Photorealistic, match the static image 100%, serene lighting, no humans, no text, no changes to layout or objects. Camera slowly walks around the island clockwise, gently panning left and right to admire the stone surfaces from all angles."
+        },
+        "walkAroundCounterClockwise": {
+            "id": "walkaround_counter_clockwise",
+            "description": "Counter-clockwise kitchen walk-around video at human eye level",
+            "template": "Cinematic first-person human eye-level walkthrough of this exact kitchen. Camera height 5ft 8in, slow natural walking speed. Focus on the beautiful new {stoneName} countertops. Photorealistic, match the static image 100%, serene lighting, no humans, no text, no changes to layout or objects. Camera slowly walks around the island counter-clockwise, gently panning left and right to admire the stone surfaces from all angles."
+        },
         "staticAngles": {
             "left": {
                 "id": "static_left",

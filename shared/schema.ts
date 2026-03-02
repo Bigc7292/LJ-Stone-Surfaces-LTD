@@ -43,6 +43,8 @@ export const visualizerGenerations = pgTable("visualizer_generations", {
   id: serial("id").primaryKey(),
   originalImageUrl: text("original_image_url").notNull(),
   generatedImageUrl: text("generated_image_url"),
+  clockwiseVideoUrl: text("clockwise_video_url"),
+  counterClockwiseVideoUrl: text("counter_clockwise_video_url"),
   stoneSelected: text("stone_selected").notNull(),
   promptUsed: text("prompt_used"),
   markers: jsonb("markers"),
@@ -68,6 +70,8 @@ export type VisualizerGeneration = typeof visualizerGenerations.$inferSelect;
 export type InsertVisualizerGeneration = {
   originalImageUrl: string;
   generatedImageUrl?: string;
+  clockwiseVideoUrl?: string;
+  counterClockwiseVideoUrl?: string;
   stoneSelected: string;
   promptUsed?: string;
   markers?: unknown;
