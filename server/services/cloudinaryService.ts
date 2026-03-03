@@ -18,7 +18,7 @@ if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !pr
 }
 
 /**
- * Upload a video from a temporary URL (e.g. Grok API output) to Cloudinary
+ * Upload a video from a temporary URL (e.g. Gemini API output) to Cloudinary
  * Returns the permanent secure_url
  */
 export async function uploadVideoFromUrl(tempUrl: string, folder = 'lj-stone/videos'): Promise<string> {

@@ -1,4 +1,4 @@
-export type AppStep = 'UPLOAD' | 'PROCESSING' | 'RESULT';
+export type AppStep = 'UPLOAD' | 'PROCESSING' | 'RESULT' | 'VIDEO_GEN' | 'VIDEO_DONE';
 
 export interface Marker {
     x: number;

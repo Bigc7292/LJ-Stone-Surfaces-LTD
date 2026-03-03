@@ -1,82 +1,46 @@
 {
     "version": "1.0",
-    "lastUpdated": "2026-02-09",
-    "grokConfig": {
-        "imageModel": "grok-imagine-image",
-        "videoModel": "grok-imagine-video",
+    "lastUpdated": "2026-03-03",
+    "geminiConfig": {
+        "imageModel": "gemini-3.1-flash-image-preview",
+        "videoModel": "veo-1.0",
         "consistency": {
-            "seed": 42,
-            "imageToImageStrength": 0.25,
-            "resolution": "1024x1024",
-            "style": "photorealistic, high detail, 8k"
-        },
-        "videoConfig": {
-            "motionBucketId": 127,
-            "fps": 24,
-            "duration": "10s",
-            "resolution": "1280x720",
-            "pacing": "slow-paced, cinematic"
+            "temperature": 0,
+            "topP": 0.8,
+            "topK": 40
         }
     },
     "prompts": {
         "countertopsReplacement": {
             "id": "countertops_only",
-            "description": "Replace only countertop surfaces",
+            "description": "Replace only countertop surfaces using Gemini",
             "template": "SURGICAL EDIT: Replace ONLY the countertop surfaces with {stoneName} {stoneCategory}. {textureReference} DO NOT change any other pixel in the image (cabinets, floors, etc must stay the same)."
         },
         "backsplashReplacement": {
             "id": "backsplash_only",
-            "description": "Replace backsplash with matching slab (not tiles)",
+            "description": "Replace backsplash with matching slab using Gemini",
             "template": "SURGICAL EDIT: Replace ONLY the backsplash area with a seamless slab of matching {stoneName} {stoneCategory}. {textureReference} DO NOT modify countertops, cabinets, or layout."
         },
         "combinedReplacement": {
             "id": "countertops_and_backsplash",
-            "description": "Replace both countertops and backsplash in one edit",
+            "description": "Replace both countertops and backsplash using Gemini",
             "template": "SURGICAL EDIT: Replace ONLY the surfaces of all countertops and the backsplash with {stoneName} ({stoneDescription}). {textureReference} Every other pixel (cabinets, island base, floor, lighting, appliances, walls) MUST remain 100% identical to the original image. DO NOT move objects or change the room structure. Purely a texture replacement."
         },
         "walkAroundVideo": {
             "id": "walkaround_video",
-            "description": "Generate video walkthrough via Grok Imagine API",
+            "description": "Generate video walkthrough via Gemini Veo API",
             "template": "Generate a smooth cinematic walkthrough video at eye level, slowly moving around and orbiting the central island. Focus on the stone surfaces - capture veining patterns, reflections, and finish details from multiple angles. Maintain all architectural details, lighting, and layout exactly as shown. Natural lighting. Smooth camera movement."
         },
         "walkAroundClockwise": {
             "id": "walkaround_clockwise",
-            "description": "Clockwise kitchen walk-around video at human eye level",
+            "description": "Clockwise kitchen walk-around video via Gemini",
             "template": "Cinematic first-person human eye-level walkthrough of this exact kitchen. Camera height 5ft 8in, slow natural walking speed. Focus on the beautiful new {stoneName} countertops. Photorealistic, match the static image 100%, serene lighting, no humans, no text, no changes to layout or objects. Camera slowly walks around the island clockwise, gently panning left and right to admire the stone surfaces from all angles."
         },
         "walkAroundCounterClockwise": {
             "id": "walkaround_counter_clockwise",
-            "description": "Counter-clockwise kitchen walk-around video at human eye level",
+            "description": "Counter-clockwise kitchen walk-around video via Gemini",
             "template": "Cinematic first-person human eye-level walkthrough of this exact kitchen. Camera height 5ft 8in, slow natural walking speed. Focus on the beautiful new {stoneName} countertops. Photorealistic, match the static image 100%, serene lighting, no humans, no text, no changes to layout or objects. Camera slowly walks around the island counter-clockwise, gently panning left and right to admire the stone surfaces from all angles."
-        },
-        "staticAngles": {
-            "left": {
-                "id": "static_left",
-                "template": "The same modified kitchen as the base image (with {stoneName} countertops and backsplash), viewed from the left side at human eye level. Photorealistic, matching original style."
-            },
-            "right": {
-                "id": "static_right",
-                "template": "The same modified kitchen as the base image, viewed from the right side at human eye level. Include the full island and cabinets, with {stoneName} changes applied consistently."
-            },
-            "back": {
-                "id": "static_back",
-                "template": "The same modified kitchen as the base image, viewed from behind the island at human eye level, showing the window and {stoneName} counters."
-            }
-        },
-        "backsplashVariations": [
-            {
-                "id": "variation_1",
-                "template": "Update ONLY the kitchen backsplash in the base image to a full-height slab of {stoneName} with prominent {stoneDescription}. STRICTLY RETAIN cabinets, counters, and layout. Ensure veining patterns align. Photorealistic render."
-            },
-            {
-                "id": "variation_2",
-                "template": "Replace ONLY the backsplash in the provided kitchen photo with elegant {stoneName} featuring {stoneDescription}. STRICTLY RETAIN all other room elements. High-resolution, realistic textures, unchanged perspective."
-            },
-            {
-                "id": "variation_3",
-                "template": "Transform ONLY the backsplash area into polished {stoneName} with {stoneDescription}. STRICTLY RETAIN cabinets and layout. Focus on luxurious slab appearance. Scene must be identical to base image otherwise."
-            }
-        ]
+        }
     },
     "consistencyBoosters": [
         "DO NOT CHANGE ANY PIXEL outside the specified stone areas",
@@ -84,15 +48,5 @@
         "Maintain identical camera angle and lighting",
         "Photorealistic",
         "Only modify the specified surfaces"
-    ],
-    "surfaceTypes": [
-        "countertops",
-        "backsplash",
-        "flooring",
-        "island"
-    ],
-    "editModes": {
-        "sequential": "Apply changes one at a time (countertops first, then backsplash)",
-        "combined": "Apply all changes in a single prompt for simplicity"
-    }
+    ]
 }

@@ -1,0 +1,10 @@
+[    2877ms] [WARNING] Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly. @ http://localhost:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/framer-motion.js?v=1c90e8a6:696
+[  217466ms] [WARNING] Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly. @ http://localhost:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/framer-motion.js?v=1c90e8a6:696
+[  492973ms] [WARNING] Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly. @ http://localhost:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/framer-motion.js?v=1c90e8a6:696
+[ 1289251ms] [ERROR] WebSocket connection to 'ws://localhost:3010/vite-hmr?token=GeDtuk1EElSd' failed: Error during WebSocket handshake: net::ERR_CONNECTION_RESET @ http://localhost:3010/@vite/client:744
+[ 1289252ms] [ERROR] [vite] failed to connect to websocket (Error: WebSocket closed without opened.).  @ http://localhost:3010/@vite/client:771
+[ 1289263ms] [ERROR] [vite] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (http://localhost:3010/@vite/client:423:30) @ http://localhost:3010/@vite/client:808
+[ 1289266ms] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (http://localhost:3010/@vite/client:423:30)
+[ 1298525ms] [WARNING] Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly. @ http://localhost:3010/@fs/C:/Users/toplo/Desktop/ai_stuff/clients/jack_davis_big_jack/LJ-Stone-Surfaces-LTD/node_modules/.vite/deps/framer-motion.js?v=1c90e8a6:696

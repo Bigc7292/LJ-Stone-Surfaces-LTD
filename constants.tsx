@@ -6,7 +6,7 @@ export const MATERIALS: MaterialOption[] = [
   { id: 'dekton-laurent', name: 'Dekton Laurent', description: 'Deep brown background with dramatic gold and amber veins. Sophisticated matte finish.', texture: 'Sintered Stone / Matte' },
   { id: 'dekton-entzo', name: 'Dekton Entzo', description: 'Crisp white with realistic, jagged grey and gold marble-style veining.', texture: 'Sintered Stone / Matte' },
   { id: 'dekton-trilium', name: 'Dekton Trilium', description: 'Industrial oxidized steel look with deep greys, blacks, and rusted copper tones.', texture: 'Sintered Stone / Industrial' },
-  
+
   // EXOTIC GRANITE
   { id: 'blue-dunes', name: 'Blue Dunes Granite', description: 'Earthy blend of beige, charcoal, and subtle blue-grey flowing patterns.', texture: 'Exotic Granite / Natural' },
   { id: 'titanium-gold', name: 'Titanium Gold Granite', description: 'Intense black base with swirling ribbons of cream, gold, and silver.', texture: 'Exotic Granite / Polished' },

@@ -85,7 +85,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({ before, after, cl
                 Original
             </div>
             <div className="absolute top-4 right-4 z-10 bg-primary/40 backdrop-blur-md px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-black border border-primary/20 pointer-events-none">
-                Grok AI View
+                Gemini AI View
             </div>
         </div>
     );

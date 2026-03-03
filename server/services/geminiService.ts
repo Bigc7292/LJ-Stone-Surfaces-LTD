@@ -16,6 +16,9 @@ export class GeminiServiceError extends Error {
     }
 }
 
+// ESM-compatible __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class GeminiService {
     private static get credentials() {
@@ -51,7 +54,7 @@ export class GeminiService {
      * Surgical countertop edit using Imagen 3.0
      * Replaces only the stone surfaces while keeping everything else 100% identical.
      */
-    static async generateStoneVisualization(userPrompt: string, inputImageBase64: string, stoneTextureBase64?: string | null): Promise<string> {
+    static async generateStoneVisualization(userPrompt: string, inputImageBase64: string): Promise<string> {
         const { apiKey } = GeminiService.credentials;
 
         if (!apiKey) throw new GeminiServiceError('API_KEY_MISSING', 'Google API key is not configured');
@@ -59,35 +62,28 @@ export class GeminiService {
         const stoneDesc = userPrompt || "black marble with dramatic gold veins like lightning cracks";
 
         // Surgical prompt from confirmed Opal workflow
-        const prompt = `You are an expert image editor and visualiser. Generate a single, highly realistic, photograph-quality image based on the following descriptions.
-Using the provided input photo as the base image, surgically replace all existing countertops and any other visible stone surfaces in the image with the material described as: ${stoneDesc}.
+        const prompt = `You are an expert image editor and visualiser. Generate a single, highly realistic, photograph-quality image based on the following descriptions. This task requires generating exactly one image.
 
-${stoneTextureBase64 ? "A reference image of the exact stone texture/material is provided. Replicate this texture precisely on the designated surfaces." : ""}
+Using the provided <input_name>kitchen_photo</input_name> as the base image, surgically replace all existing countertops and any other visible stone surfaces in the image with the material described in <input_name>stone_selection</input_name>.
 
 The output image must be a perfectly photorealistic representation, matching the lighting, shadows, reflections, perspective, and overall aesthetic of the original photograph as if it were taken at the same moment.
 
-CRITICAL: Every other element of the original photo MUST remain 100% identical and unchanged. This includes, but is not limited to: all cabinets, appliances, windows, flooring, lighting conditions, shadows, reflections, perspective, and any objects present on countertops, floors, or elsewhere in the room (such as boxes, tape, or tools). Absolutely no elements may be added, removed, moved, or redesigned.
+Every other element of the <input_name>kitchen_photo</input_name> MUST remain 100% identical and unchanged. This includes, but is not limited to: all cabinets, appliances, windows, flooring, lighting conditions, shadows, reflections, perspective, and any objects present on countertops, floors, or elsewhere in the room (such as boxes, tape, or tools). Absolutely no elements may be added, removed, moved, or redesigned.
 
-The appearance of the new stone countertops must perfectly match the detailed catalogue description provided, without any creative interpretation, random variation, or substitution. Focus on replicating the material type, base color, exact vein color and pattern, finish (polished, honed, leathered, etc.), and any other visual characteristics with absolute precision.`;
+The appearance of the new stone countertops must perfectly match the detailed catalogue description provided in <input_name>stone_selection</input_name>, without any creative interpretation, random variation, or substitution. Focus on replicating the material type, base color, exact vein color and pattern, finish (polished, honed, leathered, etc.), and any other visual characteristics described in the stone selection with absolute precision.
 
-        const API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`;
+IMPORTANT: Generate exactly one image.
+
+kitchen_photo: ${inputImageBase64}
+
+stone_selection: ${stoneDesc}`;
+
+        const API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         // Strip data URI prefix if present
         const base64Image = inputImageBase64.replace(/^data:image\/\w+;base64,/, "");
-        const base64Texture = stoneTextureBase64 ? stoneTextureBase64.replace(/^data:image\/\w+;base64,/, "") : null;
 
-        console.log(`[Gemini Service] Sending surgical edit request to Gemini 3.1 Flash Image...`);
-
-        const parts: any[] = [
-            { inline_data: { mime_type: "image/jpeg", data: base64Image } }
-        ];
-
-        if (base64Texture) {
-            parts.push({ inline_data: { mime_type: "image/jpeg", data: base64Texture } });
-            parts.push({ text: "The above image is the reference stone texture to apply." });
-        }
-
-        parts.push({ text: prompt });
+        console.log(`[Gemini Service] Sending surgical edit request to Gemini 1.5 Flash...`);
 
         const response = await this.fetchWithRetry(API_ENDPOINT, {
             method: "POST",
@@ -97,7 +93,10 @@ The appearance of the new stone countertops must perfectly match the detailed ca
             body: JSON.stringify({
                 contents: [
                     {
-                        parts: parts
+                        parts: [
+                            { inline_data: { mime_type: "image/jpeg", data: base64Image } },
+                            { text: prompt }
+                        ]
                     }
                 ],
                 safetySettings: [
@@ -135,58 +134,6 @@ The appearance of the new stone countertops must perfectly match the detailed ca
         }
 
         throw new GeminiServiceError('GENERATION_FAILED', "No image data found in Gemini response candidate.");
-    }
-
-    /**
-     * Generate a stone material swatch
-     */
-    static async generateStoneSwatch(materialName: string, texture: string): Promise<string> {
-        const { apiKey } = GeminiService.credentials;
-        if (!apiKey) throw new GeminiServiceError('API_KEY_MISSING', 'Google API key is not configured');
-
-        const prompt = `Generate a high-quality, professional photograph of a close-up stone slab swatch. 
-Material: ${materialName}
-Style/Texture: ${texture}
-
-The image should strictly be a top-down, square (1:1 aspect ratio) close-up of the stone's texture. 
-It must be perfectly photorealistic, with elegant lighting that highlights the veins, crystals, or patterns characteristic of this material. 
-Do not include any people, tools, hands, or backgrounds. Only the pure stone texture.`;
-
-        const API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`;
-
-        console.log(`[Gemini Service] Generating swatch for ${materialName}...`);
-
-        const response = await this.fetchWithRetry(API_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    temperature: 0.5,
-                    topP: 0.9,
-                    topK: 40
-                }
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new GeminiServiceError('GENERATION_FAILED', errorData.error?.message || `SWATCH GENERATION FAILED`);
-        }
-
-        const data: any = await response.json();
-        const candidate = data.candidates?.[0];
-        if (!candidate || !candidate.content || !candidate.content.parts) {
-            throw new GeminiServiceError('GENERATION_FAILED', "Gemini failed to return swatch content.");
-        }
-
-        for (const part of candidate.content.parts) {
-            if (part.inlineData?.data) {
-                return `data:image/png;base64,${part.inlineData.data}`;
-            }
-        }
-
-        throw new GeminiServiceError('GENERATION_FAILED', "No image data found in swatch response.");
     }
 }
 

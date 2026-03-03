@@ -2,6 +2,7 @@ import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "../shared/routes";
+
 import { GeminiService } from "./services/geminiService";
 import { GeminiVideoService } from "./services/geminiVideoService";
 
@@ -44,31 +45,14 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000);
 
-// Dual video job queue (clockwise + counter-clockwise) for Opal UI compatibility
-const dualVideoJobQueue = new Map<string, {
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  clockwiseVideoUrl?: string;
-  counterClockwiseVideoUrl?: string;
-  error?: string;
-  createdAt: number;
-}>();
 
-// Cleanup old dual video jobs every hour
-setInterval(() => {
-  const ONE_HOUR = 60 * 60 * 1000;
-  const now = Date.now();
-  for (const [jobId, job] of dualVideoJobQueue.entries()) {
-    if (now - job.createdAt > ONE_HOUR) {
-      dualVideoJobQueue.delete(jobId);
-    }
-  }
-}, 60 * 60 * 1000);
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
 
+  // --- AI PIPELINE ---
   // AI Re-Imager (Visionary) - Generative Inpainting with Markers
   // UPDATED: Now supports Asynchronous Polling with Job IDs
   app.post("/api/ai/re-imager", async (req, res) => {
@@ -76,14 +60,14 @@ export async function registerRoutes(
       const {
         image, primary_room,
         imagePath2, offset_room,
-        stoneSlabPath, stone_texture, stoneTextureBase64,
+        stoneSlabPath, stone_texture,
         stoneType, markers, finishType, color, prompt, stoneDescription
       } = req.body;
 
       // Normalize inputs
       const finalImage = image || primary_room;
       const finalImagePath2 = imagePath2 || offset_room;
-      const finalSlab = stoneTextureBase64 || stoneSlabPath || stone_texture;
+      const finalSlab = stoneSlabPath || stone_texture;
 
       // Validation
       if (!finalImage) return res.status(400).json({ message: "Image data is required" });
@@ -110,8 +94,7 @@ export async function registerRoutes(
           console.log(`[API] Starting Gemini image generation for ${jobId} with description: ${fullStoneDescription}`);
           const imageUrl = await GeminiService.generateStoneVisualization(
             fullStoneDescription,
-            finalImage,
-            finalSlab
+            finalImage
           );
 
 
@@ -187,11 +170,11 @@ export async function registerRoutes(
   });
 
 
-  // AI Stone Concierge (Voice & Text) — Placeholder (Gemini removed)
+  // AI Stone Concierge (Voice & Text) — Placeholder
   app.post(api.ai.consultant.path, async (req, res) => {
     try {
       const { text } = api.ai.consultant.input.parse(req.body);
-      res.json({ recommendation: "Stone consultation coming soon via Grok.", brief: "Stone consultation coming soon via Grok." });
+      res.json({ recommendation: "Stone consultation coming soon via Gemini.", brief: "Stone consultation coming soon via Gemini." });
     } catch (err: any) {
       console.error("AI Consultant Error:", err);
       res.status(500).json({ message: "AI Consultant failed", error: err.message });
@@ -202,7 +185,7 @@ export async function registerRoutes(
   app.post(api.ai.visualize.path, async (req, res) => {
     try {
       const { description } = api.ai.visualize.input.parse(req.body);
-      res.json({ imageUrl: null, message: "Use /api/grok/generate-image instead" });
+      res.json({ imageUrl: null, message: "Use /api/ai/re-imager instead" });
     } catch (err) {
       console.error("AI Visualize Error:", err);
       res.status(500).json({ message: "Visualization failed" });
@@ -228,7 +211,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Message is required" });
       }
 
-      const response = "I'm the LJ Stone assistant. Chat powered by Grok coming soon!";
+      const response = "I'm the LJ Stone assistant. Chat powered by Gemini coming soon!";
 
       const sessionId = req.headers['x-session-id'] as string || `session_${Date.now()}`;
 
@@ -270,7 +253,7 @@ export async function registerRoutes(
     }
   });
 
-  // Secure Backend Generation Endpoint (now uses Grok)
+  // Secure Backend Generation Endpoint
   app.post(api.ai.generateImage.path, async (req, res) => {
     // 90s timeout for generation
     req.setTimeout(90000);
@@ -342,137 +325,7 @@ export async function registerRoutes(
     }
   });
 
-  // ============================================================================
-  // GROK AI ENDPOINTS
-  // ============================================================================
 
-  // Grok Image Generation - Automatic Surface Detection
-  app.post("/api/grok/generate-image", async (req, res) => {
-    try {
-      const {
-        roomImage,
-        stoneName,
-        stoneCategory,
-        stoneDescription,
-        stoneTexture,
-        stoneTextureBase64,
-        finishType = 'Polished',
-        ambience = 'Natural'
-      } = req.body;
-
-      if (!roomImage) {
-        return res.status(400).json({ message: "Room image is required" });
-      }
-
-      if (!stoneName) {
-        return res.status(400).json({ message: "Stone name is required" });
-      }
-
-      console.log(`[Gemini API] Generating image: ${stoneName} (${stoneCategory})`);
-
-      const imageUrl = await GeminiService.generateStoneVisualization(
-        stoneName,
-        roomImage,
-        stoneTextureBase64
-      );
-
-
-      res.json({
-        success: true,
-        imageUrl,
-        message: "Image generated successfully"
-      });
-
-    } catch (err: any) {
-      console.error("[Grok API] Image generation failed:", err.message);
-      fileLog(`Grok Image Error: ${err.message}\n${err.stack}`);
-      res.status(500).json({
-        success: false,
-        message: err.message || "Failed to generate image"
-      });
-    }
-  });
-
-  // Dual Video Generation (Stage 2) - For Opal UI compatibility
-  app.post("/api/grok/generate-videos", async (req, res) => {
-    try {
-      const { transformedImage, stoneName } = req.body;
-
-      if (!transformedImage) {
-        return res.status(400).json({ message: "Transformed image URL is required" });
-      }
-
-      const jobId = `vjob_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      // Initialize job
-      dualVideoJobQueue.set(jobId, {
-        status: 'processing',
-        createdAt: Date.now()
-      });
-
-      console.log(`[API] Starting dual video generation for job ${jobId}...`);
-
-      // Respond immediately with 202 Accepted (as expected by LuxeStoneVisualizer.tsx)
-      res.status(202).json({ jobId, message: "Video generation started" });
-
-      // Background process
-      (async () => {
-        try {
-          const videoService = new GeminiVideoService();
-          const videos = await videoService.generateKitchenWalkVideos(transformedImage, stoneName || "Marble");
-
-          dualVideoJobQueue.set(jobId, {
-            ...dualVideoJobQueue.get(jobId)!,
-            status: 'completed',
-            clockwiseVideoUrl: videos.clockwiseVideoUrl,
-            counterClockwiseVideoUrl: videos.counterClockwiseVideoUrl
-          });
-          console.log(`[API] Dual Video Job ${jobId} Completed`);
-        } catch (err: any) {
-          console.error(`[API] Dual Video Job ${jobId} Failed:`, err.message);
-          dualVideoJobQueue.set(jobId, {
-            ...dualVideoJobQueue.get(jobId)!,
-            status: 'failed',
-            error: err.message
-          });
-        }
-      })();
-
-    } catch (err: any) {
-      console.error("[API] Dual Video Initialization Failed:", err.message);
-      res.status(500).json({ message: "Failed to start video generation" });
-    }
-  });
-
-  // Video Status Polling
-  app.get("/api/grok/video-status/:jobId", (req, res) => {
-    const { jobId } = req.params;
-    const job = dualVideoJobQueue.get(jobId);
-
-    if (!job) {
-      return res.status(404).json({ message: "Video job not found" });
-    }
-
-    res.json(job);
-  });
-
-  // ============================================================================
-  // STONE SWATCH GENERATION
-  // ============================================================================
-
-  app.get("/api/ai/swatch", async (req, res) => {
-    try {
-      const { name, texture } = req.query as { name: string; texture: string };
-      if (!name) return res.status(400).json({ message: "Stone name is required" });
-
-      console.log(`[API] Generating swatch for ${name}...`);
-      const swatchBase64 = await GeminiService.generateStoneSwatch(name, texture || "");
-      res.json({ swatch: swatchBase64 });
-    } catch (err: any) {
-      console.error("[API] Swatch generation failed:", err.message);
-      res.status(500).json({ message: "Failed to generate swatch" });
-    }
-  });
 
   return httpServer;
 

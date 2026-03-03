@@ -30,14 +30,15 @@ const STONE_TONES = [
     { id: 'dramatic', name: 'Dramatic', hex: '#0F172A' },
 ];
 
-type GrokAppStep = 'UPLOAD' | 'PROCESSING' | 'RESULT' | 'VIDEO_GEN' | 'VIDEO_DONE';
+
 
 export const LuxeStoneVisualizer: React.FC = () => {
     // State management
     const [baseImage, setBaseImage] = useState<string | null>(null);
-    const [step, setStep] = useState<GrokAppStep>('UPLOAD');
+    const [step, setStep] = useState<AppStep>('UPLOAD');
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [resultImage, setResultImage] = useState<string | null>(null);
+    const [jobId, setJobId] = useState<string | null>(null);
     const [clockwiseVideoUrl, setClockwiseVideoUrl] = useState<string | null>(null);
     const [counterClockwiseVideoUrl, setCounterClockwiseVideoUrl] = useState<string | null>(null);
     const [selectedMaterial, setSelectedMaterial] = useState(
@@ -131,44 +132,27 @@ export const LuxeStoneVisualizer: React.FC = () => {
         }
     };
 
-    const startGrokImageGeneration = async () => {
+    const startGeminiVisualization = async () => {
         if (!allUploadsComplete) return;
 
         setOriginalImage(baseImage);
         setIsLoading(true);
         setErrorInfo(null);
-        setLoadingMessage('Loading stone reference...');
+        setLoadingMessage('Gemini AI analyzing surfaces...');
 
         try {
-            // Fetch the stone swatch image and convert to base64 for Grok reference
-            let stoneTextureBase64: string | null = null;
-            if (selectedMaterial.swatchUrl) {
-                setLoadingMessage('Preparing stone texture reference...');
-                const rawSwatch = await fetchImageAsBase64(selectedMaterial.swatchUrl);
-                if (rawSwatch) {
-                    // Compress swatch to keep payload manageable (512px max, 80% quality)
-                    stoneTextureBase64 = await compressImage(rawSwatch, 512, 0.80);
-                    console.log('[Visualizer] Stone swatch loaded as reference image');
-                }
-            }
-
-            setLoadingMessage('Grok AI analyzing surfaces...');
-
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
 
-            const response = await fetch('/api/grok/generate-image', {
+            const response = await fetch('/api/ai/re-imager', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    roomImage: baseImage,
-                    stoneName: selectedMaterial.name,
-                    stoneCategory: selectedMaterial.category,
+                    image: baseImage,
+                    stoneType: selectedMaterial.name,
                     stoneDescription: (selectedMaterial as any).description,
-                    stoneTexture: selectedMaterial.swatchUrl,
-                    stoneTextureBase64: stoneTextureBase64,
                     finishType: selectedFinish,
-                    ambience: selectedTone.name,
+                    color: selectedTone.name,
                 }),
                 signal: controller.signal
             });
@@ -177,78 +161,59 @@ export const LuxeStoneVisualizer: React.FC = () => {
 
             const data = await response.json();
 
-            if (response.ok && data.imageUrl) {
-                setResultImage(data.imageUrl);
-                setStep('RESULT');
-                setIsLoading(false);
+            if (response.ok && data.jobId) {
+                setJobId(data.jobId);
+                pollJobStatus(data.jobId);
             } else {
-                throw new Error(data.message || "AI generation failed");
+                throw new Error(data.message || "AI initialization failed");
             }
         } catch (err: any) {
             console.error(err);
-            setErrorInfo({ message: err.message || "Failed to generate image." });
+            setErrorInfo({ message: err.message || "Failed to start processing." });
             setIsLoading(false);
         }
     };
 
-    const startVideoGeneration = async () => {
-        if (!resultImage) return;
-
-        setStep('VIDEO_GEN');
-        setIsLoading(true);
-        setErrorInfo(null);
-        setLoadingMessage('Creating dual walkthrough videos...');
-
-        try {
-            const response = await fetch('/api/grok/generate-videos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    transformedImage: resultImage,
-                    stoneName: selectedMaterial.name
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.status === 202 && data.jobId) {
-                pollVideoStatus(data.jobId);
-            } else {
-                throw new Error(data.message || "Video generation failed to start");
-            }
-        } catch (err: any) {
-            console.error(err);
-            setErrorInfo({ message: err.message || "Failed to start video generation." });
-            setStep('RESULT');
-            setIsLoading(false);
-        }
-    };
-
-    const pollVideoStatus = async (jobId: string) => {
-        const pollInterval = 4000;
+    const pollJobStatus = async (id: string) => {
+        const pollInterval = 3000;
         let attempts = 0;
 
         const poll = async () => {
             try {
-                const response = await fetch(`/api/grok/video-status/${jobId}`);
+                const response = await fetch(`/api/re-imager/status/${id}`);
                 const data = await response.json();
+
+                if (data.status === 'failed') {
+                    throw new Error(data.error || "Generation failed.");
+                }
+
+                if (data.imageUrl && !resultImage) {
+                    setResultImage(data.imageUrl);
+                    if (step !== 'RESULT') setStep('RESULT');
+                    setLoadingMessage('Creating walkthrough videos...');
+                }
 
                 if (data.status === 'completed' && data.clockwiseVideoUrl && data.counterClockwiseVideoUrl) {
                     setClockwiseVideoUrl(data.clockwiseVideoUrl);
                     setCounterClockwiseVideoUrl(data.counterClockwiseVideoUrl);
                     setStep('VIDEO_DONE');
                     setIsLoading(false);
-                } else if (data.status === 'failed') {
-                    throw new Error(data.error || "Video generation failed.");
-                } else {
-                    attempts++;
-                    const progress = Math.min(Math.round((attempts / 80) * 100), 98);
-                    setLoadingMessage(`Rendering dual walkthroughs... ${progress}%`);
-                    setTimeout(poll, pollInterval);
+                    return; // Done
                 }
+
+                // If image is done but videos are pending
+                if (data.imageUrl) {
+                    setStep('VIDEO_GEN');
+                }
+
+                attempts++;
+                const progress = Math.min(Math.round((attempts / 100) * 100), 99);
+                setLoadingMessage(`Gemini AI working... ${progress}%`);
+                setTimeout(poll, pollInterval);
+
             } catch (err: any) {
-                setErrorInfo({ message: err.message || "Video rendering failed." });
-                setStep('RESULT');
+                console.error(err);
+                setErrorInfo({ message: err.message || "Processing failed." });
                 setIsLoading(false);
             }
         };
@@ -259,6 +224,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
         setStep('UPLOAD');
         setOriginalImage(null);
         setResultImage(null);
+        setJobId(null);
         setClockwiseVideoUrl(null);
         setCounterClockwiseVideoUrl(null);
         setBaseImage(null);
@@ -285,7 +251,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                             Luxe <span className="text-primary italic">Visualizer</span>
                         </h2>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mt-2">
-                            xAI Grok • Real-time Surface Transformation
+                            Gemini AI • Real-time Surface Transformation
                         </p>
                     </div>
                 </div>
@@ -354,7 +320,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                     ))}
                                 </div>
                                 <button
-                                    onClick={startGrokImageGeneration}
+                                    onClick={startGeminiVisualization}
                                     disabled={!allUploadsComplete || isLoading}
                                     className={`w-full py-5 rounded-2xl font-black uppercase text-xs tracking-[0.3em] transition-all flex items-center justify-center gap-3 ${allUploadsComplete ? 'bg-primary text-black shadow-xl shadow-primary/20 hover:scale-[1.02]' : 'bg-white/5 text-slate-600 border border-white/5 cursor-not-allowed'}`}
                                 >
@@ -392,11 +358,14 @@ export const LuxeStoneVisualizer: React.FC = () => {
                                         <h3 className="text-2xl font-serif italic text-white tracking-[0.2em] animate-pulse">{loadingMessage}</h3>
                                     </div>
                                 ) : resultImage && originalImage ? (
-                                    <BeforeAfterSlider
-                                        before={originalImage}
-                                        after={resultImage}
-                                        className="w-full h-full"
-                                    />
+                                    <div className="w-full h-full relative">
+                                        <BeforeAfterSlider
+                                            before={originalImage}
+                                            after={resultImage}
+                                            className="w-full h-full"
+                                        />
+                                        {/* Stone Description Overlay Removed as requested */}
+                                    </div>
                                 ) : null}
                             </div>
 
@@ -453,13 +422,9 @@ export const LuxeStoneVisualizer: React.FC = () => {
                             {resultImage && (step === 'RESULT' || step === 'VIDEO_DONE') && (
                                 <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 animate-in slide-in-from-bottom duration-500">
                                     {step === 'RESULT' && (
-                                        <button
-                                            onClick={startVideoGeneration}
-                                            className="bg-primary hover:bg-white text-black px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] flex items-center gap-4 transition-all shadow-[0_20px_40px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95 group"
-                                        >
-                                            <Play className="w-5 h-5 fill-black group-hover:scale-110 transition-transform" />
-                                            Generate Walkthrough Videos
-                                        </button>
+                                        <div className="bg-primary/20 backdrop-blur-xl border border-primary/30 text-primary px-8 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest animate-pulse">
+                                            Generating walkthrough videos...
+                                        </div>
                                     )}
                                     <button
                                         onClick={() => setShowFullScreen(true)}
@@ -492,6 +457,11 @@ export const LuxeStoneVisualizer: React.FC = () => {
                         <FullScreenResultModal
                             original={originalImage}
                             modified={resultImage}
+                            material={selectedMaterial}
+                            finish={selectedFinish}
+                            tone={selectedTone.name}
+                            clockwiseVideo={clockwiseVideoUrl}
+                            counterClockwiseVideo={counterClockwiseVideoUrl}
                             onClose={() => setShowFullScreen(false)}
                         />
                     )}
@@ -501,7 +471,7 @@ export const LuxeStoneVisualizer: React.FC = () => {
             {/* Footer */}
             <footer className="py-6 px-12 border-t border-white/5 bg-black/60 backdrop-blur-3xl flex justify-between items-center shrink-0">
                 <p className="text-[10px] font-black tracking-[0.5em] uppercase text-slate-500 flex items-center gap-4">
-                    Luxe Stone Architects <span className="w-1.5 h-1.5 bg-primary/40 rounded-full" /> Grok AI v1.0 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full" /> Walkthrough Mode Enabled
+                    Luxe Stone Architects <span className="w-1.5 h-1.5 bg-primary/40 rounded-full" /> Gemini AI v1.0 <span className="w-1.5 h-1.5 bg-primary/40 rounded-full" /> Walkthrough Mode Enabled
                 </p>
                 <div className="flex items-center gap-2">
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Connectivity</span>
