@@ -51,7 +51,7 @@ export class GeminiService {
      * Surgical countertop edit using Imagen 3.0
      * Replaces only the stone surfaces while keeping everything else 100% identical.
      */
-    static async generateStoneVisualization(userPrompt: string, inputImageBase64: string): Promise<string> {
+    static async generateStoneVisualization(userPrompt: string, inputImageBase64: string, stoneTextureBase64?: string | null): Promise<string> {
         const { apiKey } = GeminiService.credentials;
 
         if (!apiKey) throw new GeminiServiceError('API_KEY_MISSING', 'Google API key is not configured');
@@ -61,6 +61,8 @@ export class GeminiService {
         // Surgical prompt from confirmed Opal workflow
         const prompt = `You are an expert image editor and visualiser. Generate a single, highly realistic, photograph-quality image based on the following descriptions.
 Using the provided input photo as the base image, surgically replace all existing countertops and any other visible stone surfaces in the image with the material described as: ${stoneDesc}.
+
+${stoneTextureBase64 ? "A reference image of the exact stone texture/material is provided. Replicate this texture precisely on the designated surfaces." : ""}
 
 The output image must be a perfectly photorealistic representation, matching the lighting, shadows, reflections, perspective, and overall aesthetic of the original photograph as if it were taken at the same moment.
 
@@ -72,8 +74,20 @@ The appearance of the new stone countertops must perfectly match the detailed ca
 
         // Strip data URI prefix if present
         const base64Image = inputImageBase64.replace(/^data:image\/\w+;base64,/, "");
+        const base64Texture = stoneTextureBase64 ? stoneTextureBase64.replace(/^data:image\/\w+;base64,/, "") : null;
 
         console.log(`[Gemini Service] Sending surgical edit request to Gemini 3.1 Flash Image...`);
+
+        const parts: any[] = [
+            { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+        ];
+
+        if (base64Texture) {
+            parts.push({ inline_data: { mime_type: "image/jpeg", data: base64Texture } });
+            parts.push({ text: "The above image is the reference stone texture to apply." });
+        }
+
+        parts.push({ text: prompt });
 
         const response = await this.fetchWithRetry(API_ENDPOINT, {
             method: "POST",
@@ -83,10 +97,7 @@ The appearance of the new stone countertops must perfectly match the detailed ca
             body: JSON.stringify({
                 contents: [
                     {
-                        parts: [
-                            { inline_data: { mime_type: "image/jpeg", data: base64Image } },
-                            { text: prompt }
-                        ]
+                        parts: parts
                     }
                 ],
                 safetySettings: [
