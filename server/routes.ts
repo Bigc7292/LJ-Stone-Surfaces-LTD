@@ -3,6 +3,9 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "../shared/routes";
 import { GrokService } from "./services/grokService";
+import { GeminiService } from "./services/geminiService";
+import { GeminiVideoService } from "./services/geminiVideoService";
+
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
@@ -25,6 +28,8 @@ fileLog("Server routes initialized.");
 const aiJobQueue = new Map<string, {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   imageUrl?: string;
+  clockwiseVideoUrl?: string;
+  counterClockwiseVideoUrl?: string;
   error?: string;
   createdAt: number;
 }>();
@@ -45,6 +50,8 @@ const grokVideoJobQueue = new Map<string, {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   grokRequestId?: string;
   videoUrl?: string;
+  clockwiseVideoUrl?: string;
+  counterClockwiseVideoUrl?: string;
   error?: string;
   createdAt: number;
 }>();
@@ -122,21 +129,39 @@ export async function registerRoutes(
       // Run Grok AI service in background
       (async () => {
         try {
-          console.log(`[API] Starting Grok image generation for ${jobId}...`);
-          const imageUrl = await GrokService.generateStoneVisualization({
-            roomImageBase64: finalImage,
-            stoneTexturePath: finalSlab,
-            stoneName: stoneType || "Marble",
-            stoneCategory: stoneDescription || 'Stone',
-            finishType: (finishType || 'Polished') as 'Polished' | 'Honed' | 'Leathered',
-            ambience: color || 'Natural'
-          });
+          // Create a rich stone description from metadata for the AI
+          const fullStoneDescription = `${stoneType}${stoneDescription ? ` (${stoneDescription})` : ''}${color ? `, Tone: ${color}` : ''}${finishType ? `, Finish: ${finishType}` : ''}`;
+
+          console.log(`[API] Starting Gemini image generation for ${jobId} with description: ${fullStoneDescription}`);
+          const imageUrl = await GeminiService.generateStoneVisualization(
+            fullStoneDescription,
+            finalImage
+          );
+
 
           aiJobQueue.set(jobId, {
             ...aiJobQueue.get(jobId)!,
             status: 'completed',
             imageUrl
           });
+
+          // Generate Veo videos in background (Stage 2)
+          (async () => {
+            try {
+              const videoService = new GeminiVideoService();
+              const videos = await videoService.generateKitchenWalkVideos(imageUrl, stoneType || "Marble");
+
+              aiJobQueue.set(jobId, {
+                ...aiJobQueue.get(jobId)!,
+                clockwiseVideoUrl: videos.clockwiseVideoUrl,
+                counterClockwiseVideoUrl: videos.counterClockwiseVideoUrl
+              });
+              console.log(`[API] Veo Videos Completed for Job: ${jobId}`);
+            } catch (vErr: any) {
+              console.error(`[API] Veo video generation failed for ${jobId}:`, vErr.message);
+            }
+          })();
+
           console.log(`[API] Job Completed: ${jobId}`);
         } catch (err: any) {
           console.error(`[API] Job Failed: ${jobId}`, err.message);
@@ -285,14 +310,12 @@ export async function registerRoutes(
         markers: input.markers
       });
 
-      // 2. Generate Image via Grok
-      const generatedImageUrl = await GrokService.generateStoneVisualization({
-        roomImageBase64: input.originalImageUrl,
-        stoneName: input.stoneSelected,
-        stoneCategory: 'Stone',
-        finishType: 'Polished',
-        ambience: 'Natural'
-      });
+      // 2. Generate Image via Gemini
+      const generatedImageUrl = await GeminiService.generateStoneVisualization(
+        input.stoneSelected,
+        input.originalImageUrl
+      );
+
 
       // 3. Log Update
       await storage.updateVisualizerGeneration(logEntry.id, generatedImageUrl);
@@ -369,18 +392,13 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Stone name is required" });
       }
 
-      console.log(`[Grok API] Generating image: ${stoneName} (${stoneCategory}), has texture ref: ${!!stoneTextureBase64}`);
+      console.log(`[Gemini API] Generating image: ${stoneName} (${stoneCategory})`);
 
-      const imageUrl = await GrokService.generateStoneVisualization({
-        roomImageBase64: roomImage,
-        stoneTexturePath: stoneTexture,
-        stoneTextureBase64,
+      const imageUrl = await GeminiService.generateStoneVisualization(
         stoneName,
-        stoneCategory: stoneCategory || 'Stone',
-        stoneDescription,
-        finishType,
-        ambience
-      });
+        roomImage
+      );
+
 
       res.json({
         success: true,

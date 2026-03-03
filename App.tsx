@@ -20,7 +20,7 @@ const ComparisonSlider: React.FC<{
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="relative w-full aspect-square md:aspect-video rounded-3xl overflow-hidden cursor-ew-resize shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)] border border-slate-800/50 group/slider"
       onMouseMove={(e) => e.buttons === 1 && handleMove(e)}
@@ -28,18 +28,18 @@ const ComparisonSlider: React.FC<{
       onMouseDown={handleMove}
     >
       <img src={modified} alt="After" className="absolute inset-0 w-full h-full object-cover select-none" />
-      <div 
+      <div
         className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none transition-all duration-100 ease-out"
         style={{ width: `${position}%`, borderRight: '1px solid rgba(255,255,255,0.8)' }}
       >
-        <img 
-          src={original} 
-          alt="Before" 
+        <img
+          src={original}
+          alt="Before"
           className="absolute inset-0 w-full h-full object-cover select-none max-w-none"
           style={{ width: containerRef.current?.offsetWidth || '100%' }}
         />
       </div>
-      <div 
+      <div
         className="absolute inset-y-0 w-1 bg-white shadow-[0_0_20px_rgba(255,255,255,0.4)] z-20 pointer-events-none"
         style={{ left: `${position}%` }}
       >
@@ -128,29 +128,29 @@ const WorkspaceMarker: React.FC<{
   zoom: number;
   onRemove: (idx: number) => void;
 }> = ({ marker, index, zoom, onRemove }) => (
-    <div 
-      style={{ 
-        left: `${marker.x}%`, 
-        top: `${marker.y}%`,
-        transform: `translate(-50%, -50%) scale(${1/zoom})` 
-      }}
-      className="absolute group/marker z-20 pointer-events-auto transition-all duration-300"
+  <div
+    style={{
+      left: `${marker.x}%`,
+      top: `${marker.y}%`,
+      transform: `translate(-50%, -50%) scale(${1 / zoom})`
+    }}
+    className="absolute group/marker z-20 pointer-events-auto transition-all duration-300"
+  >
+    <button
+      onClick={(e) => { e.stopPropagation(); onRemove(index); }}
+      className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover/marker:opacity-100 transition-all hover:bg-red-600 z-30"
     >
-      <button 
-        onClick={(e) => { e.stopPropagation(); onRemove(index); }}
-        className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover/marker:opacity-100 transition-all hover:bg-red-600 z-30"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-        </svg>
-      </button>
-      <div className="w-8 h-8 bg-amber-500 border-2 border-white rounded-full flex items-center justify-center shadow-2xl marker-animate relative z-20">
-        <span className="text-[10px] font-black text-slate-900">{index + 1}</span>
-      </div>
-      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 px-2 py-1 rounded shadow-2xl whitespace-nowrap z-10">
-        <span className="text-[8px] font-black uppercase text-white tracking-widest">{marker.customLabel}</span>
-      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+      </svg>
+    </button>
+    <div className="w-8 h-8 bg-amber-500 border-2 border-white rounded-full flex items-center justify-center shadow-2xl marker-animate relative z-20">
+      <span className="text-[10px] font-black text-slate-900">{index + 1}</span>
     </div>
+    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 px-2 py-1 rounded shadow-2xl whitespace-nowrap z-10">
+      <span className="text-[8px] font-black uppercase text-white tracking-widest">{marker.customLabel}</span>
+    </div>
+  </div>
 );
 
 const App: React.FC = () => {
@@ -162,11 +162,14 @@ const App: React.FC = () => {
   const [markerInput, setMarkerInput] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialOption>(MATERIALS[0]);
   const [selectedColor, setSelectedColor] = useState<ColorOption>(COLORS[0]);
+  const [clockwiseVideoUrl, setClockwiseVideoUrl] = useState<string | null>(null);
+  const [counterClockwiseVideoUrl, setCounterClockwiseVideoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorInfo, setErrorInfo] = useState<{ code: string; message: string } | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [compareMode, setCompareMode] = useState<'SLIDE' | 'TOGGLE'>('SLIDE');
   const [isShowingOriginal, setIsShowingOriginal] = useState(false);
+  const [fullscreenVideoUrl, setFullscreenVideoUrl] = useState<string | null>(null);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -237,8 +240,10 @@ const App: React.FC = () => {
     setIsLoading(true);
     setErrorInfo(null);
     try {
-      const result = await visualizeStone(originalImage, markers, selectedMaterial.name, selectedColor.name);
-      setResultImage(result);
+      const result = await visualizeStone(originalImage, markers, selectedMaterial.name, selectedColor.name, selectedMaterial.description);
+      setResultImage(result.imageUrl);
+      setClockwiseVideoUrl(result.clockwiseVideoUrl || null);
+      setCounterClockwiseVideoUrl(result.counterClockwiseVideoUrl || null);
       setStep('RESULT');
       setZoom(1);
       setPan({ x: 0, y: 0 });
@@ -256,6 +261,8 @@ const App: React.FC = () => {
     setStep('UPLOAD');
     setOriginalImage(null);
     setResultImage(null);
+    setClockwiseVideoUrl(null);
+    setCounterClockwiseVideoUrl(null);
     setMarkers([]);
     setPendingMarker(null);
     setMarkerInput('');
@@ -267,11 +274,11 @@ const App: React.FC = () => {
     let transformY = '-50%';
     let left = `${x}%`;
     let top = `${y}%`;
-    if (x < 30) { transformX = '0%'; left = `calc(${x}% + 20px)`; } 
+    if (x < 30) { transformX = '0%'; left = `calc(${x}% + 20px)`; }
     else if (x > 70) { transformX = '-100%'; left = `calc(${x}% - 20px)`; }
-    if (y < 30) { transformY = '0%'; top = `calc(${y}% + 20px)`; } 
+    if (y < 30) { transformY = '0%'; top = `calc(${y}% + 20px)`; }
     else if (y > 70) { transformY = '-100%'; top = `calc(${y}% - 20px)`; }
-    return { left, top, transform: `translate(${transformX}, ${transformY}) scale(${1/zoom})` };
+    return { left, top, transform: `translate(${transformX}, ${transformY}) scale(${1 / zoom})` };
   };
 
   return (
@@ -322,7 +329,7 @@ const App: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div 
+            <div
               ref={containerRef}
               className="bg-slate-900 rounded-3xl border border-slate-800/50 overflow-hidden shadow-2xl min-h-[550px] flex flex-col items-center justify-center relative touch-none"
               onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}
@@ -342,38 +349,38 @@ const App: React.FC = () => {
               )}
 
               {(step === 'MARK' || step === 'CONFIGURE') && originalImage && (
-                <div 
+                <div
                   className="relative w-full h-full select-none cursor-crosshair transition-transform duration-75 ease-out"
                   style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
                 >
                   <img src={originalImage} alt="Workspace" className="w-full h-auto block pointer-events-none" />
                   {markers.map((m, i) => <WorkspaceMarker key={i} marker={m} index={i} zoom={zoom} onRemove={(idx) => setMarkers(prev => prev.filter((_, mi) => mi !== idx))} />)}
-                  
+
                   {pendingMarker && (
-                    <div 
-                      style={getMarkerAlignment(pendingMarker.x, pendingMarker.y)} 
+                    <div
+                      style={getMarkerAlignment(pendingMarker.x, pendingMarker.y)}
                       className="absolute z-50 p-5 bg-slate-900/95 backdrop-blur-xl border border-amber-500/50 rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.5)] flex flex-col space-y-4 min-w-[240px]"
                     >
                       <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
                         <label className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Identify Surface Type</label>
                       </div>
-                      <input 
-                        ref={labelInputRef} 
-                        type="text" 
-                        value={markerInput} 
-                        onChange={(e) => setMarkerInput(e.target.value)} 
-                        placeholder="e.g. wall, bathtub, sink" 
-                        onKeyDown={(e) => { 
-                          if (e.key === 'Enter' && markerInput.trim()) submitPendingMarker(); 
+                      <input
+                        ref={labelInputRef}
+                        type="text"
+                        value={markerInput}
+                        onChange={(e) => setMarkerInput(e.target.value)}
+                        placeholder="e.g. wall, bathtub, sink"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && markerInput.trim()) submitPendingMarker();
                           if (e.key === 'Escape') setPendingMarker(null);
-                        }} 
-                        className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-[11px] focus:ring-2 focus:ring-amber-500 outline-none uppercase font-black tracking-wider text-white" 
+                        }}
+                        className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-[11px] focus:ring-2 focus:ring-amber-500 outline-none uppercase font-black tracking-wider text-white"
                       />
                       <div className="flex justify-end items-center space-x-4">
                         <button onClick={() => setPendingMarker(null)} className="text-[9px] font-black uppercase text-slate-500 hover:text-white transition-colors">Cancel</button>
-                        <button 
-                          onClick={submitPendingMarker} 
+                        <button
+                          onClick={submitPendingMarker}
                           className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all"
                         >
                           Confirm Pin
@@ -392,14 +399,14 @@ const App: React.FC = () => {
                       <p className="text-[10px] font-bold text-slate-500 uppercase mt-1 tracking-widest">Architectural Stone Refit Analysis</p>
                     </div>
                     <div className="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-2xl border border-white/5 backdrop-blur-xl">
-                      <button 
-                        onClick={() => setCompareMode('SLIDE')} 
+                      <button
+                        onClick={() => setCompareMode('SLIDE')}
                         className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${compareMode === 'SLIDE' ? 'bg-white text-slate-950 shadow-md scale-[1.02]' : 'text-slate-500 hover:text-white'}`}
                       >
                         Slide View
                       </button>
-                      <button 
-                        onClick={() => setCompareMode('TOGGLE')} 
+                      <button
+                        onClick={() => setCompareMode('TOGGLE')}
                         className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${compareMode === 'TOGGLE' ? 'bg-white text-slate-950 shadow-md scale-[1.02]' : 'text-slate-500 hover:text-white'}`}
                       >
                         Toggle View
@@ -411,12 +418,12 @@ const App: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="relative flex-1 flex items-center justify-center min-h-[450px]">
+                  <div className="relative flex-1 flex flex-col items-center justify-center min-h-[450px] space-y-12">
                     {compareMode === 'SLIDE' ? <ComparisonSlider original={originalImage} modified={resultImage} /> : (
-                      <div 
-                        className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl cursor-pointer group" 
-                        onMouseDown={() => setIsShowingOriginal(true)} 
-                        onMouseUp={() => setIsShowingOriginal(false)} 
+                      <div
+                        className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl cursor-pointer group"
+                        onMouseDown={() => setIsShowingOriginal(true)}
+                        onMouseUp={() => setIsShowingOriginal(false)}
                         onMouseLeave={() => setIsShowingOriginal(false)}
                       >
                         <img src={isShowingOriginal ? originalImage : resultImage} alt="Toggle" className="w-full h-full object-cover select-none" />
@@ -426,6 +433,65 @@ const App: React.FC = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* DUAL VIDEO WALKTHROUGHS - OPAL INTEGRATION */}
+                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-800/50">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-500">Clockwise Walk</h4>
+                          <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">11 Seconds</span>
+                        </div>
+                        <div className="aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-xl group/video relative">
+                          {clockwiseVideoUrl ? (
+                            <div className="relative w-full h-full group/video">
+                              <video src={clockwiseVideoUrl} controls className="w-full h-full object-cover" />
+                              <button
+                                onClick={() => setFullscreenVideoUrl(clockwiseVideoUrl)}
+                                className="absolute top-4 right-4 p-2 bg-slate-950/60 backdrop-blur-md rounded-lg text-white opacity-0 group-hover/video:opacity-100 transition-opacity border border-white/10 hover:bg-slate-950/80"
+                                title="Fullscreen View"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                </svg>
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3 opacity-40">
+                              <div className="w-6 h-6 border-b-2 border-amber-500 rounded-full animate-spin" />
+                              <span className="text-[8px] font-black uppercase tracking-widest">Generating Walkthrough...</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-500">Counter-Clockwise Walk</h4>
+                          <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">11 Seconds</span>
+                        </div>
+                        <div className="aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-xl group/video relative">
+                          {counterClockwiseVideoUrl ? (
+                            <div className="relative w-full h-full group/video">
+                              <video src={counterClockwiseVideoUrl} controls className="w-full h-full object-cover" />
+                              <button
+                                onClick={() => setFullscreenVideoUrl(counterClockwiseVideoUrl)}
+                                className="absolute top-4 right-4 p-2 bg-slate-950/60 backdrop-blur-md rounded-lg text-white opacity-0 group-hover/video:opacity-100 transition-opacity border border-white/10 hover:bg-slate-950/80"
+                                title="Fullscreen View"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                </svg>
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3 opacity-40">
+                              <div className="w-6 h-6 border-b-2 border-amber-500 rounded-full animate-spin" />
+                              <span className="text-[8px] font-black uppercase tracking-widest">Generating Walkthrough...</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -454,7 +520,7 @@ const App: React.FC = () => {
                     <div className="flex justify-between items-center text-[10px] uppercase font-black"><span className="text-slate-500 tracking-widest">Mineral:</span><span className="text-amber-500 tracking-widest">{selectedMaterial.name}</span></div>
                     <div className="flex justify-between items-center text-[10px] uppercase font-black"><span className="text-slate-500 tracking-widest">Chroma:</span><span className="text-amber-500 tracking-widest">{selectedColor.name}</span></div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 gap-4">
                     <button onClick={() => setStep('MARK')} className="w-full bg-slate-800 hover:bg-slate-750 py-5 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] transition-all border border-slate-700 active:scale-95">Edit Markers</button>
                     <button onClick={() => setStep('CONFIGURE')} className="w-full bg-slate-800 hover:bg-slate-750 py-5 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] transition-all border border-slate-700 active:scale-95">Refine Material</button>
@@ -469,7 +535,7 @@ const App: React.FC = () => {
                     <button onClick={() => setStep('CONFIGURE')} className="w-full bg-slate-800 hover:bg-slate-700 disabled:opacity-50 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] transition-all border border-slate-700 active:scale-95">Confirm {markers.length} Areas</button>
                     <p className="text-[9px] text-slate-600 font-bold uppercase mt-4 text-center tracking-widest italic">* Floor tiles are preserved by default</p>
                   </div>
-                  
+
                   <div className={`${step !== 'CONFIGURE' ? 'opacity-30 pointer-events-none scale-95 blur-[4px]' : 'scale-100'} transition-all duration-500`}>
                     <div className="flex items-center space-x-4 mb-8"><span className="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black shadow-lg">2</span><h3 className="font-black text-sm uppercase tracking-widest">Curation</h3></div>
                     <div className="space-y-4 max-h-[350px] overflow-y-auto pr-3 custom-scrollbar">
@@ -495,6 +561,31 @@ const App: React.FC = () => {
           <p className="text-[11px] font-black tracking-[0.6em] uppercase text-slate-500">Luxe Stone Architects • Architectural Engine v3.7</p>
         </div>
       </footer>
+
+      {/* Fullscreen Video Modal */}
+      {fullscreenVideoUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-2xl animate-in fade-in duration-300">
+          <div className="absolute top-8 right-8 z-[110] flex items-center space-x-4">
+            <button
+              onClick={() => setFullscreenVideoUrl(null)}
+              className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all border border-white/10"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="w-full max-w-[90vw] aspect-video rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 bg-black">
+            <video
+              src={fullscreenVideoUrl}
+              autoPlay
+              loop
+              controls
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
