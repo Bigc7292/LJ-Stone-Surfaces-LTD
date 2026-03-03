@@ -16,9 +16,6 @@ export class GeminiServiceError extends Error {
     }
 }
 
-// ESM-compatible __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export class GeminiService {
     private static get credentials() {
@@ -127,6 +124,58 @@ The appearance of the new stone countertops must perfectly match the detailed ca
         }
 
         throw new GeminiServiceError('GENERATION_FAILED', "No image data found in Gemini response candidate.");
+    }
+
+    /**
+     * Generate a stone material swatch
+     */
+    static async generateStoneSwatch(materialName: string, texture: string): Promise<string> {
+        const { apiKey } = GeminiService.credentials;
+        if (!apiKey) throw new GeminiServiceError('API_KEY_MISSING', 'Google API key is not configured');
+
+        const prompt = `Generate a high-quality, professional photograph of a close-up stone slab swatch. 
+Material: ${materialName}
+Style/Texture: ${texture}
+
+The image should strictly be a top-down, square (1:1 aspect ratio) close-up of the stone's texture. 
+It must be perfectly photorealistic, with elegant lighting that highlights the veins, crystals, or patterns characteristic of this material. 
+Do not include any people, tools, hands, or backgrounds. Only the pure stone texture.`;
+
+        const API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`;
+
+        console.log(`[Gemini Service] Generating swatch for ${materialName}...`);
+
+        const response = await this.fetchWithRetry(API_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    temperature: 0.5,
+                    topP: 0.9,
+                    topK: 40
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new GeminiServiceError('GENERATION_FAILED', errorData.error?.message || `SWATCH GENERATION FAILED`);
+        }
+
+        const data: any = await response.json();
+        const candidate = data.candidates?.[0];
+        if (!candidate || !candidate.content || !candidate.content.parts) {
+            throw new GeminiServiceError('GENERATION_FAILED', "Gemini failed to return swatch content.");
+        }
+
+        for (const part of candidate.content.parts) {
+            if (part.inlineData?.data) {
+                return `data:image/png;base64,${part.inlineData.data}`;
+            }
+        }
+
+        throw new GeminiServiceError('GENERATION_FAILED', "No image data found in swatch response.");
     }
 }
 

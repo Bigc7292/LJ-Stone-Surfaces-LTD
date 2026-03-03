@@ -73,10 +73,16 @@ export const visualizeStone = async (
 };
 
 /**
- * Generate a swatch (Fallback tool or simplified)
+ * Generate a swatch via the backend AI
  */
 export const generateMaterialSwatch = async (materialName: string, texture: string): Promise<string> => {
-  // Simple proxy to backend if needed, or keeping it as is for previewing
-  // But for consistency, let's just use a simple placeholder if we don't have a backend swatch route
-  return `https://via.placeholder.com/400?text=${encodeURIComponent(materialName)}`;
+  try {
+    const response = await fetch(`/api/ai/swatch?name=${encodeURIComponent(materialName)}&texture=${encodeURIComponent(texture)}`);
+    if (!response.ok) throw new Error("Failed to fetch swatch");
+    const { swatch } = await response.json();
+    return swatch;
+  } catch (error) {
+    console.error("Swatch generation failed, using placeholder:", error);
+    return `https://via.placeholder.com/400?text=${encodeURIComponent(materialName)}`;
+  }
 };
