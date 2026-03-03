@@ -611,3 +611,69 @@ GrokServiceError: The requested resource was not found. Please check the URL and
 [2026-03-02T06:19:05.795Z] Server routes initialized.
 [2026-03-02T06:19:07.985Z] Server routes initialized.
 [2026-03-02T06:19:11.038Z] Server routes initialized.
+[2026-03-02T06:26:57.372Z] Server routes initialized.
+[2026-03-02T06:27:01.928Z] Server routes initialized.
+[2026-03-02T06:27:07.119Z] Server routes initialized.
+[2026-03-02T06:27:56.335Z] Server routes initialized.
+[2026-03-02T06:28:39.806Z] [GrokService] Dual video generation started for Marble009
+[2026-03-02T06:28:40.456Z] [GrokService] Dual video jobs: CW=e512fc68-4017-1120-d0f8-b9a6d946b208, CCW=90adbdbf-925f-b514-c257-af4a9a2cd757
+[2026-03-02T06:29:10.320Z] CW video completed: https://vidgen.x.ai/xai-vidgen-bucket/xai-video-26d15252-e975-4356-a89d-1a5420bfae3c.mp4
+[2026-03-02T06:29:15.446Z] Server routes initialized.
+[2026-03-02T22:42:59.671Z] Server routes initialized.
+[2026-03-02T22:43:02.180Z] Server routes initialized.
+[2026-03-02T22:43:04.947Z] Server routes initialized.
+[2026-03-02T22:43:08.691Z] Server routes initialized.
+[2026-03-02T22:43:12.522Z] Server routes initialized.
+[2026-03-02T22:43:31.243Z] Server routes initialized.
+[2026-03-02T22:43:35.713Z] Server routes initialized.
+[2026-03-03T13:16:58.354Z] Server routes initialized.
+[2026-03-03T13:17:00.503Z] Server routes initialized.
+[2026-03-03T13:17:03.607Z] Server routes initialized.
+[2026-03-03T13:18:07.041Z] Server routes initialized.
+[2026-03-03T13:18:29.643Z] Server routes initialized.
+[2026-03-03T13:19:04.339Z] Server routes initialized.
+[2026-03-03T13:19:07.950Z] Server routes initialized.
+[2026-03-03T13:19:12.030Z] Server routes initialized.
+[2026-03-03T13:19:30.766Z] Server routes initialized.
+[2026-03-03T13:21:49.361Z] Server routes initialized.
+[2026-03-03T13:23:08.842Z] Server routes initialized.
+[2026-03-03T13:36:54.070Z] Server routes initialized.
+[2026-03-03T13:36:54.074Z] Server routes initialized.
+[2026-03-03T13:36:54.112Z] Server routes initialized.
+[2026-03-03T13:36:54.196Z] Server routes initialized.
+[2026-03-03T13:48:46.352Z] Server routes initialized.
+[2026-03-03T13:50:01.757Z] Server routes initialized.
+[2026-03-03T13:51:47.787Z] Server routes initialized.
+[2026-03-03T13:51:47.810Z] Server routes initialized.
+[2026-03-03T13:51:47.817Z] Server routes initialized.
+[2026-03-03T13:51:47.840Z] Server routes initialized.
+[2026-03-03T13:51:47.910Z] Server routes initialized.
+[2026-03-03T13:51:47.934Z] Server routes initialized.
+[2026-03-03T13:52:02.583Z] Server routes initialized.
+[2026-03-03T13:52:02.691Z] Server routes initialized.
+[2026-03-03T13:52:02.758Z] Server routes initialized.
+[2026-03-03T13:52:02.764Z] Server routes initialized.
+[2026-03-03T13:52:02.792Z] Server routes initialized.
+[2026-03-03T13:52:02.856Z] Server routes initialized.
+[2026-03-03T13:53:37.770Z] Server routes initialized.
+[2026-03-03T13:53:37.770Z] Server routes initialized.
+[2026-03-03T13:53:37.771Z] Server routes initialized.
+[2026-03-03T13:53:37.775Z] Server routes initialized.
+[2026-03-03T13:53:37.772Z] Server routes initialized.
+[2026-03-03T13:53:37.790Z] Server routes initialized.
+[2026-03-03T13:54:14.302Z] Server routes initialized.
+[2026-03-03T13:54:14.895Z] Server routes initialized.
+[2026-03-03T13:54:15.316Z] Server routes initialized.
+[2026-03-03T13:54:16.202Z] Server routes initialized.
+[2026-03-03T13:54:17.235Z] Server routes initialized.
+[2026-03-03T13:54:18.796Z] Server routes initialized.
+[2026-03-03T13:54:20.911Z] Server routes initialized.
+[2026-03-03T13:54:21.801Z] Server routes initialized.
+[2026-03-03T13:54:22.801Z] Server routes initialized.
+[2026-03-03T13:54:25.049Z] Server routes initialized.
+[2026-03-03T13:54:30.603Z] Server routes initialized.
+[2026-03-03T14:02:33.721Z] [GrokService] Dual video generation started for Dekton Laurent
+[2026-03-03T14:02:37.752Z] [GrokService] Dual video jobs: CW=b7975367-9e7b-0ab2-a95a-aa200462e707, CCW=671810a5-07b9-87c9-15b2-b4a82a82e347
+[2026-03-03T14:02:57.548Z] CW video completed: https://vidgen.x.ai/xai-vidgen-bucket/xai-video-5dd326a3-57c5-449f-8010-77d8961f27a5.mp4
+[2026-03-03T14:03:03.138Z] CCW video completed: https://vidgen.x.ai/xai-vidgen-bucket/xai-video-13f43076-90c7-4d34-ad17-2004a607e243.mp4
+[2026-03-03T14:03:05.787Z] Dual video COMPLETED: CW=https://res.cloudinary.com/dp62zjmiz/video/upload/v1772546575/lj-stone/videos/clockwise/z5ovkpqpz7r02t68lmpu.mp4, CCW=https://res.cloudinary.com/dp62zjmiz/video/upload/v1772546579/lj-stone/videos/counter-clockwise/hf0hplkcvxqcpkuwddfc.mp4
